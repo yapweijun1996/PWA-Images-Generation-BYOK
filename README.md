@@ -42,20 +42,54 @@ Features: design style exploration, page concepts, responsive mockups, design sy
 Residential, office, retail, restaurant, and showroom spaces.
 Features: upload space photos, style transfer, furniture concepts, materials, lighting, and renovation plans.
 
-## Planned Capabilities
+## Shared Generation Engine
 
-- Select a creation type (domain)
-- AI-assisted image generation
-- AI-assisted image editing and modification
-- Local image library management
-- Export of finished images
+The six studios do not each build their own image generator. They all share one core engine.
+
+```text
+PWA Images Generation BYOK  (Six Creative Studios)
+        |
+        v
++-----------------------+-----------------------+
+| Prompt Builder        | Reference Images      |
+| Model Selector        | Generation Queue      |
+| Image Editor          | Asset Library         |
++-----------------------+-----------------------+
+        |
+        v
+Provider Adapter Layer   (OpenAI · Gemini · other supported APIs)
+        |
+        v
+Local Asset Storage      (IndexedDB · OPFS · Export / Import)
+```
+
+- **Each studio** owns only its own workflows, templates, parameters, and editing tools.
+- **The shared engine** owns API calls, generation jobs, version history, storage, and error recovery.
+
+## Core Features
+
+| Feature | Purpose |
+|---------|---------|
+| Text-to-Image | Generate images from text |
+| Image-to-Image | Generate from reference images |
+| Inpainting | Local edits, replace objects |
+| Outpainting | Extend image borders |
+| Character Lock | Keep manga characters consistent |
+| Style Lock | Keep a brand or art style consistent |
+| Batch Generation | Generate multiple images at once |
+| Prompt Enhancement | AI automatically improves prompts |
+| Version History | Keep generation history and edit versions |
+| 4K Export | High-resolution output, depending on model capability |
+| Cost Estimator | Estimate API cost before generating |
+| Project Library | Organize images, references, and works |
 
 ## Roadmap
 
 1. Detail requirements for each of the six studios
 2. Scaffold the PWA (manifest, service worker, app shell)
-3. Implement BYOK key handling and provider integration
-4. Build generation, editing, library, and export features
+3. Build the shared engine: provider adapters, generation queue, local asset storage
+4. Implement BYOK key handling
+5. Build the core features, then each studio's workflows on top
 
 ## License
 
