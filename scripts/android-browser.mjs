@@ -15,6 +15,7 @@ assert(device && /^emulator-\d+$/.test(device.serial()) && !others.length, 'Expe
 const shell = async command => (await device.shell(command)).toString().trim()
 const adb = (...args) => execFileSync('adb', ['-s', device.serial(), ...args], { encoding: 'utf8' }).trim()
 const chromePackage = 'com.android.chrome'
+const chromeFlags = '/data/local/tmp/chrome-command-line'
 const draft = 'Android offline workspace check'
 const verifyInstall = process.env.VERIFY_INSTALL === 'true'
 const readNativeWindow = () => shell('uiautomator dump /data/local/tmp/studio-window.xml >/dev/null && cat /data/local/tmp/studio-window.xml')
@@ -103,7 +104,7 @@ async function findStandalone(context) {
   throw new Error('Chrome did not expose a standalone page for the launcher entry')
 }
 
-let context, restartedBrowser, debugPort
+let context, restartedBrowser, debugPort, wroteChromeFlags = false
 try {
   evidence.android = await shell('getprop ro.build.version.release')
   evidence.model = device.model()
@@ -174,6 +175,11 @@ try {
     await shell('am force-stop ' + chromePackage)
     assert.equal(await shell('pidof ' + chromePackage), '', 'Chrome stayed running after force-stop')
     evidence.steps.push('Chrome process was absent before the offline launcher action')
+    // Playwright removes its launch flags after connecting; keep the same
+    // first-run behavior when the disposable profile starts from its shortcut.
+    assert.equal(await shell('test -e ' + chromeFlags + ' && echo present'), '')
+    await shell("printf '%s\\n' 'chrome --disable-fre --no-first-run --no-default-browser-check --remote-debugging-socket-name=chrome_devtools_remote' > " + chromeFlags)
+    wroteChromeFlags = true
     debugPort = adb('forward', 'tcp:0', 'localabstract:chrome_devtools_remote')
     assert.match(debugPort, /^\d+$/)
     const endpoint = 'http://127.0.0.1:' + debugPort
@@ -208,6 +214,7 @@ try {
   await writeFile(folder + '/result.json', JSON.stringify(evidence, null, 2))
   console.log(JSON.stringify(evidence, null, 2))
   await restartedBrowser?.close().catch(() => {})
+  if (wroteChromeFlags) await shell('rm -f ' + chromeFlags)
   await shell('cmd connectivity airplane-mode disable').catch(() => {})
   await context?.close().catch(() => {})
   await device.close()
