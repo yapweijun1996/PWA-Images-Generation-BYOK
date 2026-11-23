@@ -204,10 +204,13 @@ try {
   const installed = await execute('activeAppInfo')
   assert(![safari, springboard].includes(installed.bundleId) && installed.bundleId, 'The icon opened Safari or stayed on Home Screen')
   report.installedBundleId = installed.bundleId
-  await tap(await waitFor('workspace Help', () => named('Help and installation', 'Button')))
+  step('Opened the workspace from the named Home Screen icon in a separate application')
+  await screenshot('standalone')
+  // Standalone WebKit exposes the Help opener as an accessible Other element.
+  await tap(await waitFor('workspace Help', () => named('Help and installation')))
   await waitFor('studio standalone status', () => named('Installed on this device.'))
-  await tap(await waitFor('Help Close', () => named('Close', 'Button')))
-  step('Launched the installed web app from its named Home Screen icon')
+  await tap(await waitFor('Help Close', () => named('Close')))
+  step('Verified the standalone status in Help')
   await createView()
   const field = await prompt()
   await tap(field)
