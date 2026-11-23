@@ -72,6 +72,7 @@ export type JobStatus = 'queued' | 'running' | 'succeeded' | 'failed' | 'uncerta
 export interface Project {
   board?: { panels: { assetId: string; caption: string }[]; reviewed: boolean }
   reviewedAssetIds?: string[]
+  trashedAssetIds?: string[]
   id: string
   name: string
   studioId: string

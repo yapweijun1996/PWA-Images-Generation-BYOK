@@ -26,3 +26,4 @@
 .canvas-preview img { min-width:0;object-fit:contain;flex:1 1 0 }
 .canvas-preview.zoom-2 img { flex:none;max-width:none;max-height:none }
 .artboard details img,.studio-composer li img {max-width:12rem;max-height:9rem}
+.artboard [aria-label] button img {display:inline-block;width:2.5rem;height:2.5rem;object-fit:cover;vertical-align:middle;margin-inline-end:.4rem}

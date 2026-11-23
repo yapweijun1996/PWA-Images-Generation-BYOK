@@ -7,7 +7,7 @@ const draft = z.object({
   edit: z.object({ maskAssetId: id.optional(), promptHint: z.string().optional(), count: z.number().int().min(1).max(4) }).optional(),
   modelId: z.string(), size: id, quality: id, parentVersionId: id.optional(), stageId: z.string(),
 })
-const project = z.object({ draft: draft.optional(), board: z.object({ panels: z.array(z.object({assetId: id, caption: z.string().max(100)})).max(12), reviewed: z.boolean() }).optional(), reviewedAssetIds: z.array(id).optional(), id, name: z.string(), studioId: id, createdAt: timestamp, updatedAt: timestamp })
+const project = z.object({ trashedAssetIds: z.array(id).optional(), draft: draft.optional(), board: z.object({ panels: z.array(z.object({assetId: id, caption: z.string().max(100)})).max(12), reviewed: z.boolean() }).optional(), reviewedAssetIds: z.array(id).optional(), id, name: z.string(), studioId: id, createdAt: timestamp, updatedAt: timestamp })
 export const assetRecord = z.object({
   id, projectId: id, source: z.enum(['imported', 'generated', 'edited']),
   mediaType: z.enum(['image/png', 'image/jpeg', 'image/webp']), byteLength: z.number().int().positive(),
@@ -33,7 +33,7 @@ export function validateLinks(data: Backup) {
   const assets = new Set(data.assets.map(a => a.id))
   const ancestors = new Map(data.versions.map(v => [v.id, v.parentVersionId]))
   if (assets.size !== data.assets.length || ancestors.size !== data.versions.length) throw new Error('Duplicate backup IDs.')
-  const projectLinks = [...(data.project.board?.panels.map(p => p.assetId) ?? []), ...(data.project.reviewedAssetIds ?? [])]
+  const projectLinks = [...(data.project.trashedAssetIds ?? []), ...(data.project.board?.panels.map(p => p.assetId) ?? []), ...(data.project.reviewedAssetIds ?? [])]
   const draft = data.project.draft
   if (draft) {
     projectLinks.push(...draft.referenceAssetIds)
