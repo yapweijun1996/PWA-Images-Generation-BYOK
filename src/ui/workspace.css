@@ -1,0 +1,13 @@
+.workspace-shell {
+  padding: clamp(1.5rem, 5vw, 4rem);
+  overflow-wrap: anywhere;
+}
+
+.workspace-shell h1 {
+  margin: 0;
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
+}
+
+.workspace-shell p {
+  margin-block: 0.5rem 0;
+}

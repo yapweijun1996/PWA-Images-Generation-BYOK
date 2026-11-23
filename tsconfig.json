@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "types": ["node", "vite/client", "vite-plugin-pwa/client"],
+    "paths": {
+      "@engine/*": ["./src/engine/*"],
+      "@ui": ["./src/ui/index.ts"],
+      "@ui/*": ["./src/ui/*"],
+      "@studios/*": ["./src/studios/*"],
+      "@pwa": ["./src/pwa/index.ts"],
+      "@pwa/*": ["./src/pwa/*"]
+    }
+  },
+  "include": ["src", "vite.config.ts"]
+}

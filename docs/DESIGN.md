@@ -1,6 +1,6 @@
 # DESIGN
 
-> Status: **Planning.** No code exists yet. Everything below is a design decision or a design intent, not a description of working software.
+> Status: The T-101 shell and shared contracts are implemented. The remaining product architecture describes planned behavior.
 
 ## 1. Design Standards Applied
 
@@ -93,6 +93,42 @@ The project must be a PWA and is deployed to **GitHub Pages using GitHub Actions
 Consequences:
 - Service worker updates and build identity must work with Pages caching (CDN may serve a stale build, so tests SW-03 and SW-04 apply).
 - Deployment happens only through the workflow, on a separate explicit authorization from the owner. Writing this document does not deploy anything.
+
+### T-101 shell and service worker
+
+- Vite's base, manifest identity and icon URLs, and service-worker registration scope share `/PWA-Images-Generation-BYOK/`. The manifest links to placeholder PNGs. The shell displays the package version and UTC build timestamp.
+- [vite-plugin-pwa](https://vite-pwa-org.netlify.app/guide/prompt-for-update.html) uses Workbox `generateSW` and `registerType: 'prompt'`. The shell registers the worker in production. Workbox takes no immediate control of existing clients and handles `SKIP_WAITING` only when explicitly messaged. T-102 owns the visible prompt and the activation check for dirty drafts or running jobs.
+- The precache contains the built shell HTML, manifest, icons, and bundled assets. The navigation fallback serves the shell entry under the base path. Runtime caching is disabled. Provider calls, keys, project data, and user images stay outside Cache Storage.
+
+### Shared engine contracts
+
+`src/engine/types.ts` defines the cross-module types. `ProviderCapabilities.models` describes model IDs, provider-specific size and quality choices, image limits, reference support (`maxReferenceImages: 0` means unsupported), and mask support. Size dimensions may be omitted when the provider chooses the size. Prices are optional per size and quality in the specified currency per image. An absent price means the estimate is unavailable.
+
+`ProviderAdapter.generate(request, signal)` takes a prompt, model ID, selected settings, and optional ordered reference images and mask. The adapter receives resolved blobs and an `AbortSignal`. It returns image blobs with optional dimensions and provider request ID. A successful result requires at least one image. Queue records use asset IDs so pending requests can be recovered from local storage. `JobStatus` is `queued`, `running`, `succeeded`, `failed`, or `uncertain`. An `uncertain` request may have been billed and is never automatically retried.
+
+Project, asset, and version records use string IDs and ISO 8601 UTC timestamps. Assets hold metadata and link to their project. Versions link a project and its output asset and can point to a parent version. A version records its creation time and captures the prompt, provider, model, applied settings, and source asset IDs. T-108 owns the persistence layout and file lookup.
+
+### Folder ownership
+
+| Path | Owner and surface |
+|------|------------------|
+| `src/app/`, `src/engine/types.ts`, `index.html`, `public/icons/`, root build and test configuration | T-101 owns the shell bootstrap and shared contracts |
+| `src/pwa/` | T-102 owns `PwaControls`, the update prompt and install guidance |
+| `src/engine/secrets/` | T-103 owns BYOK handling |
+| `src/engine/providers/` and one child folder per provider | T-104 owns the registry and adapter implementations |
+| `src/engine/queue/` | T-106 owns the generation job state machine |
+| `src/engine/assets/` | T-107 owns the asset library and references |
+| `src/engine/storage/` | T-108 owns IndexedDB and OPFS |
+| `src/engine/history/` | T-109 owns version history and provenance |
+| `src/engine/export/` | T-110 owns image and backup export |
+| `src/engine/prompt/` | Prompt builder and templates |
+| `src/ui/` | T-111 owns `Workspace` and shared workspace components |
+| `src/studios/manga/` | Phase 2 owns Manga & Comics workflows |
+| `.github/workflows/` | Reserved for T-113. Git omits this empty directory from commits. |
+
+Use these public `index.ts` entry points across folders. Vite and Vitest resolve the TypeScript aliases from `tsconfig.json` (`@engine/*`, `@ui`, `@ui/*`, `@studios/*`, `@pwa`, and `@pwa/*`). T-102, T-103, T-104, and T-108 can develop in separate folders with the shared types in place. Coordinate shared contract changes with the T-101 owner and keep feature tests alongside their owning modules.
+
+T-101 owns `package.json` and `package-lock.json`. Later tasks should avoid editing them and coordinate any needed dependency change. Shared dependencies include `idb` for IndexedDB, `fflate` and `zod` for archives and validation, `lucide-react` for workspace icons, and `workbox-window` for service-worker lifecycle events. The test environment includes Vitest, jsdom, Testing Library, and `fake-indexeddb`. Provider adapters can use browser `fetch`.
 
 ## 3. Reference Consistency (shared capability)
 

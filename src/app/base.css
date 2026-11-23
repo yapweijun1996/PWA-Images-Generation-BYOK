@@ -1,0 +1,31 @@
+:root {
+  color-scheme: light dark;
+  font-family: system-ui, sans-serif;
+  color: #20232d;
+  background: #f7f8fb;
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color: #f1f2f6;
+    background: #15161b;
+  }
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: var(--safe-area-top) var(--safe-area-right) var(--safe-area-bottom) var(--safe-area-left);
+}
+
+input, select, textarea {
+  font: inherit;
+  font-size: max(1rem, 16px);
+}

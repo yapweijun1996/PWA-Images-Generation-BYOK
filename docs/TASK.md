@@ -17,7 +17,7 @@ Status values: `PENDING`, `IN_PROGRESS`, `DONE`, `BLOCKED`. A task becomes `DONE
 
 | ID | Task | Depends on | Acceptance check | Status |
 |----|------|------------|------------------|--------|
-| T-101 | PWA shell: Vite + React + TypeScript project, manifest, icons, service worker | T-004 | Installs and opens offline; manifest check passes | PENDING |
+| T-101 | PWA shell: Vite + React + TypeScript project, manifest, icons, service worker | T-004 | Installs and opens offline; manifest check passes | PARTIAL. Code done and independently verified 2026-11-23: `tsc --noEmit`, `vitest` (2/2), `eslint`, and `npm run build` PASS; manifest and service worker paths all under the sub-path; no secrets found. **NOT RUN:** browser install and offline cold start (INS-05, OFF-01). Do these before marking DONE. |
 | T-102 | Update flow: visible user-controlled prompt | T-101 | Test SW-05, SW-06, SW-08 specs executed | PENDING |
 | T-103 | BYOK settings: enter, store, remove key | T-101 | Key stays in browser; not in cache or export | PENDING |
 | T-104 | Provider adapter interface + first adapter | T-001 | One image is generated end to end with a real key | PENDING |
