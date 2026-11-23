@@ -113,6 +113,11 @@ async function findStandalone(context) {
   throw new Error('Chrome did not expose a standalone page for the launcher entry')
 }
 
+async function setRotation(rotation) {
+  await shell('cmd window user-rotation lock ' + rotation)
+  assert.equal(await shell('cmd window user-rotation'), 'lock ' + rotation)
+}
+
 let context, restartedBrowser, debugPort, wroteChromeFlags = false
 try {
   evidence.android = await shell('getprop ro.build.version.release')
@@ -122,8 +127,7 @@ try {
   assert(evidence.chrome, 'Chrome package is unavailable')
   await shell('am set-debug-app --persistent ' + chromePackage)
   await shell('settings put secure show_ime_with_hard_keyboard 1')
-  await shell('settings put system accelerometer_rotation 0')
-  await shell('settings put system user_rotation 0')
+  await setRotation(0)
   context = await device.launchBrowser({ viewport: null, hasTouch: true, timeout: 60000 })
   const page = await context.newPage()
   await page.goto(site)
@@ -153,13 +157,19 @@ try {
   await shell('input keyevent KEYCODE_BACK')
   await page.waitForFunction(before => visualViewport.height >= before - 30, visualHeight)
   evidence.steps.push('Android software keyboard reduced the visual viewport and could be dismissed')
-  await shell('settings put system user_rotation 1')
-  await page.waitForFunction(() => innerWidth > innerHeight)
-  assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
-  assert.equal(await prompt.inputValue(), draft)
-  await device.screenshot({ path: folder + '/landscape.png' })
-  evidence.steps.push('Landscape retained the draft without horizontal overflow')
-  await shell('settings put system user_rotation 0')
+  try {
+    await setRotation(1)
+    await page.waitForFunction(() => innerWidth > innerHeight, undefined, { timeout: 15_000 })
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
+    assert.equal(await prompt.inputValue(), draft)
+    await device.screenshot({ path: folder + '/landscape.png' })
+    evidence.steps.push('Landscape retained the draft without horizontal overflow')
+  } catch (error) {
+    evidence.rotationError = String(error)
+    await device.screenshot({ path: folder + '/rotation-failure.png' }).catch(() => {})
+  } finally {
+    await setRotation(0)
+  }
   await page.waitForFunction(() => innerWidth < innerHeight)
   const installation = verifyInstall ? await installFromChrome(page) : undefined
   if (installation) evidence.installation = installation.package ? 'WebAPK' : 'launcher shortcut'
@@ -213,7 +223,8 @@ try {
     await device.screenshot({ path: folder + '/installed-offline.png' })
     evidence.steps.push('Android launcher started a new Chrome process and recovered the workspace offline in standalone mode')
   }
-  evidence.result = 'PASS'
+  evidence.result = evidence.rotationError ? 'FAIL' : 'PASS'
+  if (evidence.rotationError) process.exitCode = 1
 } catch (error) {
   evidence.result = 'FAIL'
   evidence.error = String(error)
