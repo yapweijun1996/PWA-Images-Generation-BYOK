@@ -31,3 +31,7 @@ On 2026-11-23, an isolated macOS Chrome session loaded the public GitHub Pages r
 ## Multi-line board captions
 
 Chrome on macOS imported a local image through the composer, added it to a board with a six-line caption, approved the board and exported a 640 × 618 PNG. Reopening the workspace retained all six caption lines. Board rows expand for the tallest caption in each row, while short captions retain the standard 560-pixel row.
+
+## Public two-image batch
+
+On 2026-11-23, macOS Chrome 158.0.8127.37 loaded Pages run 45210017661, source `b05ac79`, displayed build `v0.1.0 · 2026-11-23T15:52:30.039Z`. An isolated profile used a temporary key and submitted one explicit two-image batch at 1024 × 1024 and low quality. OpenAI returned two HTTP 200 responses for two authenticated POSTs. Both jobs reached Completed. The two version buttons downloaded distinct 1024 × 1024 PNGs with SHA-256 `e45d1ef4279e68fa5684d8057135e33dd3650c132c6484fda5ff6c1110608d2b` and `5bf5850b47374be7d8d598bd1b8293ae4f3c7e862f54b20ed88de5daa0deac9a`. An offline reload restored both versions and the prompt without another provider request. No key or provider response body was recorded.
