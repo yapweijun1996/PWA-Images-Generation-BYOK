@@ -10,7 +10,9 @@ it('shows instructions when native install is unavailable, including Safari step
   dialog.showModal = () => dialog.setAttribute('open','')
   fireEvent.click(screen.getByRole('button', {name:'帮助与安装'}))
   expect(screen.getByRole('dialog', {name:'帮助与安装'})).toBeTruthy()
-  expect(screen.getByText(/添加到主屏幕/)).toBeTruthy()
+  const safariHelp = screen.getByText(/iPhone 或 iPad/)
+  expect(safariHelp.textContent).toContain('页面菜单')
+  expect(safariHelp.textContent).toContain('添加到主屏幕')
   expect(screen.queryByRole('button', {name:'安装应用'})).toBeNull()
 })
 
@@ -25,6 +27,7 @@ it('keeps the offer across project remounts and consumes it only after activatio
   const dialog = document.querySelector('dialog')!
   dialog.showModal = () => dialog.setAttribute('open','')
   fireEvent.click(screen.getByRole('button', {name:'Help and installation'}))
+  expect(screen.getByText(/On iPhone or iPad/).textContent).toContain('Add to Home Screen')
   expect(prompt).not.toHaveBeenCalled()
   fireEvent.click(screen.getByRole('button', {name:'Install app'}))
   await waitFor(() => expect(screen.getByRole('status').textContent).toContain('Installation dismissed'))

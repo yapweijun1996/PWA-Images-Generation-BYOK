@@ -71,7 +71,10 @@ export function InstallHelp({ locale }: { locale: 'en' | 'zh-CN' }) {
         {state === 'unavailable' && t('The browser could not start installation. Try the browser menu.', '浏览器无法启动安装，请尝试浏览器菜单。')}
       </div>
       {state !== 'installed' && <ul>
-        <li>{t('iPhone Safari: open Share, choose Add to Home Screen, enable Open as Web App if shown, then tap Add.', 'iPhone Safari：打开“分享”，选择“添加到主屏幕”。如有“作为网页 App 打开”选项，请启用并轻点“添加”。')}</li>
+        <li>{t(
+          'On iPhone or iPad, open Share in Safari. Use the page menu if Share is hidden. Expand the share actions if needed, then choose Add to Home Screen. Turn on Open as Web App if shown and tap Add.',
+          '在 iPhone 或 iPad 上，打开 Safari 的“分享”。如果找不到“分享”，请先打开页面菜单。如有需要，展开分享操作，再选择“添加到主屏幕”。如有“作为网页 App 打开”选项，请启用并轻点“添加”。',
+        )}</li>
         <li>{t('Chrome or Edge: look for Install in the address bar or browser menu. When installation is unavailable, bookmark this page and use it in your browser.', 'Chrome 或 Edge：在地址栏或浏览器菜单中查找安装选项。如果无法安装，可将此页加入书签并在浏览器中使用。')}</li>
       </ul>}
       <h3>{t('Projects and offline use', '项目与离线使用')}</h3>
