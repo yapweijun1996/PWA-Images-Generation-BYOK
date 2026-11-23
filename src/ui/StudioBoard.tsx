@@ -21,7 +21,13 @@ export function StudioBoard({ project, selected, locale, onChange }: {
       try {
         const tx = db.transaction('projects','readwrite')
         const current = await tx.store.get(project.id) as BoardProject
-        await tx.store.put({ ...current, updatedAt: new Date().toISOString(), board: update(current.board ?? { panels: [], reviewed: false }) } as BoardProject)
+        const stored = current.board ?? { panels: [], reviewed: false }
+        if (JSON.stringify(stored) !== JSON.stringify(board)) {
+          onChange()
+          throw new Error(t('The board changed in another tab. Review its current panels and try again.',
+            '另一标签页已修改分镜。请查看最新画格后重试。'))
+        }
+        await tx.store.put({ ...current, updatedAt: new Date().toISOString(), board: update(stored) } as BoardProject)
         await tx.done
       } finally { db.close() }
       onChange()
