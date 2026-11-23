@@ -66,14 +66,15 @@ export async function saveEdit(projectId: string, sourceId: string, region: Para
     if (result.mask.size >= 4_000_000 || (result.image && result.image.size >= 50_000_000)) {
       throw new Error('The prepared image or mask exceeds the provider size limit.')
     }
+    const [maskBytes, imageBytes] = await Promise.all([result.mask.arrayBuffer(), result.image?.arrayBuffer()])
     const tx = store.db.transaction(['assets', 'blobs'], 'readwrite')
-    const save = async (blob: Blob) => {
+    const save = async (blob: Blob, bytes: ArrayBuffer) => {
       const asset: Asset = { id: crypto.randomUUID(), projectId, source: 'edited', mediaType: blob.type,
         byteLength: blob.size, dimensions: { width: result.width, height: result.height }, createdAt: new Date().toISOString() }
-      await Promise.all([tx.objectStore('assets').add(asset), tx.objectStore('blobs').add(blob, asset.id)])
+      await Promise.all([tx.objectStore('assets').add(asset), tx.objectStore('blobs').add(bytes, asset.id)])
       return asset.id
     }
-    const [maskAssetId, referenceId] = await Promise.all([save(result.mask), result.image ? save(result.image) : sourceId, tx.done])
+    const [maskAssetId, referenceId] = await Promise.all([save(result.mask, maskBytes), result.image && imageBytes ? save(result.image, imageBytes) : sourceId, tx.done])
     return { maskAssetId, referenceId }
   } finally { store.db.close() }
 }

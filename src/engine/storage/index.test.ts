@@ -60,6 +60,7 @@ it.each([{}, { createWritable: async () => { throw new DOMException('Transient f
   try {
     await store.saveAsset(asset, blob)
     expect(directory.removeEntry).toHaveBeenCalledOnce()
+    expect(await store.db.get('blobs', asset.id)).toBeInstanceOf(ArrayBuffer)
     expect(await (await store.readAsset(asset.id)).text()).toBe('pixels')
   } finally { store.db.close() }
 })

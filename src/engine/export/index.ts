@@ -92,7 +92,7 @@ async function unpack(file: Blob) {
     if (!bytes || bytes.length !== asset.byteLength || await checksum(bytes) !== asset.sha256) {
       throw new Error('Backup image is missing or damaged.')
     }
-    blobs.push(new Blob([bytes], { type: asset.mediaType }))
+    blobs.push(bytes.slice().buffer)
   }
   return { data, blobs }
 }

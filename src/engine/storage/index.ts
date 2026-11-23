@@ -7,7 +7,7 @@ export interface StudioSchema extends DBSchema {
   projects: { key: string; value: Project }
   assets: { key: string; value: Asset; indexes: { byProject: string } }
   versions: { key: string; value: Version; indexes: { byProject: string } }
-  blobs: { key: string; value: Blob | { file: string } }
+  blobs: { key: string; value: Blob | ArrayBuffer | { file: string } }
 }
 
 export class StorageError extends Error {
@@ -101,6 +101,7 @@ export class StudioStorage {
           file = undefined
         }
       }
+      const entry = file ? { file } : await blob.arrayBuffer()
       const tx = this.db.transaction(['assets', 'blobs', 'jobs', 'versions', 'projects'], 'readwrite')
       if (completion) {
         const { job, version } = completion
@@ -120,7 +121,7 @@ export class StudioStorage {
           tx.objectStore('jobs').put({ ...completion.job, status: 'succeeded', versionId: completion.version.id }),
         ] : []),
         tx.objectStore('assets').add(asset),
-        tx.objectStore('blobs').add(file ? { file } : blob, asset.id),
+        tx.objectStore('blobs').add(entry, asset.id),
       ])
     } catch (error) {
       if (file && directory) await directory.removeEntry(file).catch(() => {})
@@ -143,7 +144,7 @@ export class StudioStorage {
         throw error
       }
     } else {
-      blob = entry
+      blob = entry instanceof Blob ? entry : new Blob([entry], { type: asset.mediaType })
     }
     if (blob.size !== asset.byteLength) return missing()
     return blob.slice(0, blob.size, asset.mediaType)

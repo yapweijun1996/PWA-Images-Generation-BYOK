@@ -35,3 +35,5 @@ static files. Check local data written by the newer version against the older
 version's schema before offering rollback to users.
 
 The `verify-live` job downloads the retained files and compares their SHA-256 hashes with the public HTTPS responses. It retries briefly while CDN nodes update. If the comparison still fails, the workflow reports the affected path. Inspect that response, verify the expected source run and restore a known-good artifact when needed. This check reads public static files only. It sends no credentials or customer content to the site.
+
+Releases with the IndexedDB byte-buffer fallback can read previous Blob values and OPFS references. Older releases cannot open images stored as byte buffers by newer clients. For a UI regression after this format change, publish a corrective build retaining the compatible reader. Before restoring an older static artifact, test it against a copy of a project written by the newer build and retain a current project ZIP.
