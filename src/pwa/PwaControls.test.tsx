@@ -89,3 +89,32 @@ it('offers a guarded reload if the requested worker takes control after the time
   expect(button.disabled).toBe(false)
   expect(worker.postMessage).toHaveBeenCalledTimes(1)
 })
+
+it('offers an explicit guarded reload when another tab activates a new worker', async () => {
+  vi.stubEnv('PROD', true)
+  const postMessage = vi.fn()
+  const registration = Object.assign(new EventTarget(), { waiting: null })
+  const original = { postMessage }
+  const container = Object.assign(new EventTarget(), {
+    controller: null as typeof original | null,
+    register: vi.fn().mockResolvedValue(registration),
+  })
+  vi.stubGlobal('navigator', { serviceWorker: container })
+  await act(async () => { render(<PwaControls />) })
+  act(() => {
+    container.controller = original
+    container.dispatchEvent(new Event('controllerchange'))
+  })
+  expect(screen.queryByRole('button', { name: 'Update and reload' })).toBeNull()
+  const release = registerUpdateGuard('draft')
+  act(() => {
+    container.controller = { postMessage }
+    container.dispatchEvent(new Event('controllerchange'))
+  })
+  const button = await screen.findByRole<HTMLButtonElement>('button', { name: 'Update and reload' })
+  expect(button.disabled).toBe(true)
+  act(release)
+  expect(button.disabled).toBe(false)
+  expect(screen.getByRole('status').textContent).toBe('The update is installed. Reload to finish.')
+  expect(postMessage).not.toHaveBeenCalled()
+})

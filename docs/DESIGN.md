@@ -98,7 +98,9 @@ Consequences:
 
 - Vite's base, manifest identity and icon URLs, and service-worker registration scope share `/PWA-Images-Generation-BYOK/`. The manifest links to 192 and 512 px PNGs of the studio’s Sparkles mark and a separate opaque maskable icon. The shell displays the package version and UTC build timestamp.
 - The build uses Workbox `injectManifest` to supply shell URLs and SHA-256 revisions to the service worker. It verifies each downloaded response and build descriptor before admitting the new cache. A failed installation cleans up the candidate cache and keeps the active shell available.
-- A waiting update activates on explicit user action when pending draft writes and generation jobs allow it. The precache covers only the app shell, manifest, build identity, icons and bundled assets. Same-scope unknown navigations open a recovery screen. Provider requests, credentials, project data and user images stay outside Cache Storage.
+- A waiting update activates on explicit user action when draft writes, generation jobs and archive operations allow it. A tab that stays open after another tab activates the update offers a guarded, explicit reload.
+- The worker retains the last activated shell as a compatibility fallback for fingerprinted asset paths missing from the current manifest. Navigation, the build descriptor and declared current assets always come from the current release. A waiting candidate has its own verified cache. Activation prunes superseded shell caches while allowing a newer installation to finish. Provider requests, credentials, project data and user images stay outside Cache Storage.
+- Same-scope unknown navigations open a recovery screen.
 
 ### Shared engine contracts
 

@@ -19,3 +19,19 @@ For each negative case, install A in a fresh profile, reload to establish a cont
 The first development attempt failed to install a valid shell because the build plugin added a second manifest revision using MD5. The final builds require a SHA-256 digest for every distinct precache URL. These observations cover local Chrome; production CDN, real-device standalone behavior and physical rollback require separate evidence.
 
 A later run replayed the exact artifacts retained by Pages runs 45197947231 (A) and 45199196879 (B) in loopback Chrome 158. A's worker SHA-256 was `a365b2685b67aac3c9efac15b2bda26c49b90de3096985014b92bfe1cfd68921`, B's was `df9b933797ea4c0b84a97cfc670e9e964fc29c06aba50a77ff815af0912c1a1a`. A stale descriptor, an old HTML response during install and an interrupted HTML download each rejected B and preserved offline A. Restoring the original A bytes after the corrupt install left the existing profile on A, and a fresh profile installed A and reopened it offline. After a separate interrupted download, a healthy B was discovered and explicitly activated from the route-recovery screen. No corrupted candidate was published to the public origin.
+
+## Old-tab assets across activation and rollback
+
+On November 24 Singapore time, loopback Chrome 158 replayed the exact [archive release](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45227232851) and [preceding library release](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45224109099). One tab activated the rollback while a second kept the archive UI open. Its new controller returned the rollback's build descriptor, the old shell cache disappeared, and the second tab's on-demand archive worker returned HTTP 404. The ZIP import reported an error and did not create a copy.
+
+The corrected replay used the exact archive release as A, a local build of the library release with the corrected worker and update controls as B, and a local build of the current workspace as C. Chrome 158.0.8127.37 and Playwright WebKit 27.2 both observed these results in isolated desktop contexts.
+
+| Build | Displayed timestamp (UTC) | Worker SHA-256 |
+|---|---|---|
+| A | 2026-11-23T17:24:30.594Z | `73938611a05ff50e8e637fe870d5f1c503ca556759bc25ee7678bc582f615a69` |
+| B | 2026-11-23T17:49:16.295Z | `7319f0d5c0d4b957b5e4babeec23d7a9ce9a8659f224ce535c55efc8f122c3a9` |
+| C | 2026-11-23T17:49:44.584Z | `8faa59a779e518b3cf13e8e6686dfac755bd22203118d17fd5df04e358a9a2ae` |
+
+- Three separate installation faults served wrong bytes for the build descriptor, wrong bytes for a fingerprinted script and a dropped HTML connection. Each injected request reached the server, B became redundant, and an offline reload retained A.
+- After healthy B activation, the passive A tab fetched A's fingerprinted archive worker offline with an exact SHA-256 match. The build descriptor still reported B. The old tab restored a synthetic ZIP through the project UI and exported the original image with the same SHA-256.
+- While C waited, an offline request for a C-only script failed and B's descriptor remained available. After C activated, Cache Storage held the C and B shells, the oldest A shell was removed, and an unrelated cache survived. The passive B tab displayed the reload notice and reached C only after an explicit click. It retained the restored project selection. A component test verified that a pending draft disables this explicit reload.

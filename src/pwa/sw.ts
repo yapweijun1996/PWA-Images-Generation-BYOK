@@ -14,6 +14,11 @@ const entries = [...new Set(injected.map(entry => entry.url))].map(url => {
 })
 const scope = self.registration.scope
 const prefix = 'pwa-images-shell:' + scope + ':'
+const lifecycleName = 'pwa-images-lifecycle:' + scope
+const activeShellKey = new URL('.pwa-active-shell', scope)
+const predecessorKey = new URL('.pwa-predecessor', scope)
+const assetsPath = new URL('assets/', scope).pathname
+const isShellCache = (name: string) => name.startsWith(prefix) && /^[a-f0-9]{64}$/.test(name.slice(prefix.length))
 // The digest of the release descriptor binds this worker to the displayed build ID.
 const identity = entries.find(entry => entry.url === 'build-info.json')!.revision
 async function sha256(input: BufferSource) {
@@ -57,18 +62,47 @@ self.addEventListener('message', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(candidate.then(async cacheName => {
     const keys = await caches.keys()
-    await Promise.all(keys.filter(key => key !== cacheName && (
-      key.startsWith(prefix) || key === 'workbox-precache-v2-' + scope
+    const earlier = keys.slice(0, Math.max(0, keys.indexOf(cacheName)))
+    const lifecycle = await caches.open(lifecycleName)
+    const activated = await (await lifecycle.match(activeShellKey))?.text()
+    // Legacy workers leave their active cache ahead of any pending candidate.
+    const predecessor = activated && activated !== cacheName && isShellCache(activated) && keys.includes(activated)
+      ? activated : earlier.find(isShellCache)
+    const cache = await caches.open(cacheName)
+    await cache.delete(predecessorKey)
+    if (predecessor) await cache.put(predecessorKey, new Response(predecessor))
+    await lifecycle.put(activeShellKey, new Response(cacheName))
+    // A newer candidate may be installing before this activation finishes.
+    await Promise.all(keys.filter(key => key !== cacheName && key !== predecessor && (
+      (key.startsWith(prefix) && earlier.includes(key)) || key === 'workbox-precache-v2-' + scope
     )).map(key => caches.delete(key)))
   }))
 })
+
+async function predecessorAsset(request: Request, url: URL) {
+  const cacheName = await candidate
+  const cache = await caches.open(cacheName)
+  const predecessor = await (await cache.match(predecessorKey))?.text()
+  if (predecessor && predecessor !== cacheName && isShellCache(predecessor)) {
+    const stored = await caches.match(new URL(url.pathname, scope), { cacheName: predecessor })
+    if (stored) return stored
+  }
+  return fetch(request)
+}
+
 self.addEventListener('fetch', event => {
   const request = event.request
   const url = new URL(request.url)
   if (request.method !== 'GET' || !url.href.startsWith(scope)) return
   const entry = files.get(url.pathname)
   const path = request.mode === 'navigate' ? 'index.html' : entry?.url
-  if (!path) return
+  if (!path) {
+    // An open tab can request a fingerprinted bundle from the preceding release.
+    if (url.pathname.startsWith(assetsPath) && /-[\w-]{8,64}\.(?:js|css|woff2)$/.test(url.pathname.slice(assetsPath.length))) {
+      event.respondWith(predecessorAsset(request, url))
+    }
+    return
+  }
   const expected = files.get(new URL(path, scope).pathname)
   if (!expected) return
   event.respondWith(candidate.then(async name => {

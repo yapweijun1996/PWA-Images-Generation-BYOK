@@ -55,6 +55,7 @@ export function PwaControls() {
     let active = true
     let registration: ServiceWorkerRegistration | undefined
     let installing: ServiceWorker | null = null
+    let controller = container.controller
 
     function inspect() {
       if (!active || !registration) return
@@ -74,7 +75,13 @@ export function PwaControls() {
     function checkForUpdate() {
       if (document.visibilityState === 'visible') void registration?.update().catch(() => {})
     }
-    container.addEventListener('controllerchange', inspect)
+    function controllerChanged() {
+      const next = container.controller
+      if (controller && next && next !== controller && !attempt.current) setStatus('reload')
+      controller = next
+      inspect()
+    }
+    container.addEventListener('controllerchange', controllerChanged)
     document.addEventListener('visibilitychange', checkForUpdate)
     void container.register(base + 'sw.js', { scope: base, updateViaCache: 'none' }).then(reg => {
       if (!active) return
@@ -88,7 +95,7 @@ export function PwaControls() {
       attempt.current?.abort()
       installing?.removeEventListener('statechange', inspect)
       registration?.removeEventListener('updatefound', watch)
-      container.removeEventListener('controllerchange', inspect)
+      container.removeEventListener('controllerchange', controllerChanged)
       document.removeEventListener('visibilitychange', checkForUpdate)
     }
   }, [])
