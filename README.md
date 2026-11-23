@@ -6,7 +6,7 @@
 
 ## Vision
 
-This project evolves from a Manga-focused tool into a multi-domain **AI Image Creation Platform** that supports six creative domains.
+This project evolves from a Manga-focused tool into a multi-domain **AI Image Creation Platform** that supports six creative studios.
 
 Users bring their own API key, choose a creation type, and use AI to generate, edit, manage, and export high-quality images.
 
@@ -16,14 +16,31 @@ Users bring their own API key, choose a creation type, and use AI to generate, e
 - **Local-first** — user data and generated images are stored on the user's own device.
 - **BYOK (Bring Your Own Key)** — users supply their own AI provider API key. The key stays in the user's browser.
 
-## Creative Domains
+## Six Creative Studios
 
-| # | Domain | Status |
-|---|--------|--------|
-| 1 | Manga | Existing focus, to be carried over |
-| 2–6 | To be defined | Not yet decided |
+### 01 — Manga & Comics Studio
+Supports American Comics, Japanese Manga / Anime, and Chinese Manhua.
+Features: character design, character consistency, panel layout (storyboard), dialogue, chapters, continuous comic pages.
 
-The remaining five domains will be listed here once confirmed.
+### 02 — Education Studio
+Teaching illustrations, scientific diagrams, historical scenes, flowcharts, knowledge visualization.
+Features: learning objectives, age-level grading, multilingual labels, content accuracy review.
+
+### 03 — Movie & Cinematic Studio
+Movie concept art, scene design, character styling, storyboards, posters, keyframes.
+Features: camera language, shot sizes, lighting, color, character and scene continuity.
+
+### 04 — Commercial Artwork Studio
+Brand advertising, e-commerce product images, marketing banners, social media assets.
+Features: brand visual guidelines, product reference images, background replacement, size variants, batch generation.
+
+### 05 — UI/UX Design Studio
+Websites, PWAs, dashboards, mobile apps, landing pages.
+Features: design style exploration, page concepts, responsive mockups, design system visual references.
+
+### 06 — Interior Design Studio
+Residential, office, retail, restaurant, and showroom spaces.
+Features: upload space photos, style transfer, furniture concepts, materials, lighting, and renovation plans.
 
 ## Planned Capabilities
 
@@ -35,7 +52,7 @@ The remaining five domains will be listed here once confirmed.
 
 ## Roadmap
 
-1. Define the six domains and their requirements
+1. Detail requirements for each of the six studios
 2. Scaffold the PWA (manifest, service worker, app shell)
 3. Implement BYOK key handling and provider integration
 4. Build generation, editing, library, and export features
