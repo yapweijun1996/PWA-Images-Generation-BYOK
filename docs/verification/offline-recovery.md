@@ -16,3 +16,11 @@ Every OpenAI request in the generation fixtures was intercepted by Playwright an
 | QA-06 | PASS, scoped | The synthetic key was absent from test-origin Cache Storage URLs and response bodies after an aborted request. After a locally fulfilled image response containing a distinct synthetic sensitive marker in a header and body, generation created a version; inspection of cached URLs, response headers and bodies found no marker. This is not a comprehensive audit of every response, browser storage, log, or export. |
 
 This report records bounded observations only; full release gates, real device behavior, physical quota exhaustion and deployed build verification remain separate work.
+
+## Concurrent project views and interruption
+
+On November 24 Singapore time, loopback Chrome 158.0.8127.37 and Playwright WebKit 27.2 ran the exact [published `49388bd` artifact](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45239647736) in separate disposable two-tab contexts. The submitting tab showed `Generating` while a locally intercepted provider response was held. The second tab showed no job until it reloaded. When the response was released, the second tab stayed on `Generating` even after IndexedDB showed `succeeded` with one version.
+
+Both engines repeated the scenario on the corrected local production build `2026-11-23T18:47:24.129Z`. Both tabs reached `Generating` while the response was held. The passive tab then showed `Completed`, decoded the selected image and downloaded an exact match of the fixture PNG. Reloading the passive tab during the held request did not acquire the active request's lock. Each run intercepted one generation request.
+
+Chrome also completed the original project's job after the submitting tab created and switched to a different project. The other project remained free of the job state. A separate Chrome run returned HTTP 503 and the passive tab showed `Result unconfirmed` without creating a version. In WebKit, closing the submitting tab while the response was held and reloading the observer produced `Result unconfirmed`, zero versions and one total provider attempt. The fixture did not issue an actual OpenAI request. This covers a browser-tab close and observer reload rather than operating-system termination.

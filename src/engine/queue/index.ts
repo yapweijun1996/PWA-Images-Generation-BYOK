@@ -2,6 +2,9 @@ import type { GenerationRequest, JobStatus, ProviderAdapter } from '@engine/type
 import type { StudioStorage } from '@engine/storage'
 import { prepareMaskedFrame, preserveMaskedPixels } from '@engine/editing/composite'
 import { ImageRequestError } from '@engine/providers/openai'
+import { publishJobChange } from './changes'
+
+export { subscribeToJobChanges } from './changes'
 
 export interface QueuedGenerationRequest extends Omit<GenerationRequest, 'references' | 'mask'> {
   providerId: string
@@ -34,6 +37,7 @@ export async function enqueueBatch(storage: StudioStorage, projectId: string, re
   }
   const tx = storage.db.transaction('jobs','readwrite')
   await Promise.all([tx.done, ...jobs.map(job => tx.store.add(job))])
+  publishJobChange(projectId)
   return jobs
 }
 
@@ -44,8 +48,13 @@ export async function processJob(storage: StudioStorage, id: string, provider: P
     const { db } = storage
     const job = await db.get('jobs', id)
     if (!job) return
+    const { request, projectId } = job
+    const saveState = async (status: JobStatus, message?: string) => {
+      await db.put('jobs', { ...job, status, message })
+      publishJobChange(projectId)
+    }
     if (job.status === 'running') {
-      await db.put('jobs', { ...job, status: 'uncertain', message: 'The previous session ended during generation. Check provider usage.' })
+      await saveState('uncertain', 'The previous session ended during generation. Check provider usage.')
       return
     }
     if (job.status !== 'queued') return
@@ -53,11 +62,10 @@ export async function processJob(storage: StudioStorage, id: string, provider: P
       const previous = await db.get('jobs', job.dependsOn)
       if (previous?.status === 'queued' || previous?.status === 'running') return
       if (previous?.status !== 'succeeded') {
-        await db.put('jobs', { ...job, status: 'failed', message: 'Batch stopped after an earlier request. This item was not sent.' })
+        await saveState('failed', 'Batch stopped after an earlier request. This item was not sent.')
         return
       }
     }
-    const { request, projectId } = job
     let sent = false
     try {
       if (request.providerId !== provider.id) throw new Error('Selected provider is unavailable.')
@@ -75,7 +83,7 @@ export async function processJob(storage: StudioStorage, id: string, provider: P
         references[0].blob = frame.source
         mask.blob = frame.mask
       }
-      await db.put('jobs', { ...job, status: 'running' })
+      await saveState('running')
       sent = true
       const result = await provider.generate({ ...request, settings, references, mask }, AbortSignal.timeout(300_000))
       const generated = result.images[0]
@@ -93,9 +101,10 @@ export async function processJob(storage: StudioStorage, id: string, provider: P
         provenance: { providerId: provider.id, prompt: request.prompt, model: request.model, settings,
           referenceAssetIds: request.referenceAssetIds, maskAssetId: request.maskAssetId, providerRequestId: result.providerRequestId },
       } })
+      publishJobChange(projectId)
     } catch (error) {
       const status = error instanceof ImageRequestError ? error.status : sent ? 'uncertain' : 'failed'
-      await db.put('jobs', { ...job, status, message: error instanceof Error ? error.message : 'Could not complete generation.' })
+      await saveState(status, error instanceof Error ? error.message : 'Could not complete generation.')
     }
   })
 }

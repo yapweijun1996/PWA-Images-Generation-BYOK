@@ -109,6 +109,8 @@ Consequences:
 
 `ProviderAdapter.generate(request, signal)` takes a prompt, model ID, selected settings, and optional ordered reference images and mask. The adapter receives resolved blobs and an `AbortSignal`. It returns image blobs with optional dimensions and provider request ID. A successful result requires at least one image. Queue records use asset IDs so pending requests can be recovered from local storage. `JobStatus` is `queued`, `running`, `succeeded`, `failed`, or `uncertain`. An `uncertain` request may have been billed and is never automatically retried.
 
+After the queue commits a change, it signals open views of that project. Each view reads jobs, assets and versions from a single IndexedDB snapshot. Notifications carry an invalidation signal and do not start jobs. The Web Lock retains ownership of request submission and interruption recovery.
+
 Project, asset, and version records use string IDs and ISO 8601 UTC timestamps. Assets hold metadata and link to their project. Versions link a project and its output asset and can point to a parent version. A version records its creation time and captures the prompt, provider, model, applied settings, and source asset IDs. T-108 owns the persistence layout and file lookup.
 
 ### Folder ownership

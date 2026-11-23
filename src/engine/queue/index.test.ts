@@ -3,7 +3,7 @@ import 'fake-indexeddb/auto'
 import { deleteDB } from 'idb'
 import { afterEach, expect, it, vi } from 'vitest'
 import { DATABASE_NAME, openStorage } from '@engine/storage'
-import { enqueueBatch, enqueueGeneration, processJob } from './index'
+import { enqueueBatch, enqueueGeneration, processJob, subscribeToJobChanges } from './index'
 
 afterEach(async () => { vi.unstubAllGlobals(); await deleteDB(DATABASE_NAME) })
 
@@ -42,4 +42,33 @@ it('persists all approved batch items and stops the remainder after an uncertain
     expect(generate).toHaveBeenCalledTimes(1)
     expect(await Promise.all(batch.map(async job => (await store.db.get('jobs',job.id))?.status))).toEqual(['uncertain','failed','failed'])
   } finally {store.db.close()}
+})
+
+it('notifies project readers after commit, including the version saved with a completed job', async () => {
+  vi.stubGlobal('window', new EventTarget())
+  vi.stubGlobal('navigator', { locks: { request: async (_key: string, _options: object, callback: (lock: object) => Promise<void>) => callback({}) } })
+  const store = await openStorage()
+  const updates: Promise<unknown>[] = []
+  const unrelated = vi.fn()
+  const unsubscribe = subscribeToJobChanges('p', () => {
+    const snapshot = store.db.transaction(['jobs', 'versions'])
+    updates.push(Promise.all([snapshot.objectStore('jobs').getAll(), snapshot.objectStore('versions').count()])
+      .then(([jobs, versions]) => ({ status: jobs[0]?.status, versions })))
+  })
+  const unsubscribeUnrelated = subscribeToJobChanges('other', unrelated)
+  try {
+    await store.db.add('projects', { id: 'p', name: 'Example', studioId: 'manga', createdAt: '', updatedAt: '' })
+    const request = { model: 'test', providerId: 'test', prompt: 'Leaf', settings: { size: 'auto', count: 1 }, referenceAssetIds: [] }
+    const job = await enqueueGeneration(store, 'p', request)
+    const provider = { id: 'test', generate: async () => ({ images: [{ blob: new Blob(['pixels'], { type: 'image/png' }) }] }),
+      getCapabilities: async () => ({ models: [] }) }
+    await processJob(store, job.id, provider)
+    expect(await Promise.all(updates)).toEqual([
+      { status: 'queued', versions: 0 }, { status: 'running', versions: 0 }, { status: 'succeeded', versions: 1 },
+    ])
+    expect(unrelated).not.toHaveBeenCalled()
+    unsubscribe()
+    await enqueueGeneration(store, 'p', request)
+    expect(updates).toHaveLength(3)
+  } finally { unsubscribe(); unsubscribeUnrelated(); store.db.close() }
 })

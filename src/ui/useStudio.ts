@@ -3,7 +3,7 @@ import { openStorage } from '@engine/storage'
 import { registerUpdateGuard } from '@pwa'
 import { createProviders } from '@engine/providers'
 import { readProviderKey } from '@engine/secrets'
-import { enqueueBatch, processJob } from '@engine/queue'
+import { enqueueBatch, processJob, subscribeToJobChanges } from '@engine/queue'
 import type { GenerationJob, QueuedGenerationRequest } from '@engine/queue'
 import type { Project, Version, Asset } from '@engine/types'
 
@@ -19,16 +19,17 @@ export function useStudio(projectId: string) {
   const refresh = useCallback(() => setRevision(value => value + 1), [])
   useEffect(() => {
     const check = () => { if (document.visibilityState === 'visible') refresh() }
+    const unsubscribe = subscribeToJobChanges(projectId, refresh)
     document.addEventListener('visibilitychange', check)
-    return () => document.removeEventListener('visibilitychange', check)
-  }, [refresh])
+    return () => { unsubscribe(); document.removeEventListener('visibilitychange', check) }
+  }, [projectId, refresh])
   const run = useCallback(async (id: string) => {
     const release = registerUpdateGuard('job')
     try {
       const store = await openStorage()
       try { await processJob(store, id, provider) } finally { store.db.close() }
-    } finally { release(); refresh() }
-  }, [refresh])
+    } finally { release() }
+  }, [])
 
   useEffect(() => {
     let current = true
@@ -43,10 +44,12 @@ export function useStudio(projectId: string) {
           await tx.store.add(entry)
         }
         await tx.done
+        const snapshot = store.db.transaction(['versions', 'assets', 'jobs'])
         const [timeline, images, queue] = await Promise.all([
-          store.db.getAllFromIndex('versions', 'byProject', projectId),
-          store.db.getAllFromIndex('assets', 'byProject', projectId),
-          store.db.getAllFromIndex('jobs', 'byProject', projectId),
+          snapshot.objectStore('versions').index('byProject').getAll(projectId),
+          snapshot.objectStore('assets').index('byProject').getAll(projectId),
+          snapshot.objectStore('jobs').index('byProject').getAll(projectId),
+          snapshot.done,
         ])
         if (current) {
           setProject(entry)
@@ -87,7 +90,6 @@ export function useStudio(projectId: string) {
     let jobs: GenerationJob[]
     try { jobs = await enqueueBatch(store, projectId, request, count) }
     finally { store.db.close() }
-    refresh()
     for (const job of jobs) await run(job.id)
   }
   return { project, versions, assets, jobs, error, setError, refresh, generate }
