@@ -8,7 +8,6 @@ interface InstallOffer extends Event {
 }
 
 let offer: InstallOffer | null = null
-let installed = false
 type Status = 'idle' | 'accepted' | 'dismissed' | 'unavailable'
 let status: Status = 'idle'
 const subscribers = new Set<() => void>()
@@ -22,16 +21,16 @@ const subscribe = (listener: () => void) => {
 window.addEventListener('beforeinstallprompt', event => {
   event.preventDefault()
   offer = event as InstallOffer
-  installed = false
   status = 'idle'
   notify()
 })
 window.addEventListener('appinstalled', () => {
   offer = null
-  installed = true
+  // Chrome can acknowledge the request before Android finishes launcher setup.
+  status = 'accepted'
   notify()
 })
-const snapshot = () => installed || window.matchMedia?.('(display-mode: standalone)').matches ||
+const snapshot = () => window.matchMedia?.('(display-mode: standalone)').matches ||
   (navigator as Navigator & { standalone?: boolean }).standalone ? 'installed' : offer ? 'available' : status
 
 async function requestInstall() {
@@ -68,7 +67,7 @@ export function InstallHelp({ locale }: { locale: 'en' | 'zh-CN' }) {
       <div role="status">
         {state === 'installed' && t('Installed on this device.', '已安装在此设备上。')}
         {state === 'dismissed' && t('Installation dismissed. You can keep using the studio in this tab.', '已取消安装。你可以继续在此标签页使用工作室。')}
-        {state === 'accepted' && t('Installation requested. Your browser will finish setup.', '已请求安装，浏览器将完成后续步骤。')}
+        {state === 'accepted' && t('Installation requested. Complete any remaining browser or system prompts.', '已请求安装。请完成浏览器或系统显示的后续确认。')}
         {state === 'unavailable' && t('The browser could not start installation. Try the browser menu.', '浏览器无法启动安装，请尝试浏览器菜单。')}
       </div>
       {state !== 'installed' && <ul>

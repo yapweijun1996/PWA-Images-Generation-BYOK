@@ -31,5 +31,5 @@ it('keeps the offer across project remounts and consumes it only after activatio
   expect(prompt).toHaveBeenCalledTimes(1)
   expect(screen.queryByRole('button', {name:'Install app'})).toBeNull()
   act(() => { window.dispatchEvent(new Event('appinstalled')) })
-  expect(screen.getByRole('status').textContent).toContain('Installed on this device')
+  expect(screen.getByRole('status').textContent).toContain('Installation requested')
 })
