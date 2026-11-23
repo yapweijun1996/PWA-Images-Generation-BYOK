@@ -103,6 +103,14 @@ function remap(data: Backup) {
   if (project.board) project.board = { ...project.board, panels: project.board.panels.map(p => ({ ...p, assetId: assetIds.get(p.assetId)! })) }
   if (project.reviewedAssetIds) project.reviewedAssetIds = project.reviewedAssetIds.map(id => assetIds.get(id)!)
   const versionIds = new Map(data.versions.map(v => [v.id, crypto.randomUUID()]))
+  if (project.draft) {
+    const draft = project.draft
+    project.draft = { ...draft,
+      referenceAssetIds: draft.referenceAssetIds.map(id => assetIds.get(id)!),
+      parentVersionId: draft.parentVersionId && versionIds.get(draft.parentVersionId),
+      edit: draft.edit && { ...draft.edit, maskAssetId: draft.edit.maskAssetId && assetIds.get(draft.edit.maskAssetId) },
+    }
+  }
   const assets = data.assets.map(asset => assetRecord.parse({
     ...asset, projectId: project.id, id: assetIds.get(asset.id)!,
   }))

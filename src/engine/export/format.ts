@@ -2,7 +2,12 @@ import { z } from 'zod'
 
 const id = z.string().min(1).max(512)
 const timestamp = z.iso.datetime()
-const project = z.object({ board: z.object({ panels: z.array(z.object({assetId: id, caption: z.string().max(100)})).max(12), reviewed: z.boolean() }).optional(), reviewedAssetIds: z.array(id).optional(), id, name: z.string(), studioId: id, createdAt: timestamp, updatedAt: timestamp })
+const draft = z.object({
+  prompt: z.string(), referenceAssetIds: z.array(id),
+  edit: z.object({ maskAssetId: id.optional(), promptHint: z.string().optional(), count: z.number().int().min(1).max(4) }).optional(),
+  modelId: z.string(), size: id, quality: id, parentVersionId: id.optional(), stageId: z.string(),
+})
+const project = z.object({ draft: draft.optional(), board: z.object({ panels: z.array(z.object({assetId: id, caption: z.string().max(100)})).max(12), reviewed: z.boolean() }).optional(), reviewedAssetIds: z.array(id).optional(), id, name: z.string(), studioId: id, createdAt: timestamp, updatedAt: timestamp })
 export const assetRecord = z.object({
   id, projectId: id, source: z.enum(['imported', 'generated', 'edited']),
   mediaType: z.enum(['image/png', 'image/jpeg', 'image/webp']), byteLength: z.number().int().positive(),
@@ -29,6 +34,15 @@ export function validateLinks(data: Backup) {
   const ancestors = new Map(data.versions.map(v => [v.id, v.parentVersionId]))
   if (assets.size !== data.assets.length || ancestors.size !== data.versions.length) throw new Error('Duplicate backup IDs.')
   const projectLinks = [...(data.project.board?.panels.map(p => p.assetId) ?? []), ...(data.project.reviewedAssetIds ?? [])]
+  const draft = data.project.draft
+  if (draft) {
+    projectLinks.push(...draft.referenceAssetIds)
+    if (draft.edit?.maskAssetId) {
+      if (!draft.referenceAssetIds.length) throw new Error('Draft mask requires a reference image.')
+      projectLinks.push(draft.edit.maskAssetId)
+    }
+    if (draft.parentVersionId && !ancestors.has(draft.parentVersionId)) throw new Error('Missing draft parent version.')
+  }
   if (projectLinks.some(link => !assets.has(link))) throw new Error('Missing project image.')
   const complete = new Set<string>()
   for (const item of [...data.assets, ...data.versions]) {
