@@ -12,6 +12,12 @@ the manifest scope and worker registration under `/PWA-Images-Generation-BYOK/`.
 Test an existing installed profile separately to confirm the update prompt,
 draft protection and transition to the new build.
 
+For Windows Firefox acceptance, run **Verify Windows stable Firefox** with the
+successful Pages run ID while its artifact is live. The workflow matches the
+retained files to the public site before starting Firefox. It then serves those
+files on loopback and verifies the same build descriptor and saved draft after
+the origin stops. An empty run ID builds `main` for a local smoke test instead.
+
 ## Roll back
 
 Before releasing an update, confirm the previously accepted run still has a

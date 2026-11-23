@@ -1,6 +1,13 @@
 name: Verify Windows stable Firefox
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      release_run:
+        description: Successful Pages run whose artifact is still live (empty builds main locally)
+        type: string
+        required: false
 permissions:
+  actions: read
   contents: read
 
 jobs:
@@ -15,8 +22,29 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
           node-version: '24'
-      - run: npm ci
-      - run: npm run build
+      - if: inputs.release_run == ''
+        run: npm ci
+      - if: inputs.release_run == ''
+        run: npm run build
+      - if: inputs.release_run != ''
+        name: Download and verify the live Pages artifact
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_RUN: ${{ inputs.release_run }}
+        run: |
+          if ($env:RELEASE_RUN -notmatch '^[0-9]+$') { throw 'Pass a numeric Pages run ID.' }
+          $metadata = gh api "repos/$env:GITHUB_REPOSITORY/actions/runs/$env:RELEASE_RUN"
+          if ($LASTEXITCODE -ne 0) { throw 'Could not read the Pages run.' }
+          $run = $metadata | ConvertFrom-Json
+          if ($run.path -ne '.github/workflows/pages.yml' -or $run.head_branch -ne 'main' -or $run.event -ne 'workflow_dispatch' -or $run.conclusion -ne 'success') {
+            throw 'Expected a successful Pages workflow dispatch on main.'
+          }
+          gh run download $env:RELEASE_RUN -n site-files -D dist
+          if ($LASTEXITCODE -ne 0) { throw 'Could not retrieve the Pages artifact.' }
+          $descriptor = Get-Content -Raw dist/build-info.json | ConvertFrom-Json
+          if ($descriptor.sourceRevision -cnotmatch '^[0-9a-f]{40}$') { throw 'The release artifact has no source revision.' }
+          node scripts/verify-pages.mjs dist $descriptor.sourceRevision
       - name: Verify preinstalled release Firefox and draft recovery offline
         shell: pwsh
         env:

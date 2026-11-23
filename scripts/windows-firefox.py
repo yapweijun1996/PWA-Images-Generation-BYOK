@@ -23,9 +23,21 @@ class ShellHandler(SimpleHTTPRequestHandler):
         super().end_headers()
 
 
+def verify_worker_build(browser, expected):
+    assert browser.execute_script("return !!navigator.serviceWorker.controller")
+    descriptor = browser.execute_async_script("""
+        const done = arguments[arguments.length - 1];
+        fetch('./build-info.json')
+          .then(response => response.ok ? response.json() : null)
+          .then(done, () => done(null));
+    """)
+    assert descriptor == expected, "Controlled browser returned an unexpected build descriptor"
+
+
 def verify(directory):
     dist = Path("dist")
-    expected_build = json.loads((dist / "build-info.json").read_text(encoding="utf-8"))["buildId"]
+    expected = json.loads((dist / "build-info.json").read_text(encoding="utf-8"))
+    expected_build = expected["buildId"]
     base = "PWA-Images-Generation-BYOK"
     shutil.copytree(dist, Path(directory) / base)
     options = webdriver.FirefoxOptions()
@@ -72,6 +84,7 @@ def verify(directory):
                 browser.get(url)
                 wait.until(lambda d: d.execute_script("return !!navigator.serviceWorker.controller"))
                 wait.until(lambda d: d.find_element(By.CSS_SELECTOR, ".creation-prompt textarea").get_property("value") == draft)
+                verify_worker_build(browser, expected)
                 print("Online browser mode, build and persisted IndexedDB draft verified", flush=True)
             finally:
                 server.shutdown()
@@ -84,8 +97,8 @@ def verify(directory):
         wait.until(EC.staleness_of(old_document))
         wait.until(lambda d: expected_build in d.find_element(By.TAG_NAME, "footer").text)
         wait.until(lambda d: d.find_element(By.CSS_SELECTOR, ".creation-prompt textarea").get_property("value") == draft)
-        assert browser.execute_script("return !!navigator.serviceWorker.controller")
-        print("Origin stopped. Reload recovered build and draft:", expected_build, flush=True)
+        verify_worker_build(browser, expected)
+        print("Origin stopped. Reload recovered build and draft:", json.dumps(expected), flush=True)
 
 
 if __name__ == "__main__":
