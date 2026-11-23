@@ -18,6 +18,7 @@ type StudioLayoutProps = {
   onTabChange: (tab: StudioTab) => void
   navigation: ReactNode
   keySettings: ReactNode
+  home: ReactNode
   canvas: ReactNode
   composer: ReactNode
   inspector: ReactNode
@@ -37,7 +38,7 @@ const tabs = [
 ] as const
 
 /** Layout owns presentation only; the caller owns all content and persisted state. */
-export function StudioLayout({ productName, locale, onLocaleChange, theme, onThemeChange, activeTab, onTabChange, navigation, keySettings, canvas, composer, inspector, library }: StudioLayoutProps) {
+export function StudioLayout({ productName, locale, onLocaleChange, theme, onThemeChange, activeTab, onTabChange, navigation, keySettings, home, canvas, composer, inspector, library }: StudioLayoutProps) {
   const t = labels[locale]
   const [drawer, setDrawer] = useState<'navigation' | 'inspector' | null>(null)
   const [composerOpen, setComposerOpen] = useState(false)
@@ -78,6 +79,14 @@ export function StudioLayout({ productName, locale, onLocaleChange, theme, onThe
     opener.current = button
     setDrawer(name)
   }
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 768px)')
+    const adapt = () => { if (desktop.matches && activeTab === 'home') onTabChange('create') }
+    adapt()
+    desktop.addEventListener('change', adapt)
+    return () => desktop.removeEventListener('change', adapt)
+  }, [activeTab, onTabChange])
+
   const changeTab = (tab: StudioTab) => {
     setDrawer(null)
     onTabChange(tab)
@@ -106,6 +115,7 @@ export function StudioLayout({ productName, locale, onLocaleChange, theme, onThe
             <div className="studio-key-settings">{keySettings}<DeviceStorage locale={locale} /></div></div>
         </aside>
         <main className="studio-main">
+          <div className="studio-home-region">{activeTab === 'home' && home}</div>
           <div className="studio-canvas-region">{canvas}</div>
           <div className="studio-library-region">{library}</div>
           <section className={`studio-composer${composerOpen ? ' is-open' : ''}`} aria-label={t.compose}>

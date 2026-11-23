@@ -45,9 +45,12 @@ try {
         }).observe({ type: 'event', buffered: true, durationThreshold: 16 })
       })
       await page.goto(url.href)
-      await page.getByRole('heading', {name: 'Untitled project'}).waitFor({state: 'attached'})
+      await page.getByRole('heading', {name: width < 768 ? 'Recent projects' : 'Untitled project'}).waitFor()
       await page.waitForTimeout(1000)
-      if (width < 768) await page.getByRole('button',{name:/^Prompt/}).click()
+      if (width < 768) {
+        await page.getByRole('button',{name:'Continue creating'}).click()
+        await page.getByRole('button',{name:/^Prompt/}).click()
+      }
       const prompt = page.getByRole('textbox',{name:'Prompt',exact:true})
       await prompt.click()
       await page.keyboard.type('A blue sky', {delay: 50})
@@ -94,6 +97,9 @@ try {
       observed.drawers.push({name,trapped,restored:await opener.evaluate(el=>el===document.activeElement)})
     }
     if (width === 390) {
+      const start = page.getByRole('button',{name:'Continue creating'})
+      await keyboardVisit(page,start)
+      await page.keyboard.press('Enter')
       const toggle=page.getByRole('button',{name:/^Prompt/});await keyboardVisit(page,toggle);await page.keyboard.press('Enter')
     }
     const field=page.getByRole('textbox',{name:'Prompt',exact:true})
@@ -110,7 +116,7 @@ try {
       const context = await browser.newContext({ viewport: {width,height:900} })
       const page = await context.newPage()
       await page.goto(url.href)
-      await page.getByRole('heading',{name:'Untitled project'}).waitFor({state:'attached'})
+      await page.getByRole('heading',{name:width < 768 ? 'Recent projects' : 'Untitled project'}).waitFor()
       await page.route('**/lab-accessibility.js', route => route.fulfill({
         path: process.env.AXE_SCRIPT, contentType: 'application/javascript',
       }))

@@ -1,3 +1,4 @@
+import { ArrowRight, BookOpen, BriefcaseBusiness, Building2, Clapperboard, Download, FolderOpen, GraduationCap, Maximize, PanelsTopLeft, Trash2, ZoomIn } from 'lucide-react'
 import { ImageEditTools } from './ImageEditTools'
 import { StudioBoard } from './StudioBoard'
 import './workspace.css'
@@ -13,19 +14,21 @@ import { KeySettings } from './KeySettings'
 import { StudioLayout } from './StudioLayout'
 import { getStudio, isStudioId, studioIds } from '@studios/index'
 
+const studioIcons = { manga: BookOpen, commercial: BriefcaseBusiness, interior: Building2, uiux: PanelsTopLeft, movie: Clapperboard, education: GraduationCap }
+
 type Locale = 'en' | 'zh-CN'
 type Tab = 'home' | 'create' | 'assets' | 'projects'
 interface WorkspaceProps { productName: string; buildId: string }
 export function Workspace(props: WorkspaceProps) {
   const [projectId, setProjectId] = useState(() => localStorage.getItem('active-project') || 'first-project')
-  return <ProjectWorkspace {...props} key={projectId} projectId={projectId} switchProject={id => { localStorage.setItem('active-project', id); setProjectId(id) }} />
+  const [tab, setTab] = useState<Tab>(() => window.matchMedia('(max-width: 767px)').matches ? 'home' : 'create')
+  return <ProjectWorkspace {...props} tab={tab} setTab={setTab} key={projectId} projectId={projectId} switchProject={id => { localStorage.setItem('active-project', id); setProjectId(id); setTab('create') }} />
 }
 
-function ProjectWorkspace({ productName, buildId, projectId, switchProject }: WorkspaceProps & { projectId: string; switchProject: (id: string) => void }) {
+function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab, setTab }: WorkspaceProps & { tab: Tab; setTab: (tab: Tab) => void; projectId: string; switchProject: (id: string) => void }) {
   const [locale, setLocale] = useState<Locale>(() => localStorage.getItem('ui-language') === 'zh-CN' ? 'zh-CN' : 'en')
   const [theme, setTheme] = useState<'light'|'dark'>(() => localStorage.getItem('ui-theme') === 'light' ? 'light' : 'dark')
   useEffect(() => { document.documentElement.lang = locale }, [locale])
-  const [tab, setTab] = useState<Tab>('create')
   const t = (en: string, zh: string) => locale === 'en' ? en : zh
   const studio = useStudio(projectId)
   const [projects, setProjects] = useState<Project[]>([])
@@ -47,7 +50,7 @@ function ProjectWorkspace({ productName, buildId, projectId, switchProject }: Wo
       try { const list = await store.db.getAll('projects'); if (current) setProjects(list) } finally { store.db.close() }
     })().catch(() => {})
     return () => { current = false }
-  }, [studio.project])
+  }, [studio.project, tab])
   async function leave(id: string) {
     await creation.flushDraft()
     switchProject(id)
@@ -66,12 +69,30 @@ function ProjectWorkspace({ productName, buildId, projectId, switchProject }: Wo
     if (!restore) selectAsset('')
     studio.refresh()
   }
-  const navigation = <nav aria-label={t('Studios','工作室')}>{studioIds.map(id => <button type="button" key={id}
-    aria-pressed={id === activeStudio.id} onClick={() => perform(async () => {
+  function selectStudio(id: typeof studioIds[number]) {
+    perform(async () => {
       if (!studio.project) return
       await patchProject(projectId, {studioId: id})
       creation.changeDraft({stageId: ''}); studio.refresh(); setTab('create')
-    })}>{getStudio(id, locale).name}</button>)}</nav>
+    })
+  }
+  const studioLinks = studioIds.map(id => {
+    const Icon = studioIcons[id]
+    return <button type="button" key={id} aria-pressed={id === activeStudio.id} onClick={() => selectStudio(id)}>
+      <Icon size={20} aria-hidden="true"/>{getStudio(id, locale).name}</button>
+  })
+  const navigation = <nav aria-label={t('Studios','工作室')}>{studioLinks}</nav>
+  const recentProjects = projects.filter(p => p.id !== 'first-project' || p.name !== 'Untitled project' || p.createdAt !== p.updatedAt ||
+    (p.id === projectId && (studio.assets.length || studio.jobs.length || creation.draft?.prompt)))
+    .sort((a,b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0,4)
+  const home = <section className="studio-home">
+    <h2>{t('Recent projects','最近项目')}</h2>
+    {recentProjects.length ? <ul>{recentProjects.map(p => <li key={p.id}>
+      <button type="button" onClick={() => perform(() => leave(p.id))}><FolderOpen size={19} aria-hidden="true"/><span>{p.name}</span><ArrowRight size={16} aria-hidden="true"/></button>
+    </li>)}</ul> : <p>{t('Choose a studio, add your OpenAI key in navigation, then describe your first image.', '选择工作室，在导航中添加 OpenAI 密钥，然后描述你的第一张图片。')}</p>}
+    <button className="home-continue" type="button" onClick={() => setTab('create')}>{t('Continue creating','继续创作')}<ArrowRight size={18} aria-hidden="true"/></button>
+    <h2>{t('Studios','工作室')}</h2><nav aria-label={t('Choose a studio','选择工作室')}>{studioLinks}</nav>
+  </section>
   const version = studio.versions.find(v => v.assetId === selectedAsset)
   const [compareId, setCompareId] = useState('')
   const [zoom,setZoom] = useState(1)
@@ -80,12 +101,17 @@ function ProjectWorkspace({ productName, buildId, projectId, switchProject }: Wo
     <h2>{studio.project?.name || t('Canvas','画布')}</h2>
     {selectedAsset ? <><div className={'canvas-preview zoom-'+zoom}><AssetImage id={selectedAsset} alt={t('Selected project image','选中的项目图片')} />
       {compareId && compareId !== selectedAsset && <AssetImage id={compareId} alt={t('Comparison image','对照图片')} />}</div>
-      <div><button onClick={() => setZoom(zoom===1?2:1)}>{zoom===1 ? t('Zoom in','放大') : t('Fit','适应画布')}</button>
+      <div className="image-actions" role="group" aria-label={t('Image tools','图像工具')}>
+        <button onClick={() => setZoom(1)}><Maximize size={17} aria-hidden="true"/>{t('Fit','适应画布')}</button>
+        <button onClick={() => setZoom(zoom === 1 ? 2 : 1)} aria-pressed={zoom === 2}><ZoomIn size={17} aria-hidden="true"/>{t('Zoom','放大')}</button>
+        <button disabled={needsReview} aria-label={t('Download image','下载图片')} onClick={() => perform(() => downloadImage(selectedAsset))}><Download size={17} aria-hidden="true"/>{t('Export','导出')}</button>
+        <button aria-label={t('Move to trash','移至回收站')} onClick={() => perform(()=>trash(selectedAsset))}><Trash2 size={17} aria-hidden="true"/>{t('Delete','删除')}</button>
+      </div><div>
       <label>{t('Compare with','对照图片')}<select value={compareId} onChange={e=>setCompareId(e.target.value)}><option value="">{t('None','无')}</option>{visibleAssets.filter(a=>a.id!==selectedAsset).map((a,i)=><option key={a.id} value={a.id}>{i+1} · {a.source}</option>)}</select></label></div>
       {needsReview && <section><h3>{t('Review against references','对照参考图审核')}</h3>{version!.provenance.referenceAssetIds.map(id=><AssetImage key={id} id={id} alt={t('Source reference','原始参考图')}/>)}
       <ul>{activeStudio.reviewChecks.map(check=><li key={check.id}>{check.label}</li>)}</ul>
       <button onClick={()=>perform(async()=>{ await patchProject(projectId, current => ({reviewedAssetIds:[...new Set([...(current.reviewedAssetIds || []),selectedAsset])]})); studio.refresh() })}>{t('Accept after review','审核并接受')}</button></section>}
-      <button disabled={needsReview} onClick={() => perform(() => downloadImage(selectedAsset))}>{t('Download image','下载图片')}</button><button onClick={()=>perform(()=>trash(selectedAsset))}>{t('Move to trash','移至回收站')}</button></>
+      </>
       : <p>{t('Your image will appear here.','生成的图片将显示在这里。')}</p>}
     {studio.error && <p role="alert">{studio.error}</p>}
     {studio.jobs.slice(0,3).map(job => <p key={job.id} role="status">{job.status} {job.message}</p>)}
@@ -112,6 +138,6 @@ function ProjectWorkspace({ productName, buildId, projectId, switchProject }: Wo
     <label>{t('Restore backup','恢复备份')}<input type="file" accept=".zip" onChange={e => { const file=e.target.files?.[0]; if(file) perform(async () => { await creation.flushDraft();switchProject((await importProjectBackup(file)).id) }) }} /></label></section>
   return <><StudioLayout productName={productName} locale={locale} onLocaleChange={value => {localStorage.setItem('ui-language',value);setLocale(value)}} theme={theme}
     onThemeChange={value => {localStorage.setItem('ui-theme',value);setTheme(value)}} activeTab={tab} onTabChange={setTab}
-    canvas={canvas} composer={composer} inspector={creation.inspector} navigation={navigation} keySettings={<KeySettings locale={locale} />} library={library} />
+    home={home} canvas={canvas} composer={composer} inspector={creation.inspector} navigation={navigation} keySettings={<KeySettings locale={locale} />} library={library} />
     <footer>Build {buildId}</footer></>
 }
