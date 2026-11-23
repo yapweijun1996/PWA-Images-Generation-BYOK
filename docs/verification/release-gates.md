@@ -1,15 +1,23 @@
 # Production release gates
 
-**Decision: HOLD.** This assessment uses the STATIC_OFFLINE profile of KB-MCP `pwa:product-standard` v1.1.0 (registry body revision `80aad1538f3ecdddd7512de64cde4b8047196fb3637c075a87aab381bf314874`) and its service-worker install-integrity companion. Assessment date: 2026-11-24 Singapore time. Current hosted build: `68ef70d`. This matrix records the scope of each observation. Historical local passes do not establish release-candidate or live acceptance.
+**Decision: HOLD.** This assessment uses the STATIC_OFFLINE profile of KB-MCP `pwa:product-standard` v1.1.0 (registry body revision `80aad1538f3ecdddd7512de64cde4b8047196fb3637c075a87aab381bf314874`) and its service-worker install-integrity companion. Assessment date: 2026-11-24 Singapore time. Current hosted build: `49388bd`. This matrix records the scope of each observation. Historical local passes do not establish release-candidate or live acceptance.
 
 | Gate | Decision | Outstanding evidence |
 |---|---|---|
-| G1 Safety | HOLD | The public build preserved offline ZIP restore in a passive old Chrome tab after explicit activation. Two engines rejected three corrupted installation cases against the exact published artifact in loopback. Remaining device and full safety-matrix coverage are recorded below. |
-| G2 Compatibility | HOLD | Physical iPhone, iPad and Android installation and offline checks, plus spoken VoiceOver and TalkBack verification, remain open. See the device matrix for browser coverage. |
+| G1 Safety | HOLD | Public build `68ef70d` preserved offline ZIP restore in a passive old Chrome tab after explicit activation. Two engines rejected three corrupted installation cases using its retained artifact in loopback. Remaining device and full safety-matrix coverage are recorded below. |
+| G2 Compatibility | HOLD | Android 16 emulator TalkBack captioned update discovery on the current artifact. Physical iPhone, iPad and Android, VoiceOver and the remaining TalkBack journeys stay open. See the device matrix for browser coverage. |
 | G3 Performance | HOLD | Six cold navigations of the current artifact met the lab thresholds. The large project fixture also reduced the longest reported main-thread tasks in backup and restore. On November 24, CrUX Vis returned no data for the exact URL. Field P75 is INSUFFICIENT_DATA. Targets are LCP ≤2.5 s, INP ≤200 ms and CLS ≤0.1. [Measurements](performance.md). |
 | G4 Evidence | HOLD | The published artifact includes its verified source commit. Remaining gaps include per-case evidence across the full target matrix. The live rollback and restore-forward drill passed. |
 
 ## Current public release
+
+[Pages run 45239647736](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45239647736) published `49388bd0e64efe2bc480f731f1ec05ea689e5f53`, displayed as `v0.1.0 · 2026-11-23T18:33:50.324Z`. Both CI and an independent check matched the full source revision and all 13 public files to the retained artifact. Worker SHA-256 is `3de65219634c0ad6d30a5f263773b4fd47a3152190a6b10702fe6cd840ebdfbd`. The artifact expires at 18:33:25 UTC on February 21, 2027. The pipeline passed 39 tests, lint, type checking and the production build. A scan of 138 tracked files and all 13 released files found no copy of the configured developer key.
+
+The exact retained artifact produced TalkBack's actionable update caption during real worker discovery on Android 16, with input focus still on Help. Public Chrome reopened the new build offline at a 390 CSS px viewport with the idle speech region mounted and an uncached request blocked. [Speech evidence](update-guards.md#android-talkback-speech-feedback).
+
+An ARM64 Android 16 emulator using Chrome 133 also tested the public build with the software keyboard, rotation and a fresh offline tab. A pinned launcher shortcut reopened the draft in a new Chrome process in standalone mode. WebAPK registration and physical mobile coverage remain open. [Android acceptance evidence](compatibility.md#offline-launcher-after-full-chrome-restart).
+
+## November 24 cross-tab asset compatibility release
 
 [Pages run 45232034707](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45232034707) published `68ef70d32b85bfecffe62e2a3a675f4d0ac70c6a`, displayed as `v0.1.0 · 2026-11-23T17:51:20.264Z`. The full source revision and all 13 public files matched the retained artifact. The worker SHA-256 is `44eb516ad4d809eee47cff1cd815d8534dfc5f77351836048c0d8a42c6ecf160`. The artifact expires at 17:50:52 UTC on February 21, 2027. The pipeline passed 39 tests, lint, type checking and the production build. A scan of the 138 tracked files and all 13 released files found no copy of the configured developer key.
 
@@ -149,7 +157,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | A11Y-05 | Touch target spacing | PARTIAL | Measured desktop Chrome viewports and corrected undersized disclosures, header buttons and key controls. Physical touch acceptance remains open. [Evidence](keyboard-and-controls.md). |
 | A11Y-06 | Reduced-motion preference | PASS (Chrome preference emulation) | Reduced-motion behavior verified in Chrome. [Evidence](keyboard-and-controls.md). |
 | A11Y-07 | Modal focus trapping and restoration | PASS (Chrome and WebKit drawers) | Both drawers at 390 and 768 px kept keyboard focus inside, blocked direct background focus and restored focus on Escape or backdrop click. Chrome also verified the accessibility tree. [Evidence](keyboard-and-controls.md). |
-| A11Y-08 | Accessible update status announcements | PARTIAL | Android TalkBack missed the earlier waiting-build message and captioned the corrected local candidate's instruction during actual worker discovery. Spoken VoiceOver and full TalkBack coverage remain open. [Update status evidence](update-guards.md#android-talkback-speech-feedback). |
+| A11Y-08 | Accessible update status announcements | PARTIAL | Android TalkBack missed the earlier waiting-build message and captioned the current published artifact's instruction during actual worker discovery in loopback. Spoken VoiceOver and full TalkBack coverage remain open. [Update status evidence](update-guards.md#android-talkback-speech-feedback). |
 | QA-01 | LCP target | LAB PASS; FIELD INSUFFICIENT_DATA | Six fresh navigations measured LCP 1260–1368 ms in the bounded lab. See performance.md. |
 | QA-02 | INP target | LAB ONLY; FIELD INSUFFICIENT_DATA | Worst observed interaction event duration was 120 ms. The bounded sample does not establish field INP P75. |
 | QA-03 | CLS target | LAB PASS; FIELD INSUFFICIENT_DATA | Observed CLS 0.0003–0.0004 in six fresh navigations. See performance.md. |

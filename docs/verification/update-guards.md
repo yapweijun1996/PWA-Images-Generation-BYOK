@@ -42,6 +42,8 @@ With the visible card and browser focus held steady, re-sending the same “An u
 
 The corrected local production build `2026-11-23T18:31:39.221Z` kept the visual card immediate and posted a separate polite, actionable message from the persistent status region. In a real worker discovery, TalkBack captioned “Studio update available. Choose Update and reload.” without moving focus from Help. Desktop Chrome independently verified the visible card and explicit activation at 390 and 1440 CSS px. Component checks covered spoken text changes for an unsaved draft, a language switch and an explicit reload after takeover.
 
+The exact [published `49388bd` artifact](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45239647736) repeated the result on the same emulator in a new browser origin. It discovered the retained `68ef70d` worker while focus remained on Help. A cropped frame shows the visible card above the distinct TalkBack caption. [Captured speech overlay](talkback-update.png). The crop's SHA-256 is `6dbb97f137089dc9ff6a3ab5bbb66e05462dfc6dbfa82aa3f6a9e0ba5f448553`.
+
 ## Update during project backup or restore
 
 On November 24 Singapore time, Chrome 158.0.8127.37 ran the corrected local build `2026-11-23T17:20:00.313Z` and the previously published `95d5acd` artifact on one loopback origin. A fixture held a real export at its checksum step. The Projects controls were disabled and the current tab showed the backup-specific update message. Clicking Update in a second tab reported other-tab work, left the old build visible and kept the worker waiting. Releasing the archive produced the download. Selecting a file that was not a ZIP reported the validation error, cleared the busy state, and allowed the explicit update to finish.
