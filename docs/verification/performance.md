@@ -48,3 +48,9 @@ node scripts/chromium-lab.mjs http://127.0.0.1:48925/PWA-Images-Generation-BYOK/
 ```
 
 The layout candidate from `28aa460` was rerun using the same Chromium lab profile. Six new navigations had LCP 1,416–1,528 ms, CLS 0–0.0004 and maximum observed interaction duration 80–112 ms. None overflowed the viewport. Navigation and settings drawers trapped and restored keyboard focus at 390 and 768 px. Axe-core 4.14.0 reported zero violations on the fresh 390 and 1440 px surfaces in both themes. The served JS SHA-256 was `33df4c58847a57bc5c7f4d591fe7c665f4d5b9eeb14e0f4a645c8fb591babfef`. Field P75 remains unmeasured.
+
+## Field measurements and launch policy
+
+Test the published workspace URL through [PageSpeed Insights](https://pagespeed.web.dev/) or the [CrUX API](https://developer.chrome.com/docs/crux/api). Record the URL, phone and desktop form factors, collection dates, and P75 LCP, INP and CLS when URL-level data is available. This repository shares its GitHub Pages origin with other paths. Origin-level measurements describe that combined traffic and belong in the release record as context.
+
+While field data is unavailable, record `INSUFFICIENT_DATA`, retain reproducible lab results for each candidate, and keep full production acceptance open. Public candidate builds can gather usage under the existing release authorization. Evaluate observed regressions against the documented P75 thresholds before closing the performance gate. The published app uses the existing local-first data model. Reporting relies on aggregate browser data published independently of the app, subject to [CrUX coverage and eligibility](https://developer.chrome.com/docs/crux/methodology).
