@@ -206,3 +206,6 @@ Current goal, what was achieved, files changed, verification (`PASS` / `FAIL` / 
 - Inspect computed values in the built app on each target engine. In mobile WebKit, the workspace's inherited font shorthand overrode the 16px baseline. Browser layout checks now verify the actual control size and long-page navigation rather than relying on the global declaration.
 
 - Android Chrome can accept the install request and then offer a separate system confirmation to pin a shortcut. Follow the native prompts and check the resulting window's display mode and offline storage. An accepted request alone cannot establish WebAPK registration or standalone behavior.
+
+- A successful image edit can still leave an undesirably transparent extension. Inspect the decoded RGBA output and distinguish the provider's generated edge from the local fitting margin. Preserve the original alpha and request an opaque new edge for an opaque source.
+- Version selection and image decoding are separate events. Bind the preview to the asset identity and gate approval on the decoded result and reference images. A test that holds each image load independently checks that users cannot approve during a transition.

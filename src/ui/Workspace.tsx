@@ -34,6 +34,7 @@ function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab,
   const studio = useStudio(projectId)
   const [projects, setProjects] = useState<Project[]>([])
   const [selected, setSelected] = useState('')
+  const [previewReadyId, setPreviewReadyId] = useState<string>()
   const [name, setName] = useState('')
   const trashed = new Set(studio.project?.trashedAssetIds ?? [])
   const visibleVersions = studio.versions.filter(v => !trashed.has(v.assetId))
@@ -57,6 +58,7 @@ function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab,
     switchProject(id)
   }
   function selectAsset(id: string) {
+    if (id !== selectedAsset) setPreviewReadyId(undefined)
     setSelected(id)
     creation.changeDraft({ parentVersionId: studio.versions.find(v => v.assetId === id)?.id })
   }
@@ -100,8 +102,8 @@ function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab,
   const needsReview = Boolean(version?.provenance.referenceAssetIds.length && selectedAsset && !studio.project?.reviewedAssetIds?.includes(selectedAsset))
   const canvas = <section className="artboard">
     <h2>{studio.project ? projectLabel(studio.project,locale) : t('Canvas','画布')}</h2>
-    {selectedAsset ? <><div className={'canvas-preview zoom-'+zoom}><AssetImage locale={locale} id={selectedAsset} alt={t('Selected project image','选中的项目图片')} />
-      {compareId && compareId !== selectedAsset && visibleAssets.some(asset => asset.id === compareId) && <AssetImage locale={locale} id={compareId} alt={t('Comparison image','对照图片')} />}</div>
+    {selectedAsset ? <><div className={'canvas-preview zoom-'+zoom}><AssetImage key={selectedAsset} locale={locale} id={selectedAsset} alt={t('Selected project image','选中的项目图片')} onReady={() => setPreviewReadyId(selectedAsset)} />
+      {compareId && compareId !== selectedAsset && visibleAssets.some(asset => asset.id === compareId) && <AssetImage key={'compare:' + compareId} locale={locale} id={compareId} alt={t('Comparison image','对照图片')} />}</div>
       <div className="image-actions" role="group" aria-label={t('Image tools','图像工具')}>
         <button onClick={() => setZoom(1)}><Maximize size={17} aria-hidden="true"/>{t('Fit','适应画布')}</button>
         <button onClick={() => setZoom(zoom === 1 ? 2 : 1)} aria-pressed={zoom === 2}><ZoomIn size={17} aria-hidden="true"/>{t('Zoom','放大')}</button>
@@ -109,9 +111,12 @@ function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab,
         <button aria-label={t('Move to trash','移至回收站')} onClick={() => perform(()=>trash(selectedAsset))}><Trash2 size={17} aria-hidden="true"/>{t('Delete','删除')}</button>
       </div>{visibleAssets.some(asset => asset.id !== selectedAsset) && <div>
       <label>{t('Compare with','对照图片')}<select value={compareId} onChange={e=>setCompareId(e.target.value)}><option value="">{t('None','无')}</option>{visibleAssets.filter(a=>a.id!==selectedAsset).map((a,i)=><option key={a.id} value={a.id}>{i+1} · {sourceLabel(a.source,locale)}</option>)}</select></label></div>}
-      {needsReview && <section><h3>{t('Review against references','对照参考图审核')}</h3>{version!.provenance.referenceAssetIds.map(id=><AssetImage locale={locale} key={id} id={id} alt={t('Source reference','原始参考图')}/>)}
-      <ul>{activeStudio.reviewChecks.map(check=><li key={check.id}>{check.label}</li>)}</ul>
-      <button onClick={()=>perform(async()=>{ await patchProject(projectId, current => ({reviewedAssetIds:[...new Set([...(current.reviewedAssetIds || []),selectedAsset])]})); studio.refresh() })}>{t('Accept after review','审核并接受')}</button></section>}
+      {needsReview && <ReferenceReview key={selectedAsset} locale={locale}
+        referenceIds={version!.provenance.referenceAssetIds} resultReady={previewReadyId === selectedAsset}
+        checks={activeStudio.reviewChecks} onAccept={() => perform(async () => {
+          await patchProject(projectId, current => ({ reviewedAssetIds: [...new Set([...(current.reviewedAssetIds || []), selectedAsset])] }))
+          studio.refresh()
+        })} />}
       </>
       : <p>{t('Your image will appear here.','生成的图片将显示在这里。')}</p>}
     {studio.jobs.slice(0,3).map(job => <p key={job.id} role="status">{jobLabel(job.status,locale)} {feedback(job.message ?? '',locale)}</p>)}
@@ -142,4 +147,23 @@ function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab,
       <button type="button" onClick={()=>studio.setError('')}>{t('Dismiss','关闭')}</button></div>}
     home={home} canvas={canvas} composer={composer} inspector={creation.inspector} navigation={navigation} keySettings={<KeySettings locale={locale} />} library={library} />
     <footer>{t('Build','构建版本')} {buildId}</footer></>
+}
+
+function ReferenceReview({ locale, referenceIds, resultReady, checks, onAccept }: {
+  locale: Locale
+  referenceIds: readonly string[]
+  resultReady: boolean
+  checks: ReturnType<typeof getStudio>['reviewChecks']
+  onAccept: () => void
+}) {
+  const [decodedReferences, setDecodedReferences] = useState(() => new Set<string>())
+  const t = (en: string, zh: string) => locale === 'en' ? en : zh
+  const ready = resultReady && referenceIds.every(id => decodedReferences.has(id))
+  return <section>
+    <h3>{t('Review against references', '对照参考图审核')}</h3>
+    {referenceIds.map(id => <AssetImage locale={locale} key={id} id={id} alt={t('Source reference', '原始参考图')}
+      onReady={() => setDecodedReferences(previous => new Set([...previous, id]))} />)}
+    <ul>{checks.map(check => <li key={check.id}>{check.label}</li>)}</ul>
+    <button type="button" disabled={!ready} onClick={onAccept}>{t('Accept after review', '审核并接受')}</button>
+  </section>
 }

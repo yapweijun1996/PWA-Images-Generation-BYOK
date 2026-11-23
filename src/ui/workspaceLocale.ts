@@ -40,6 +40,7 @@ const errors: Record<string,string> = {
   'Device storage is full. Free space, then try saving again.': '设备存储空间不足，请释放空间后重新保存。',
   'Device storage is full. Free space and restore the backup again.': '设备存储空间不足，请释放空间后重新恢复备份。',
   'This image is missing from device storage. Restore a project backup or import the image again.': '设备存储中缺少此图像，请恢复项目备份或重新导入图像。',
+  'This image could not be decoded.': '无法读取此图像，请重新导入或从备份恢复。',
   'Image storage is unavailable. Reopen the app with device storage enabled.': '图像存储不可用，请启用设备存储后重新打开应用。',
   'Device storage is unavailable. Check browser storage settings and reopen the app.': '设备存储不可用，请检查浏览器存储设置并重新打开应用。',
   'The project no longer exists.': '此项目已不存在。',
