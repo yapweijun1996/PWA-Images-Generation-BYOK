@@ -145,10 +145,10 @@ try {
 
   let share = await find('type == "XCUIElementTypeButton" AND name == "ShareButton" AND visible == true')
   if (!share) {
-    const menu = await named('Page Menu', 'Button')
-    assert(menu, 'Safari Share and Page Menu controls are missing')
+    const menu = await named('More', 'Button')
+    assert(menu, 'Safari Share and compact toolbar More controls are missing')
     await tap(menu)
-    share = await waitFor('Safari Share', () => named('Share', 'Button'))
+    share = await waitFor('Safari Share in the More menu', () => named('Share'))
   }
   await tap(share)
   await screenshot('share-sheet')
@@ -158,7 +158,8 @@ try {
     const action = await named('Add to Home Screen')
     if (action) return action
     if (!expanded) {
-      const more = await named('View More') || await named('More Actions')
+      const more = await named('View More') || await named('More Actions') ||
+        (DEVICE_NAME.startsWith('iPad') && await named('More', 'Button'))
       if (more) { await tap(more); expanded = true }
     }
   })
