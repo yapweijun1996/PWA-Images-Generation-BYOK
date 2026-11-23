@@ -1,4 +1,4 @@
-/* global URL, fetch, document, window, PerformanceObserver, innerWidth, matchMedia, getComputedStyle, console, axe */
+/* global URL, fetch, document, window, PerformanceObserver, innerWidth, innerHeight, matchMedia, getComputedStyle, console, axe */
 // Run against a local production preview. Set PLAYWRIGHT_MODULE to an installed Playwright ESM entry.
 import { createHash } from 'node:crypto'
 import process from 'node:process'
@@ -120,6 +120,17 @@ try {
     await page.keyboard.type('Keyboard draft')
     assert.equal(await field.inputValue(),'Keyboard draft')
     observed.focus.push({name:'Prompt',outline:await field.evaluate(el=>getComputedStyle(el).outline)})
+    if (width === 390) {
+      observed.buildLabelVisible = await page.locator('footer').evaluate(footer => {
+        window.scrollTo(0, document.documentElement.scrollHeight)
+        const text = document.createRange()
+        text.selectNodeContents(footer)
+        const bounds = text.getBoundingClientRect()
+        const nav = document.querySelector('.studio-mobile-nav').getBoundingClientRect()
+        return bounds.height > 0 && bounds.top >= 0 && bounds.bottom <= Math.min(nav.top, innerHeight)
+      })
+      assert(observed.buildLabelVisible, 'Mobile navigation covers the build label at the bottom of the page')
+    }
     output.keyboard.push(observed)
     await context.close()
   }

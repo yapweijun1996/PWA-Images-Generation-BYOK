@@ -68,7 +68,7 @@
   .studio-brand { gap: 7px; }
   .studio-brand h1 { font-size: .84rem; }
   .studio-byok { display: none; }
-  .studio-layout { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+  .studio-layout + footer { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
   .studio-canvas-region { min-height: min(52dvh, 430px); padding: 12px; }
   .studio-composer { padding: 0 12px 12px; }
   .studio-composer-toggle { align-items: center; background: none; border: 0; color: var(--studio-text); cursor: pointer; display: flex; font-weight: 700; justify-content: space-between; min-height: 48px; text-align: left; width: 100%; }
