@@ -13,7 +13,6 @@
 }
 .artboard {display:grid;align-content:start;gap:12px;min-height:280px}
 .artboard img {display:block;max-width:100%;max-height:55vh;object-fit:contain;margin:auto}
-.studio-library-region img {width:100px;height:100px;object-fit:cover}
 .studio-sidebar-content nav {display:grid;gap:6px}
 .studio-layout :is(form, .studio-inspector-content section) {display:grid;gap:12px}
 .studio-layout label {display:grid;gap:5px}
@@ -26,7 +25,10 @@
 .canvas-preview img { min-width:0;object-fit:contain;flex:1 1 0 }
 .canvas-preview.zoom-2 img { flex:none;max-width:none;max-height:none }
 .artboard details img,.studio-composer li img {max-width:12rem;max-height:9rem}
-.artboard [aria-label] button img {display:inline-block;width:2.5rem;height:2.5rem;object-fit:cover;vertical-align:middle;margin-inline-end:.4rem}
+.asset-thumbnail { background: var(--studio-surface); display: inline-block; inline-size: 100px; block-size: 100px; vertical-align: middle; }
+.version-history .asset-thumbnail { inline-size: 2.5rem; block-size: 2.5rem; margin-inline-end: .4rem; }
+.studio-layout :is(.version-history, .studio-library-region) .asset-thumbnail > img { display: block; width: 100%; height: 100%; max-height: none; margin: 0; object-fit: cover; }
+.asset-thumbnail:has([role=alert]) { block-size: auto; inline-size: min(12rem, 100%); white-space: normal; overflow-wrap: anywhere; }
 .workspace-alert { align-items: center; background: var(--studio-surface); border: 1px solid var(--studio-accent); border-radius: 8px; color: var(--studio-text); display: flex; flex: none; gap: 12px; justify-content: space-between; margin: 8px 12px; padding: 8px 12px; }
 .workspace-alert button { background: var(--studio-raised); border: 1px solid var(--studio-border); border-radius: 6px; color: var(--studio-text); cursor: pointer; min-height: 44px; padding: 6px 10px; }
 

@@ -51,8 +51,27 @@ The layout candidate from `28aa460` was rerun using the same Chromium lab profil
 
 The mobile navigation and theme build was retested under the same lab settings in Chrome 158. The six fresh navigations measured LCP 1,264–1,340 ms, CLS 0–0.0004 and longest observed interaction events 48–56 ms. The local displayed build was `2026-11-23T15:23:36.917Z` with JS SHA-256 `f8d4606a28591caef80d1e6ec2d886317a2c2b5c1d18288b8494ab61a10ea09f`. The two mobile drawer sizes retained focus and restored it on dismissal. Axe reported zero violations and left color contrast for manual checking in all four sampled theme and width combinations.
 
+## Populated asset library
+
+On November 24 Singapore time, a mobile-width Chrome 158.0.8127.37 fixture seeded one project with 48 assets and 48 versions in IndexedDB. The synthetic PNGs measured 2048 × 1536, with about 3.9 MB per original. Half the asset records omitted recorded dimensions. Two distinct PNG payloads made it possible to verify the selected export independently of the initial selection. The test ran at 390 × 844 with a fresh browser profile for each build. It counted requests to the local blob store and the payload sizes of active object URLs 500 ms after each sampled state.
+
+| State | Public baseline blob reads | Local candidate blob reads | Baseline active URL bytes | Candidate active URL bytes |
+| --- | ---: | ---: | ---: | ---: |
+| Home | 50 | 1 | 195,532,229 | 3,911,325 |
+| Create with version history | 50 | 13 | 195,532,229 | 4,530,501 |
+| Assets first view | 98 | 27 | 383,241,808 | 4,633,789 |
+| Assets after scrolling to the last tile | 98 | 41 | 383,241,808 | 4,633,697 |
+
+The baseline was public commit `7cbb891`, build `2026-11-23T16:45:21.339Z`. The corrected production preview displayed `2026-11-23T17:00:17.945Z`. Preview tiles defer reads until they approach the viewport, use images bounded to 240 pixels on the longest side when downsampling succeeds, and release their object URLs after leaving the observed area. The edit controls defer initialization until first opened. The main canvas still loads the selected original.
+
+Chrome and WebKit 27.2 verified all 48 accessible asset buttons, the last tile after scrolling, and a 2048-pixel original in the canvas and editor. Collapsing and reopening the editor retained a keyboard-created brush mark. The selected PNG download matched its seeded SHA-256. After an offline reload, the library loaded its thumbnails again. The byte totals describe active blob URLs. Runtime heap, decode peaks and field responsiveness were outside this measurement.
+
+The empty-workspace Chromium lab reran on the same local candidate. Six cold navigations measured LCP from 1,388 to 1,560 ms, CLS up to 0.0004 and longest observed interaction-event duration from 80 to 112 ms. The candidate fit all sampled viewports and the drawer keyboard checks passed.
+
 ## Field measurements and launch policy
 
 Test the published workspace URL through [PageSpeed Insights](https://pagespeed.web.dev/) or the [CrUX API](https://developer.chrome.com/docs/crux/api). Record the URL, phone and desktop form factors, collection dates, and P75 LCP, INP and CLS when URL-level data is available. This repository shares its GitHub Pages origin with other paths. Origin-level measurements describe that combined traffic and belong in the release record as context.
+
+On November 24 Singapore time, the [official CrUX Vis dashboard](https://cruxvis.withgoogle.com/) returned no data for the exact published application URL. Its CrUX History requests returned HTTP 404 and no percentiles were available. The field result remains `INSUFFICIENT_DATA`.
 
 While field data is unavailable, record `INSUFFICIENT_DATA`, retain reproducible lab results for each candidate, and keep full production acceptance open. Public candidate builds can gather usage under the existing release authorization. Evaluate observed regressions against the documented P75 thresholds before closing the performance gate. The published app uses the existing local-first data model. Reporting relies on aggregate browser data published independently of the app, subject to [CrUX coverage and eligibility](https://developer.chrome.com/docs/crux/methodology).

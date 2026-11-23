@@ -10,7 +10,7 @@ import { openStorage } from '@engine/storage'
 import { patchProject } from '@engine/storage/draft'
 import type { Project } from '@engine/types'
 import { downloadImage, downloadProjectBackup, importProjectBackup } from '@engine/export'
-import { AssetImage } from './AssetImage'
+import { AssetImage, AssetThumbnail } from './AssetImage'
 import { KeySettings } from './KeySettings'
 import { StudioLayout, type StudioDrawer } from './StudioLayout'
 import { getStudio, isStudioId, studioIds } from '@studios/index'
@@ -47,6 +47,7 @@ function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab,
   const [projects, setProjects] = useState<Project[]>([])
   const [selected, setSelected] = useState('')
   const [previewReadyId, setPreviewReadyId] = useState<string>()
+  const [editToolsOpened, setEditToolsOpened] = useState(false)
   const [name, setName] = useState('')
   const trashed = new Set(studio.project?.trashedAssetIds ?? [])
   const visibleVersions = studio.versions.filter(v => !trashed.has(v.assetId))
@@ -132,14 +133,20 @@ function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab,
       </>
       : <p>{t('Your image will appear here.','生成的图片将显示在这里。')}</p>}
     {studio.jobs.slice(0,3).map(job => <p key={job.id} role="status">{jobLabel(job.status,locale)} {feedback(job.message ?? '',locale)}</p>)}
-    {visibleVersions.length > 0 && <div aria-label={t('Version history','版本历史')}>{visibleVersions.map((v,i) =>
-      <button key={v.id} title={v.provenance.prompt} onClick={() => selectAsset(v.assetId)}><AssetImage locale={locale} id={v.assetId} alt="" />V{visibleVersions.length-i}</button>)}</div>}
+    {visibleVersions.length > 0 && <div className="version-history" aria-label={t('Version history','版本历史')}>{visibleVersions.map((v,i) =>
+      <button key={v.id} title={v.provenance.prompt} onClick={() => selectAsset(v.assetId)}><AssetThumbnail locale={locale} id={v.assetId} />V{visibleVersions.length-i}</button>)}</div>}
   </section>
   const composer = <><label>{t('Workflow stage','工作阶段')}<select disabled={!creation.draft} value={stage.id} onChange={e => creation.changeDraft({stageId:e.target.value})}>
     {activeStudio.stages.map(s => <option value={s.id} key={s.id}>{s.label}</option>)}</select></label>
     {activeStudio.templates.filter(template => template.stageId === stage.id).map(template => <button type="button" key={template.id} onClick={() => creation.setPrompt(template.prompt)}>{template.label}</button>)}
-    {creation.composer}<details><summary>{t('Edit, lock references or batch','编辑、锁定参考图或批量生成')}</summary><ImageEditTools assetCount={studio.assets.length} projectId={projectId} selectedAssetId={selectedAsset} locale={locale} onPrepared={creation.prepareEdit} /></details>{studio.project && <StudioBoard project={studio.project} selected={needsReview ? undefined : selectedAsset} locale={locale} onChange={studio.refresh} />}</>
-  const library = tab === 'assets' ? <section><h2>{t('Assets','素材')}</h2>{visibleAssets.map(asset => <button key={asset.id} onClick={() => {selectAsset(asset.id);setTab('create')}}><AssetImage locale={locale} id={asset.id} alt={sourceLabel(asset.source,locale)} /></button>)}{trashed.size>0 && <details><summary>{t('Trash','回收站')} ({trashed.size})</summary>{[...trashed].map((id,i)=><button key={id} onClick={()=>perform(()=>trash(id,true))}>{t('Restore image','恢复图片')} {i+1}</button>)}</details>}</section>
+    {creation.composer}<details onToggle={event => { if (event.currentTarget.open) setEditToolsOpened(true) }}>
+      <summary>{t('Edit, lock references or batch','编辑、锁定参考图或批量生成')}</summary>
+      {editToolsOpened && <ImageEditTools assetCount={studio.assets.length} projectId={projectId} selectedAssetId={selectedAsset} locale={locale} onPrepared={creation.prepareEdit} />}
+    </details>{studio.project && <StudioBoard project={studio.project} selected={needsReview ? undefined : selectedAsset} locale={locale} onChange={studio.refresh} />}</>
+  const library = tab === 'assets' ? <section><h2>{t('Assets','素材')}</h2>{visibleAssets.map(asset =>
+    <button key={asset.id} aria-label={sourceLabel(asset.source,locale)} onClick={() => {selectAsset(asset.id);setTab('create')}}>
+      <AssetThumbnail locale={locale} id={asset.id} />
+    </button>)}{trashed.size>0 && <details><summary>{t('Trash','回收站')} ({trashed.size})</summary>{[...trashed].map((id,i)=><button key={id} onClick={()=>perform(()=>trash(id,true))}>{t('Restore image','恢复图片')} {i+1}</button>)}</details>}</section>
     : <section><h2>{t('Projects','项目')}</h2>{projects.map(p => <button key={p.id} onClick={() => perform(async () => { await leave(p.id);setTab('create') })}>{projectLabel(p,locale)}</button>)}
     <form onSubmit={e => {e.preventDefault();perform(async () => {
       if (!name.trim()) return
