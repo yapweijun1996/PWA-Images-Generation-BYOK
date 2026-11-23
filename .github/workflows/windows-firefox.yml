@@ -1,0 +1,31 @@
+name: Verify Windows stable Firefox
+on: workflow_dispatch
+permissions:
+  contents: read
+
+jobs:
+  firefox:
+    if: github.ref == 'refs/heads/main'
+    runs-on: windows-2025
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '24'
+      - run: npm ci
+      - run: npm run build
+      - name: Verify preinstalled release Firefox and draft recovery offline
+        shell: pwsh
+        env:
+          SE_AVOID_BROWSER_DOWNLOAD: 'true'
+        run: |
+          $env:FIREFOX_BINARY = Join-Path $env:ProgramFiles 'Mozilla Firefox/firefox.exe'
+          $channelFile = Join-Path (Split-Path $env:FIREFOX_BINARY) 'defaults/pref/channel-prefs.js'
+          if ((Get-Content -Raw $channelFile) -notmatch '(?m)^\s*pref\("app\.update\.channel",\s*"release"\);') { throw 'Preinstalled release-channel Firefox required.' }
+          $env:GECKODRIVER = (Get-Command geckodriver -ErrorAction Stop).Source
+          python -m pip install selenium==4.54.0
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/windows-firefox.py
