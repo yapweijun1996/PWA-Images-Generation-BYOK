@@ -109,3 +109,7 @@ On public GitHub Pages, Chrome 158.0.8127.37 on macOS installed build A (`2026-1
 The [rollback dispatch](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45193373686) restored A from the previously retained artifact. All nine files matched the original A artifact at the live origin. The [restore-forward dispatch](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45193539228) returned the site to B. Both dispatches completed successfully.
 
 Additional device and lab results: [desktop browser compatibility](compatibility.md), [performance and keyboard checks](performance.md).
+
+## Integrated November 23 release
+
+[Pages run 45196879919](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45196879919) published source `3918d98`. Its clean build, deployment and live artifact comparison succeeded. Chrome opened the public app with displayed build `v0.1.0 · 2026-11-23T14:41:40.454Z`. A tester selected GPT Image 2.6 Flare and explicitly submitted a low-quality image request with a temporary key. OpenAI returned HTTP 200, Chrome decoded the image at 1024 × 1024, and an offline reload retained the image and enabled PNG download. The separate [UHD and masked-edit checks](advanced-generation.md) describe their respective release builds and models.
