@@ -27,7 +27,7 @@ Status values: `PENDING`, `IN_PROGRESS`, `DONE`, `BLOCKED`. A task becomes `DONE
 | T-108 | Local storage: IndexedDB schema and migration | T-101 | OFF-06 spec executed | PENDING |
 | T-109 | Version history | T-108 | Each generation is kept with prompt, params, model | PENDING |
 | T-110 | Export | T-109 | Image downloads; 4K only if the model supports it | PENDING |
-| T-114 | Resolve the anchor-vs-spec differences listed in UIUX.md section 1a | - | Each item decided and written into UIUX.md | PENDING |
+| T-114 | Resolve the anchor-vs-spec differences listed in UIUX.md section 1a | - | Owner decided all items on 2026-11-23; written into UIUX.md | DONE |
 | T-111 | Main layout (desktop three columns, mobile canvas-first) | T-101 | Built in real HTML from Visual Anchor V1; taste gate passed at 390x844, 768x1024, 1440x900 | PENDING |
 | T-113 | GitHub Pages deploy: Actions workflow, Vite `base` for the sub-path, manifest and service worker scope under the sub-path | T-101 | Workflow publishes a build; installed app opens and works offline from the Pages URL | PENDING |
 | T-112 | Phase 1 release check | T-101…T-111 | PWA gates G1–G4 evidence recorded | PENDING |

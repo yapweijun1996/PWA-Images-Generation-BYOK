@@ -16,7 +16,7 @@ Priority labels: **MUST** = required for the phase, **SHOULD** = intended, **MAY
 | F-06 | Export | Export images. 4K only where the model supports it. | 1 |
 | F-07 | Project Library | Organize images, references, and works into projects. | 2 |
 | F-08 | Prompt Enhancement | AI improves the user's prompt, shown before use. | 2 |
-| F-09 | Cost Estimator | Estimate API cost before generating. | 4 |
+| F-09 | Cost Estimator | Estimate API cost before generating. Basic version in Phase 1 (only where provider pricing is known, labelled as an estimate); refinements later. | 1 |
 | F-10 | Inpainting | Edit part of an image or replace an object. | 3 |
 | F-11 | Outpainting | Extend the image borders. | 3 |
 | F-12 | Character Lock | Keep a character consistent across images. | 3 |

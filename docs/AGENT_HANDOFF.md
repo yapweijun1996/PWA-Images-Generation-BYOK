@@ -115,6 +115,7 @@ Use the IDs from `docs/TASK.md`. Update the status there as you go, with evidenc
 - Evidence: recorded real run (date, model, result); no key in the record.
 
 ### T-105 Model selector
+- [ ] Also add the basic cost estimate (F-09): shown only where pricing is known, labelled as an estimate.
 - [ ] Options come from `getCapabilities()`.
 - [ ] Unsupported options are disabled with a plain explanation.
 
@@ -143,7 +144,7 @@ Use the IDs from `docs/TASK.md`. Update the status there as you go, with evidenc
 - [ ] 4K is offered only if the selected model supports it.
 
 ### T-111 Main layout
-- [ ] Built as real HTML/CSS following Visual Anchor V1, after T-114 decisions.
+- [ ] Built as real HTML/CSS following Visual Anchor V1 and the T-114 decisions (no top studio strip, no avatar, no Complexity).
 - [ ] Desktop three panels; tablet drawers; mobile bottom tabs (Studio, Create, Assets, Settings).
 - [ ] Keyboard navigation, visible focus, reduced motion, light and dark themes.
 - [ ] Taste gate passed with real screenshots at 390x844, 768x1024, 1440x900.
@@ -155,7 +156,7 @@ Use the IDs from `docs/TASK.md`. Update the status there as you go, with evidenc
 - Run only when the owner authorizes deployment.
 
 ### T-114 Anchor differences
-- [ ] Ask the owner about each item in `docs/UIUX.md` section 1a and record the answers. Do not decide them yourself.
+- [x] Done. The owner decided all items on 2026-11-23. Follow the decision table in `docs/UIUX.md` section 1a (left navigation only, no avatar, no Complexity, model in the right inspector, basic cost estimate in Phase 1, disabled-with-reason for unsupported features, icons instead of thumbnails).
 
 ### T-112 Phase 1 release check
 - [ ] Applicable P0 tests from the PWA standard executed, with evidence bound to build, environment, and timestamp.
@@ -164,7 +165,6 @@ Use the IDs from `docs/TASK.md`. Update the status there as you go, with evidenc
 
 ## 7. Open Questions for the Owner
 
-- T-114 anchor differences (seven items in `docs/UIUX.md`).
 - Whether a second provider (Gemini) joins Phase 1.
 - Whether the user-controlled proxy is built in Phase 1 (decided by the CORS result in T-104).
 - Order of studios after Manga.

@@ -23,7 +23,7 @@ File: `docs/ui/anchors/anchor-v1-desktop.webp` (1535x1023). Owner-selected on 20
 | Region | Content |
 |--------|---------|
 | Global header | Logo and name "PWA Images Studio", BYOK badge, project breadcrumb ("My Projects / Future City Concept"), Help, Settings, theme toggle, avatar |
-| Studio tab strip | Six studio cards with a preview thumbnail each, the active one highlighted, and a collapse control |
+| Studio tab strip | Six studio cards with a preview thumbnail each (removed in the real UI, see decisions below) |
 | Left navigation | Six studios, Library (Projects, Assets, History), BYOK Settings with key status, Provider and Model selectors, Manage Keys, short tagline |
 | Canvas toolbar | Project name with rename, save status, Undo, Redo, Compare, Fit, zoom percentage, overflow menu |
 | Canvas | Large image preview, the dominant element |
@@ -34,21 +34,22 @@ File: `docs/ui/anchors/anchor-v1-desktop.webp` (1535x1023). Owner-selected on 20
 
 Style: dark theme, neutral dark surfaces, a restrained blue-indigo accent for the primary action and selected states, rounded cards, and one dominant image.
 
-**Where the anchor adds to or differs from the text spec (to resolve)**
+**Owner decisions on the anchor differences (2026-11-23)**
 
-| Item | Note |
-|------|------|
-| Studio tab strip with thumbnails | New. The text spec only lists studios in the left navigation. Needs a decision on whether both exist. |
-| Provider and Model in the left panel and Model in the right inspector | Duplicated. One place should own it. |
-| Avatar in the header | Implies an account. The project has no accounts, so this must become something else (for example a settings or profile-free menu) or be removed. |
-| "Complexity" setting | Not in the spec. Needs a definition or removal. |
-| Custom size with a 4K badge | 4K is not guaranteed (see SPEC out of scope). The badge must depend on provider capability. |
-| Model name `gpt-image-2.6-sunburst` | Placeholder. The real model list must come from the provider's capability discovery. |
-| Estimated Cost | Spec F-09 puts the cost estimator in Phase 4, while the MVP says "show estimated cost where pricing is known". Needs a decision. |
-| Inpainting and Outpainting tabs | Phase 3 features (F-10, F-11). In earlier phases they must appear disabled with an explanation, or be hidden. |
-| Studio preview thumbnails | Use real, owner-approved imagery in the real UI. Do not copy the mockup's pictures. |
+| # | Item in the anchor | Decision |
+|---|--------------------|----------|
+| 1 | Studio tab strip with thumbnails, plus left navigation | Keep **only the left navigation**. Remove the top studio tab strip. On mobile, the Studio bottom tab opens the studio list. |
+| 2 | Provider and Model shown on both the left and the right | Provider, Key status, and Manage Keys live in the **left panel**. Model, size, quality, and per-generation settings live in the **right inspector**. |
+| 3 | Avatar in the header | **Remove it.** The project has no accounts. Help, Settings, and the theme toggle stay. |
+| 4 | "Complexity" setting | **Remove it** for now. Add it back only if a provider has a matching parameter (check in T-104). |
+| 5 | 4K badge on custom size | Shown only when the selected model supports it. Otherwise **disabled with a reason**. |
+| 6 | Estimated Cost | A **simple version in Phase 1**: shown only where the provider's price is known, clearly labelled as an estimate. SPEC F-09 moves from Phase 4 to Phase 1 (basic). |
+| 7 | Inpainting and Outpainting tabs | Before Phase 3, shown **disabled with an explanation**. |
+| 8 | Studio preview thumbnails | **Not used.** Studios use icons plus text. The mockup's pictures are not copied. |
 
+Because the top studio strip is removed, the real UI will deviate from the anchor in that area. The taste gate still compares real screenshots against the anchor for overall composition, density, and mood.
 
+## 2. Design Direction: Canvas-first Creative Workspace
 
 One workspace, not six unrelated pages.
 
