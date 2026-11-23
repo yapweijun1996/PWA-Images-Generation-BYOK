@@ -1,15 +1,21 @@
 # Production release gates
 
-**Decision: HOLD.** This assessment uses the STATIC_OFFLINE profile of KB-MCP `pwa:product-standard` v1.1.0 (registry body revision `80aad1538f3ecdddd7512de64cde4b8047196fb3637c075a87aab381bf314874`) and its service-worker install-integrity companion. Assessment date: 2026-11-24 Singapore time. Current hosted build: `49388bd`. This matrix records the scope of each observation. Historical local passes do not establish release-candidate or live acceptance.
+**Decision: HOLD.** This assessment uses the STATIC_OFFLINE profile of KB-MCP `pwa:product-standard` v1.1.0 (registry body revision `80aad1538f3ecdddd7512de64cde4b8047196fb3637c075a87aab381bf314874`) and its service-worker install-integrity companion. Assessment date: 2026-11-24 Singapore time. Current hosted build: `e9c076f`. This matrix records the scope of each observation. Historical local passes do not establish release-candidate or live acceptance.
 
 | Gate | Decision | Outstanding evidence |
 |---|---|---|
-| G1 Safety | HOLD | Public build `68ef70d` preserved offline ZIP restore in a passive old Chrome tab after explicit activation. Two engines rejected three corrupted installation cases using its retained artifact in loopback. Remaining device and full safety-matrix coverage are recorded below. |
-| G2 Compatibility | HOLD | Android 16 emulator TalkBack captioned update discovery on the current artifact. Physical iPhone, iPad and Android, VoiceOver and the remaining TalkBack journeys stay open. See the device matrix for browser coverage. |
+| G1 Safety | HOLD | The current artifact passed the cross-tab queue, interruption and zero-request notification checks. Earlier build `68ef70d` preserved offline ZIP restore in a passive tab after activation and rejected corrupted install candidates in two engines. Remaining device and safety-matrix coverage are recorded below. |
+| G2 Compatibility | HOLD | Android 16 emulator TalkBack captioned update discovery on `49388bd`. Physical iPhone, iPad and Android, VoiceOver and the remaining TalkBack journeys stay open. See the device matrix for browser coverage. |
 | G3 Performance | HOLD | Six cold navigations of the current artifact met the lab thresholds. The large project fixture also reduced the longest reported main-thread tasks in backup and restore. On November 24, CrUX Vis returned no data for the exact URL. Field P75 is INSUFFICIENT_DATA. Targets are LCP ≤2.5 s, INP ≤200 ms and CLS ≤0.1. [Measurements](performance.md). |
 | G4 Evidence | HOLD | The published artifact includes its verified source commit. Remaining gaps include per-case evidence across the full target matrix. The live rollback and restore-forward drill passed. |
 
 ## Current public release
+
+[Pages run 45242606194](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45242606194) published `e9c076f19975a93f83c9b663445288ce6f865998`, displayed as `v0.1.0 · 2026-11-23T18:50:52.271Z`. Both CI and an independent check matched the full source revision and all 13 public files to the retained artifact. Worker SHA-256 is `6182f889ecfc5a93b30c5a2e01a5d561a595b616f050fe820a66a9fa6e83b247`. The artifact expires at 18:50:25 UTC on February 21, 2027. CI passed 40 tests, lint, type checking and the production build. A scan of 140 tracked files and all 13 released files found no copy of the configured developer key.
+
+Public Chrome confirmed that an already open project view received the generating state, the completed job and the original image. The same image downloaded byte for byte after going offline and reloading. WebKit and Firefox ran the two-tab flow against the exact artifact on loopback. WebKit's interrupted-request recovery produced zero versions and one total intercepted provider attempt. [Queue and recovery evidence](offline-recovery.md#concurrent-project-views-and-interruption).
+
+## November 24 TalkBack update release
 
 [Pages run 45239647736](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45239647736) published `49388bd0e64efe2bc480f731f1ec05ea689e5f53`, displayed as `v0.1.0 · 2026-11-23T18:33:50.324Z`. Both CI and an independent check matched the full source revision and all 13 public files to the retained artifact. Worker SHA-256 is `3de65219634c0ad6d30a5f263773b4fd47a3152190a6b10702fe6cd840ebdfbd`. The artifact expires at 18:33:25 UTC on February 21, 2027. The pipeline passed 39 tests, lint, type checking and the production build. A scan of 138 tracked files and all 13 released files found no copy of the configured developer key.
 
@@ -137,7 +143,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | OFF-01 | Offline shell loads | PASS (live Chrome) | After an explicit installed-client update, offline refresh retained build B in standalone mode. |
 | OFF-02 | Offline network error detected | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
 | OFF-03 | Offline server transaction not falsely committed | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
-| OFF-04 | Durable pending operation recovery | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
+| OFF-04 | Durable pending operation recovery | PASS (bounded browser fixtures) | The exact artifact recovered an uncertain job after the submitting WebKit tab closed and the observer reloaded. Earlier Chrome fixtures covered queued recovery and failure. [Recovery evidence](offline-recovery.md#concurrent-project-views-and-interruption). |
 | OFF-05 | Storage quota exceeded | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
 | OFF-06 | IndexedDB migration | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
 | OFF-07 | Cache eviction recovery | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
@@ -158,9 +164,9 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | A11Y-06 | Reduced-motion preference | PASS (Chrome preference emulation) | Reduced-motion behavior verified in Chrome. [Evidence](keyboard-and-controls.md). |
 | A11Y-07 | Modal focus trapping and restoration | PASS (Chrome and WebKit drawers) | Both drawers at 390 and 768 px kept keyboard focus inside, blocked direct background focus and restored focus on Escape or backdrop click. Chrome also verified the accessibility tree. [Evidence](keyboard-and-controls.md). |
 | A11Y-08 | Accessible update status announcements | PARTIAL | Android TalkBack missed the earlier waiting-build message and captioned the current published artifact's instruction during actual worker discovery in loopback. Spoken VoiceOver and full TalkBack coverage remain open. [Update status evidence](update-guards.md#android-talkback-speech-feedback). |
-| QA-01 | LCP target | LAB PASS; FIELD INSUFFICIENT_DATA | Six fresh navigations measured LCP 1260–1368 ms in the bounded lab. See performance.md. |
-| QA-02 | INP target | LAB ONLY; FIELD INSUFFICIENT_DATA | Worst observed interaction event duration was 120 ms. The bounded sample does not establish field INP P75. |
-| QA-03 | CLS target | LAB PASS; FIELD INSUFFICIENT_DATA | Observed CLS 0.0003–0.0004 in six fresh navigations. See performance.md. |
+| QA-01 | LCP target | LAB PASS; FIELD INSUFFICIENT_DATA | Six fresh navigations of `e9c076f` measured LCP 1,428–1,472 ms. [Lab conditions](performance.md). |
+| QA-02 | INP target | LAB ONLY; FIELD INSUFFICIENT_DATA | Worst observed interaction-event duration for `e9c076f` was 136 ms. Field P75 remains unavailable. [Measurements](performance.md). |
+| QA-03 | CLS target | LAB PASS; FIELD INSUFFICIENT_DATA | Observed CLS was 0–0.0004 in six fresh navigations of `e9c076f`. [Measurements](performance.md). |
 | QA-04 | Responsive layout without overflow | PARTIAL | No horizontal overflow on tested fresh shells at 390/768/1440 or at the end of the 48-image library in public WebKit at 1440 px. [Scope](performance.md). |
 | QA-05 | CSP and XSS regression | PASS (bounded desktop Chrome checks) | Project markup displayed as literal text. CSP blocked an off-origin request. [Evidence](keyboard-and-controls.md). |
 | QA-06 | No sensitive cache leakage | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
@@ -173,7 +179,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | REL-05 | Release evidence completeness | PARTIAL | Current public files are tied to the checked-out source SHA, with digests and scoped observations. Per-case evidence for the full catalog remains open. |
 | REL-06 | Cross-browser test matrix | NOT_RUN | Complete declared device/browser matrix below. |
 | REL-07 | Monitoring and alert validation | PASS (Actions operator view) | An intentional [invalid restore dispatch](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45199992786) failed at Verify rollback source; deploy was skipped. A subsequent check matched all 10 live files. End-user notification and external paging were outside this check. |
-| REL-08 | No unauthorized automatic resubmission | PASS (bounded fixtures) | Interrupted and uncertain jobs did not resend during the observation windows in [offline recovery](offline-recovery.md). |
+| REL-08 | No unauthorized automatic resubmission | PASS (bounded fixtures) | The exact artifact kept one intercepted request across abort and recovery, and a queue invalidation signal alone produced zero requests in an open project. [Offline recovery](offline-recovery.md#concurrent-project-views-and-interruption). |
 
 ## First live release
 

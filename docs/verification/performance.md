@@ -55,6 +55,8 @@ The exact [published artifact for `68ef70d`](https://github.com/yapweijun1996/PW
 
 The exact [published artifact for `49388bd`](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45239647736) repeated the same loopback lab. Six fresh loads measured LCP 1,288–1,352 ms, CLS 0–0.0004 and longest observed interaction-event duration 48–64 ms. Both widths fit without horizontal overflow, and the drawer and build-label checks passed. Entry script SHA-256 is `343599df1ab5cb96d0b86dc6c49d6a6c99e1cf4edd9991d7c36f05f4f92b142e`.
 
+The exact [published artifact for `e9c076f`](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45242606194) passed six fresh loads in the same loopback Chrome lab. Observations were LCP 1,428–1,472 ms, CLS 0–0.0004 and longest interaction-event duration 72–136 ms. The sampled widths fit without horizontal overflow and the keyboard checks passed. Entry script SHA-256 is `d534acf681d99a875b87e01cc6fff54c666218332872fa51a56a50f50ba136be`.
+
 ## Populated asset library
 
 On November 24 Singapore time, a mobile-width Chrome 158.0.8127.37 fixture seeded one project with 48 assets and 48 versions in IndexedDB. The synthetic PNGs measured 2048 × 1536, with about 3.9 MB per original. Half the asset records omitted recorded dimensions. Two distinct PNG payloads made it possible to verify the selected export independently of the initial selection. The test ran at 390 × 844 with a fresh browser profile for each build. It counted requests to the local blob store and the payload sizes of active object URLs 500 ms after each sampled state.
