@@ -178,6 +178,7 @@ The full UI/UX Design System V1 draft is in [UIUX.md](UIUX.md). This is a layout
 - The API key is stored on the user's device by default and the user can opt out of remembering it. It is sent only to the chosen provider.
 - Because a stored key is readable by any script running on the page, the app keeps a strict Content Security Policy (meta tag), uses no third-party scripts, and shows a clear warning about on-device key storage.
 - Backup and restore: the user exports a backup file by hand and imports it later. The backup never contains the API key.
+- Project backups retain the uncompressed version-1 ZIP format. Export writes entries incrementally. Restore validates and writes the project in a dedicated worker, using one IndexedDB transaction for the restored metadata and image bytes. Backup and restore share an operation guard and defer app updates until the operation finishes.
 - The API key and authenticated responses are never put into a shared cache or into exported files.
 - Pending generation jobs are durable, so a reload does not lose them. A job is not reported as done until the provider returns a result.
 - Do not blindly retry a request that may already have been billed.

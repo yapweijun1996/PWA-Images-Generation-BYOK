@@ -1,5 +1,13 @@
 import { z } from '@engine/schema'
 
+export const MAX_BYTES = 256 * 1024 * 1024
+export const MAX_ENTRIES = 10001
+export const imagePath = (index: number) => 'images/' + index
+
+export async function checksum(bytes: Uint8Array<ArrayBuffer>) {
+  return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), n => n.toString(16).padStart(2, '0')).join('')
+}
+
 const id = z.string().min(1).max(512)
 const timestamp = z.iso.datetime()
 const draft = z.object({

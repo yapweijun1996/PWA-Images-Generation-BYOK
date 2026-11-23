@@ -70,6 +70,21 @@ The empty-workspace Chromium lab reran on the same local candidate. Six cold nav
 
 [Pages run 45224109099](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45224109099) published the fix as `95d5acd`, build `2026-11-23T17:07:47.117Z`. Chrome used a populated project already stored under the old public worker, then applied one explicit update. The new build reproduced the four candidate read counts and byte totals above, exposed all 48 asset buttons, displayed version history, exported the selected original with matching SHA-256 and reopened the library offline. Public WebKit repeated the thumbnail, selection, editor, byte-exact export and offline checks and reached the final thumbnail at 1440 px without horizontal document overflow.
 
+## Large project backup and restore
+
+On November 24 Singapore time, Chrome 158.0.8127.37 at 1440 × 900 exported and restored a synthetic project with 48 images and 48 versions. The source images totaled 192,603,216 bytes. Each run used a fresh profile, started the phase by using the real Projects controls and sampled main-thread Long Tasks during the operation and for a short interval after its visible completion.
+
+| Browser build | Downloads after a separate double click on a small backup | Largest reported export task | Largest reported restore task |
+| --- | ---: | ---: | ---: |
+| Public `95d5acd`, `2026-11-23T17:07:47.117Z` | 2 | 683 ms | 177 ms |
+| Corrected production preview, `2026-11-23T17:20:00.313Z` | 1 | No task ≥50 ms reported | No task ≥50 ms reported |
+
+Entry-by-entry export avoids concatenating the entire archive into one array on the UI thread. Restore performs the existing validations and atomic IndexedDB write in a dedicated worker. A compatibility fallback invokes the same restore implementation when the environment has no Worker API. The result above reflects main-thread responsiveness in one sample. It does not measure total operation time, peak process memory or field INP.
+
+The old public build restored the candidate's ZIP. WebKit 27.2 restored the old public build's ZIP in the candidate with the browser offline and an uncached probe rejected. Both checks recovered 48 assets and versions, and the selected image downloaded with the original SHA-256 `c036dea708ffbf65dd888b037611064145a86387b1fe2a1257833b743b7c668f`. The WebKit run observed the dedicated restore worker start from the cached shell.
+
+The empty-workspace lab reran on the corrected archive build. Six cold loads reported LCP of 1,508–1,668 ms, observed interaction events of 88–136 ms and CLS up to 0.0004. No sampled viewport overflowed horizontally. The offline shell added the restore worker and fallback chunk, about 112 KB of built JavaScript before HTTP compression.
+
 ## Field measurements and launch policy
 
 Test the published workspace URL through [PageSpeed Insights](https://pagespeed.web.dev/) or the [CrUX API](https://developer.chrome.com/docs/crux/api). Record the URL, phone and desktop form factors, collection dates, and P75 LCP, INP and CLS when URL-level data is available. This repository shares its GitHub Pages origin with other paths. Origin-level measurements describe that combined traffic and belong in the release record as context.

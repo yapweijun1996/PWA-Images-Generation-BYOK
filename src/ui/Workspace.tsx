@@ -3,7 +3,7 @@ import { feedback, jobLabel, projectLabel, sourceLabel } from './workspaceLocale
 import { ImageEditTools } from './ImageEditTools'
 import { StudioBoard } from './StudioBoard'
 import './workspace.css'
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useStudio } from './useStudio'
 import { useCreation } from './CreationPanel'
 import { openStorage } from '@engine/storage'
@@ -14,31 +14,67 @@ import { AssetImage, AssetThumbnail } from './AssetImage'
 import { KeySettings } from './KeySettings'
 import { StudioLayout, type StudioDrawer } from './StudioLayout'
 import { getStudio, isStudioId, studioIds } from '@studios/index'
+import { registerUpdateGuard } from '@pwa'
 
 const studioIcons = { manga: BookOpen, commercial: BriefcaseBusiness, interior: Building2, uiux: PanelsTopLeft, movie: Clapperboard, education: GraduationCap }
 
 type Locale = 'en' | 'zh-CN'
 type Tab = 'home' | 'create' | 'assets' | 'projects'
+type ArchiveAction = 'backup' | 'restore'
+type ArchiveControls = {
+  action: ArchiveAction | null
+  error: string
+  clearError: () => void
+  run: (action: ArchiveAction, task: () => Promise<string | void>) => Promise<void>
+}
 interface WorkspaceProps { productName: string; buildId: string }
 export function Workspace({ connectionStatus, updateControls, ...props }: WorkspaceProps & { connectionStatus?: ReactNode; updateControls?: ReactNode }) {
   const [projectId, setProjectId] = useState(() => localStorage.getItem('active-project') || 'first-project')
   const [tab, setTab] = useState<Tab>(() => window.matchMedia('(max-width: 767px)').matches ? 'home' : 'create')
   const [drawer, setDrawer] = useState<StudioDrawer>(null)
+  const selectedProject = useRef(projectId)
+  const archiveRunning = useRef(false)
+  const [archiveAction, setArchiveAction] = useState<ArchiveAction | null>(null)
+  const [archiveError, setArchiveError] = useState('')
   const drawerOpen = drawer !== null
+
+  function switchProject(id: string) {
+    localStorage.setItem('active-project', id)
+    selectedProject.current = id
+    setProjectId(id)
+    setTab('create')
+    setDrawer(null)
+  }
+
+  async function runArchive(action: ArchiveAction, task: () => Promise<string | void>) {
+    if (archiveRunning.current) return
+    const release = registerUpdateGuard('backup')
+    const startingProject = selectedProject.current
+    archiveRunning.current = true
+    setArchiveAction(action)
+    setArchiveError('')
+    try {
+      const restoredProject = await task()
+      if (restoredProject && selectedProject.current === startingProject) switchProject(restoredProject)
+    } catch (error) {
+      setArchiveError(error instanceof Error ? error.message : 'Invalid project backup. Choose a ZIP exported by the studio.')
+    } finally {
+      archiveRunning.current = false
+      setArchiveAction(null)
+      release()
+    }
+  }
+
   return <>
     <div inert={drawerOpen}>{connectionStatus}</div>
     <ProjectWorkspace {...props} key={projectId} projectId={projectId} tab={tab} setTab={setTab}
-      drawer={drawer} setDrawer={setDrawer} switchProject={id => {
-        localStorage.setItem('active-project', id)
-        setProjectId(id)
-        setTab('create')
-        setDrawer(null)
-      }} />
+      drawer={drawer} setDrawer={setDrawer} switchProject={switchProject}
+      archive={{ action: archiveAction, error: archiveError, clearError: () => setArchiveError(''), run: runArchive }} />
     <div inert={drawerOpen}>{updateControls}</div>
   </>
 }
 
-function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab, setTab, drawer, setDrawer }: WorkspaceProps & { tab: Tab; setTab: (tab: Tab) => void; drawer: StudioDrawer; setDrawer: (drawer: StudioDrawer) => void; projectId: string; switchProject: (id: string) => void }) {
+function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab, setTab, drawer, setDrawer, archive }: WorkspaceProps & { tab: Tab; setTab: (tab: Tab) => void; drawer: StudioDrawer; setDrawer: (drawer: StudioDrawer) => void; projectId: string; switchProject: (id: string) => void; archive: ArchiveControls }) {
   const [locale, setLocale] = useState<Locale>(() => localStorage.getItem('ui-language') === 'zh-CN' ? 'zh-CN' : 'en')
   const [theme, setTheme] = useState<'light'|'dark'>(() => localStorage.getItem('ui-theme') === 'light' ? 'light' : 'dark')
   useEffect(() => { document.documentElement.lang = locale }, [locale])
@@ -158,12 +194,26 @@ function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab,
       switchProject(project.id)
     })}}><label>{t('Project name','项目名称')}<input required value={name} onChange={e => setName(e.target.value)} /></label><button>{t('New project','新建项目')}</button>
     <button type="button" disabled={!name.trim()} onClick={()=>perform(async()=>{await patchProject(projectId,{name:name.trim()});studio.refresh();setName('')})}>{t('Rename current project','重命名当前项目')}</button></form>
-    <button onClick={() => perform(async () => { await creation.flushDraft(); await downloadProjectBackup(projectId) })}>{t('Back up project','备份项目')}</button>
-    <label>{t('Restore backup','恢复备份')}<input type="file" accept=".zip" onChange={e => { const file=e.target.files?.[0]; e.target.value=''; if(file) perform(async () => { await creation.flushDraft();switchProject((await importProjectBackup(file)).id) }) }} /></label></section>
+    <button type="button" disabled={Boolean(archive.action)} onClick={() => void archive.run('backup', async () => {
+      await creation.flushDraft()
+      await downloadProjectBackup(projectId)
+    })}>{t('Back up project','备份项目')}</button>
+    <label>{t('Restore backup','恢复备份')}<input type="file" accept=".zip" disabled={Boolean(archive.action)} onChange={event => {
+      const file = event.currentTarget.files?.[0]
+      event.currentTarget.value = ''
+      if (file) void archive.run('restore', async () => {
+        await creation.flushDraft()
+        return (await importProjectBackup(file)).id
+      })
+    }} /></label>
+    <p role="status" aria-atomic="true">{archive.action === 'backup' ? t('Preparing project backup…', '正在准备项目备份…')
+      : archive.action === 'restore' ? t('Restoring project backup…', '正在恢复项目备份…') : ''}</p>
+    </section>
+  const error = archive.error || studio.error
   return <><StudioLayout productName={productName} locale={locale} onLocaleChange={value => {localStorage.setItem('ui-language',value);setLocale(value)}} theme={theme}
     onThemeChange={value => {localStorage.setItem('ui-theme',value);setTheme(value)}} activeTab={tab} onTabChange={setTab} drawer={drawer} onDrawerChange={setDrawer}
-    feedback={studio.error && <div className="workspace-alert" role="alert"><span>{feedback(studio.error,locale)}</span>
-      <button type="button" onClick={()=>studio.setError('')}>{t('Dismiss','关闭')}</button></div>}
+    feedback={error && <div className="workspace-alert" role="alert"><span>{feedback(error,locale)}</span>
+      <button type="button" onClick={archive.error ? archive.clearError : () => studio.setError('')}>{t('Dismiss','关闭')}</button></div>}
     home={home} canvas={canvas} composer={composer} inspector={creation.inspector} navigation={navigation} keySettings={<KeySettings locale={locale} />} library={library} />
     <footer inert={drawer !== null}>{t('Build','构建版本')} {buildId}</footer></>
 }

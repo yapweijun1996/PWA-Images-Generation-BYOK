@@ -38,12 +38,14 @@ it('round-trips native bytes and lineage into independent copies without keys or
   expect(metadata).not.toContain(secret)
   expect(metadata).not.toContain('private')
   const p = await importProjectBackup(archive)
-  const copy = await importProjectBackup(archive)
+  const legacy = new Blob([zipSync(files, { level: 0 })], { type: 'application/zip' })
+  const copy = await importProjectBackup(legacy)
   expect(new Set(['source', p.id, copy.id]).size).toBe(3)
   const storage = await openStorage()
   try {
     const assets = await storage.db.getAllFromIndex('assets', 'byProject', p.id)
     const versions = await storage.db.getAllFromIndex('versions', 'byProject', p.id)
+    expect(await storage.db.countFromIndex('assets', 'byProject', copy.id)).toBe(2)
     expect(assets).toHaveLength(2)
     expect(versions).toHaveLength(2)
     const edit = versions.find(v => v.parentVersionId)!

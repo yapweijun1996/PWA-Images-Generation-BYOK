@@ -2,16 +2,17 @@ import { useSyncExternalStore } from 'react'
 
 const operationLock = 'pwa-images-byok:update-safety'
 
-const guards = new Map<symbol, 'draft' | 'job'>()
+type UpdateReason = 'draft' | 'job' | 'backup'
+const guards = new Map<symbol, UpdateReason>()
 const listeners = new Set<() => void>()
 
 export function updateBlocker() {
   const reasons = [...guards.values()]
-  return reasons.includes('job') ? 'job' : reasons.includes('draft') ? 'draft' : null
+  return reasons.includes('job') ? 'job' : reasons.includes('backup') ? 'backup' : reasons.includes('draft') ? 'draft' : null
 }
 
 /** Register when work starts. Release only after saving, discarding, or settling. */
-export function registerUpdateGuard(reason: 'draft' | 'job') {
+export function registerUpdateGuard(reason: UpdateReason) {
   const token = Symbol(reason)
   let unlock: (() => void) | undefined
   const held = new Promise<void>(resolve => { unlock = resolve })
