@@ -12,6 +12,16 @@ const [device, ...others] = await _android.devices()
 assert(device && device.serial().startsWith('emulator-') && !others.length, 'Expected exactly one isolated Android emulator')
 const shell = async command => (await device.shell(command)).toString().trim()
 const draft = 'Android offline workspace check'
+async function dismissNotificationOffer() {
+  const tree = await shell('uiautomator dump /data/local/tmp/studio-window.xml >/dev/null && cat /data/local/tmp/studio-window.xml')
+  if (!tree.includes('Chrome notifications make things easier')) return false
+  const target = tree.match(/<node\b[^>]*text="No thanks"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"/)
+  assert(target, 'Could not locate the exact Chrome notification decline action')
+  const [, left, top, right, bottom] = target.map(Number)
+  await shell('input tap ' + Math.floor((left + right) / 2) + ' ' + Math.floor((top + bottom) / 2))
+  evidence.steps.push('Declined the Chrome notification offer on the disposable profile')
+  return true
+}
 let context
 try {
   evidence.android = await shell('getprop ro.build.version.release')
@@ -38,7 +48,14 @@ try {
   const visualHeight = await page.evaluate(() => visualViewport.height)
   await prompt.tap()
   await page.waitForFunction(() => document.activeElement?.matches('textarea'))
-  await page.waitForFunction(before => visualViewport.height < before - 60, visualHeight, {timeout:12000})
+  const keyboardVisible = () => page.waitForFunction(before => visualViewport.height < before - 60, visualHeight, { timeout: 8000 })
+  try {
+    await keyboardVisible()
+  } catch (error) {
+    if (!await dismissNotificationOffer()) throw error
+    await prompt.tap()
+    await keyboardVisible()
+  }
   await prompt.fill(draft)
   await device.screenshot({ path: folder + '/keyboard.png' })
   await shell('input keyevent KEYCODE_BACK')
