@@ -24,6 +24,10 @@ On the Intel iPhone 17 job, the prebuilt WebDriverAgent connected and native Saf
 
 The Intel iPad verified the release and booted iPadOS 26.2. Its job deadline expired during the separate WebDriverAgent build. The subsequent run allows 28 minutes and uses the observed More button on iPhone, recognizes the iPadOS 26 share-sheet More label, and verifies the exact `7aaefff` artifact. [iPad job](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45263645996/job/138004702682), [Compact toolbar trial](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45267231119), [Apple's iPadOS 26 instructions](https://support.apple.com/en-ie/guide/ipad/ipadc602b75b/26/ipados/26).
 
+In the compact-toolbar trial, native iPad Safari displayed `7aaefff` and opened its share popover. The artifact's failure screenshot shows two controls labeled More. The accessibility tree identifies the sharing-app cell as `shareCell` and the lower action cell as `actionGroupCell`. The automation searched for a button and timed out before opening the actions list. The revised selector matches one visible action cell in the retained tree. The user guidance identifies the lower actions row. The popover screenshot SHA-256 is `e6be2dbaa5a35ded7e4ad7ca69a307e7572cd2d18572ae1842d3032030f8436e`. [Native iPad share popover](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45267231119/job/138017248152).
+
+The iPhone job in the same trial built WebDriverAgent. The session request timed out while probing the driver port, with zero application requests recorded. The compact-toolbar selector remains unverified on the simulator. [iPhone job](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45267231119/job/138017248484).
+
 ## Firefox 159.0 (Playwright build)
 
 - The installed Firefox Nightly 160.0a1 showed a first-run Terms of Use screen; it was not accepted. The following tests instead used Playwright's separate Firefox 159.0 build and an isolated automation session, not the installed Nightly profile or a stable Firefox release.
