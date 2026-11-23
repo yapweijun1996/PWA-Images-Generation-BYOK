@@ -53,7 +53,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | SW-08 | Duplicate Update click prevented | PASS (two-tab Chrome) | [Actual drafts, double click and update navigation](update-guards.md). |
 | SW-09 | Activation loader and controllerchange | PASS (two-tab Chrome) | [Actual drafts, double click and update navigation](update-guards.md). |
 | SW-10 | Offline update failure preserves old build | PASS (local Chrome, two builds) | [Build-bound integrity and recovery observations](shell-integrity.md). |
-| SW-11 | Rollback from invalid build | NOT_RUN | Simulate a corrupt build and restore known-good bytes. |
+| SW-11 | Rollback from invalid build | PASS (local replay of two released artifacts) | Corrupt candidate rejected, original files restored, existing and fresh offline clients retained or opened the good release. See shell-integrity.md. |
 | SW-12 | Unknown-route recovery | PASS (local Chrome, two builds) | [Build-bound integrity and recovery observations](shell-integrity.md). |
 | OFF-01 | Offline shell loads | PASS (live Chrome) | After an explicit installed-client update, offline refresh retained build B in standalone mode. |
 | OFF-02 | Offline network error detected | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
@@ -89,11 +89,11 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | QA-08 | Recoverable runtime errors | NOT_RUN | Observe recovery paths for invalid credentials, network errors, quota and damaged restores. |
 | REL-01 | Clean production deployment | PASS (first live release) | Workflow 45192152435, live HTTPS entry, nine matching artifact files. |
 | REL-02 | Old-to-new build upgrade | PASS (live Chrome) | Installed A stayed on A until explicit activation, then displayed B after one navigation. |
-| REL-03 | Interrupted update recovery | NOT_RUN | Interrupt update discovery, download and activation; verify recovery. |
+| REL-03 | Interrupted update recovery | PARTIAL | Broken candidate download retained the old shell and recovered to a subsequent healthy build after explicit activation. Interruption during activation remains open. |
 | REL-04 | Rollback artifact available | PASS (live Pages) | A restore dispatch republished the exact nine files of A. A second restore republished the exact ten files of B. |
 | REL-05 | Release evidence completeness | NOT_RUN | Attach per-case test IDs, source/build digests, timestamps, environment and outcomes. |
 | REL-06 | Cross-browser test matrix | NOT_RUN | Complete declared device/browser matrix below. |
-| REL-07 | Monitoring and alert validation | NOT_RUN | Verify operator visibility of Pages failure and privacy-safe recovery instructions. |
+| REL-07 | Monitoring and alert validation | PASS (Actions operator view) | An intentional [invalid restore dispatch](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45199992786) failed at Verify rollback source; deploy was skipped. A subsequent check matched all 10 live files. End-user notification and external paging were outside this check. |
 | REL-08 | No unauthorized automatic resubmission | PASS (bounded fixtures) | Interrupted and uncertain jobs did not resend during the observation windows in [offline recovery](offline-recovery.md). |
 
 ## First live release
