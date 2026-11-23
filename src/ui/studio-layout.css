@@ -26,7 +26,7 @@
 .studio-layout :focus-visible { outline: 2px solid var(--studio-accent); outline-offset: 2px; }
 .studio-header { align-items: center; background: var(--studio-surface); border-bottom: 1px solid var(--studio-border); display: flex; gap: 12px; min-height: 60px; padding: 8px 20px; padding-top: max(8px, env(safe-area-inset-top)); }
 .studio-brand { align-items: center; display: flex; gap: 10px; min-width: 0; }
-.studio-brand strong { font-size: .94rem; letter-spacing: -.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.studio-brand h1 { font-size: .94rem; margin: 0; letter-spacing: -.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .studio-brand-mark { align-items: center; background: #5954d5; border-radius: 9px; color: white; display: inline-flex; height: 32px; justify-content: center; flex: 0 0 32px; }
 .studio-byok { border: 1px solid var(--studio-border); border-radius: 5px; color: var(--studio-muted); font-size: .625rem; font-weight: 700; letter-spacing: .06em; padding: 3px 5px; }
 .studio-header-actions { align-items: center; display: flex; gap: 6px; margin-left: auto; }
@@ -42,6 +42,8 @@
 .studio-main { display: flex; flex-direction: column; min-width: 0; }
 .studio-canvas-region { flex: 1; min-height: 360px; min-width: 0; padding: 20px; }
 .studio-library-region { display: none; min-width: 0; padding: 20px; }
+.studio-layout[data-tab='assets'] .studio-canvas-region, .studio-layout[data-tab='projects'] .studio-canvas-region, .studio-layout[data-tab='assets'] .studio-composer, .studio-layout[data-tab='projects'] .studio-composer { display: none; }
+.studio-layout[data-tab='assets'] .studio-library-region, .studio-layout[data-tab='projects'] .studio-library-region { display: block; }
 .studio-composer { background: var(--studio-surface); border-top: 1px solid var(--studio-border); padding: 16px 20px; }
 .studio-composer-toggle, .studio-drawer-trigger, .studio-drawer-close, .studio-mobile-nav { display: none; }
 .studio-backdrop { display: none; }
@@ -60,7 +62,7 @@
 @media (max-width: 767px) {
   .studio-header { gap: 4px; min-height: 56px; padding-left: max(8px, env(safe-area-inset-left)); padding-right: max(8px, env(safe-area-inset-right)); }
   .studio-brand { gap: 7px; }
-  .studio-brand strong { font-size: .84rem; }
+  .studio-brand h1 { font-size: .84rem; }
   .studio-byok { display: none; }
   .studio-layout { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
   .studio-canvas-region { min-height: min(52dvh, 430px); padding: 12px; }
@@ -74,4 +76,39 @@
   .studio-layout[data-tab='home'] .studio-sidebar:not(.is-open) { border: 0; display: block; max-width: none; position: static; width: auto; }
   .studio-layout[data-tab='home'] .studio-main, .studio-layout[data-tab='assets'] .studio-canvas-region, .studio-layout[data-tab='projects'] .studio-canvas-region, .studio-layout[data-tab='assets'] .studio-composer, .studio-layout[data-tab='projects'] .studio-composer { display: none; }
   .studio-layout[data-tab='assets'] .studio-library-region, .studio-layout[data-tab='projects'] .studio-library-region { display: block; }
+}
+
+.studio-sidebar-content nav, .studio-library-nav { display: grid; gap: 4px; }
+.studio-sidebar-content nav button { align-items: center; background: transparent; border: 1px solid transparent; border-radius: 8px; color: var(--studio-muted); cursor: pointer; display: flex; gap: 10px; min-height: 42px; padding: 8px 10px; text-align: left; width: 100%; }
+.studio-sidebar-content nav button:hover, .studio-sidebar-content nav button[aria-current='page'], .studio-sidebar-content nav button[aria-pressed='true'] { background: color-mix(in srgb, var(--studio-accent) 18%, var(--studio-surface)); color: var(--studio-text); }
+.studio-library-nav { border-top: 1px solid var(--studio-border); margin-top: 20px; padding-top: 16px; }
+.studio-layout h2 { font-size: 1rem; line-height: 1.3; margin: 0 0 16px; }
+.studio-layout p { color: var(--studio-muted); line-height: 1.5; }
+.studio-layout label { color: var(--studio-muted); display: block; font-size: .82rem; line-height: 1.4; margin-bottom: 12px; }
+.studio-layout :is(input:not([type='checkbox']), select, textarea) { background: var(--studio-raised); border: 1px solid var(--studio-border); border-radius: 8px; color: var(--studio-text); display: block; margin-top: 6px; max-width: 100%; min-height: 42px; padding: 9px 10px; width: 100%; }
+.studio-layout textarea { min-height: 86px; resize: vertical; }
+.studio-layout input[type='file'] { font-size: .8rem; }
+.studio-layout :is(.studio-key-settings, .studio-inspector-content, .studio-composer-content, .studio-library-region, .studio-canvas-region) button { background: var(--studio-raised); border: 1px solid var(--studio-border); border-radius: 8px; color: var(--studio-text); cursor: pointer; margin: 0 6px 6px 0; min-height: 42px; padding: 8px 12px; }
+.studio-layout button:disabled { cursor: not-allowed; opacity: .55; }
+.studio-composer-content button[type='submit'] { background: #5d59db; border-color: #5d59db; color: #fff; font-weight: 700; }
+.studio-canvas-region .artboard { align-items: center; background: var(--studio-surface); border: 1px solid var(--studio-border); border-radius: 12px; display: flex; flex-direction: column; justify-content: center; min-height: 100%; overflow: hidden; padding: 24px; text-align: center; }
+.studio-canvas-region .artboard img { height: auto; max-height: 65vh; max-width: 100%; object-fit: contain; }
+.studio-library-region img { height: 120px; max-width: 100%; object-fit: cover; }
+@media (max-width: 767px) { .studio-library-nav { display: none !important; } }
+/* Keep the empty canvas a useful target instead of collapsing around its label. */
+.studio-canvas-region .artboard { min-height: clamp(280px, 48dvh, 520px); }
+@media (max-width: 767px) {
+  .studio-canvas-region .artboard { min-height: 42dvh; }
+}
+@media (min-width: 768px) {
+  .studio-layout { height: 100dvh; min-height: 0; }
+  .studio-body { overflow: hidden; }
+  .studio-main { min-height: 0; overflow: hidden; }
+  .studio-canvas-region { min-height: 0; }
+  .studio-canvas-region .artboard { height: 100%; min-height: 0; }
+  .studio-composer { flex: 0 1 auto; max-height: 48dvh; overflow-y: auto; }
+  .studio-library-region { flex: 1; overflow-y: auto; }
+}
+@media (min-width: 768px) and (max-width: 1279px) {
+  .studio-main { height: 100%; }
 }

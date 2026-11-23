@@ -85,7 +85,7 @@ export function StudioLayout({ productName, locale, onLocaleChange, theme, onThe
     <div className="studio-layout" data-theme={theme} data-tab={activeTab}>
       <header className="studio-header">
         <button className="studio-icon-button studio-drawer-trigger" type="button" aria-label={t.menu} aria-expanded={drawer === 'navigation'} onClick={(event) => openDrawer('navigation', event.currentTarget)}><Menu aria-hidden="true" size={19} /></button>
-        <div className="studio-brand"><span className="studio-brand-mark"><Sparkles aria-hidden="true" size={18} /></span><strong>{productName}</strong><span className="studio-byok">BYOK</span></div>
+        <div className="studio-brand"><span className="studio-brand-mark"><Sparkles aria-hidden="true" size={18} /></span><h1>{productName}</h1><span className="studio-byok">BYOK</span></div>
         <div className="studio-header-actions">
           <label className="studio-language"><span className="studio-visually-hidden">{t.language}</span><select value={locale} onChange={(event) => onLocaleChange(event.target.value as StudioLocale)}><option value="en">EN</option><option value="zh-CN">中文</option></select></label>
           <button className="studio-icon-button" type="button" aria-label={theme === 'dark' ? t.light : t.dark} onClick={() => onThemeChange(theme === 'dark' ? 'light' : 'dark')}>{theme === 'dark' ? <Sun aria-hidden="true" size={19} /> : <Moon aria-hidden="true" size={19} />}</button>
@@ -96,7 +96,11 @@ export function StudioLayout({ productName, locale, onLocaleChange, theme, onThe
       <div className="studio-body">
         <aside ref={sidebarRef} className={`studio-sidebar${drawer === 'navigation' ? ' is-open' : ''}`} aria-label={t.menu} {...(drawer === 'navigation' ? { role: 'dialog', 'aria-modal': true } : {})}>
           {drawer === 'navigation' && <button ref={drawerClose} className="studio-drawer-close studio-icon-button" type="button" aria-label={t.close} onClick={() => setDrawer(null)}><X aria-hidden="true" size={19} /></button>}
-          <div className="studio-sidebar-content">{navigation}<div className="studio-key-settings">{keySettings}</div></div>
+          <div className="studio-sidebar-content">{navigation}
+            <nav className="studio-library-nav" aria-label={t.assets}>
+              {tabs.filter(({ id }) => id !== 'home').map(({ id, Icon }) => <button key={id} type="button" aria-current={activeTab === id ? 'page' : undefined} onClick={() => changeTab(id)}><Icon size={18} aria-hidden="true" />{t[id]}</button>)}
+            </nav>
+            <div className="studio-key-settings">{keySettings}</div></div>
         </aside>
         <main className="studio-main">
           <div className="studio-canvas-region">{canvas}</div>
