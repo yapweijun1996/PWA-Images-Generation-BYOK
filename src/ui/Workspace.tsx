@@ -3,7 +3,7 @@ import { feedback, jobLabel, projectLabel, sourceLabel } from './workspaceLocale
 import { ImageEditTools } from './ImageEditTools'
 import { StudioBoard } from './StudioBoard'
 import './workspace.css'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useStudio } from './useStudio'
 import { useCreation } from './CreationPanel'
 import { openStorage } from '@engine/storage'
@@ -12,7 +12,7 @@ import type { Project } from '@engine/types'
 import { downloadImage, downloadProjectBackup, importProjectBackup } from '@engine/export'
 import { AssetImage } from './AssetImage'
 import { KeySettings } from './KeySettings'
-import { StudioLayout } from './StudioLayout'
+import { StudioLayout, type StudioDrawer } from './StudioLayout'
 import { getStudio, isStudioId, studioIds } from '@studios/index'
 
 const studioIcons = { manga: BookOpen, commercial: BriefcaseBusiness, interior: Building2, uiux: PanelsTopLeft, movie: Clapperboard, education: GraduationCap }
@@ -20,13 +20,25 @@ const studioIcons = { manga: BookOpen, commercial: BriefcaseBusiness, interior: 
 type Locale = 'en' | 'zh-CN'
 type Tab = 'home' | 'create' | 'assets' | 'projects'
 interface WorkspaceProps { productName: string; buildId: string }
-export function Workspace(props: WorkspaceProps) {
+export function Workspace({ connectionStatus, updateControls, ...props }: WorkspaceProps & { connectionStatus?: ReactNode; updateControls?: ReactNode }) {
   const [projectId, setProjectId] = useState(() => localStorage.getItem('active-project') || 'first-project')
   const [tab, setTab] = useState<Tab>(() => window.matchMedia('(max-width: 767px)').matches ? 'home' : 'create')
-  return <ProjectWorkspace {...props} tab={tab} setTab={setTab} key={projectId} projectId={projectId} switchProject={id => { localStorage.setItem('active-project', id); setProjectId(id); setTab('create') }} />
+  const [drawer, setDrawer] = useState<StudioDrawer>(null)
+  const drawerOpen = drawer !== null
+  return <>
+    <div inert={drawerOpen}>{connectionStatus}</div>
+    <ProjectWorkspace {...props} key={projectId} projectId={projectId} tab={tab} setTab={setTab}
+      drawer={drawer} setDrawer={setDrawer} switchProject={id => {
+        localStorage.setItem('active-project', id)
+        setProjectId(id)
+        setTab('create')
+        setDrawer(null)
+      }} />
+    <div inert={drawerOpen}>{updateControls}</div>
+  </>
 }
 
-function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab, setTab }: WorkspaceProps & { tab: Tab; setTab: (tab: Tab) => void; projectId: string; switchProject: (id: string) => void }) {
+function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab, setTab, drawer, setDrawer }: WorkspaceProps & { tab: Tab; setTab: (tab: Tab) => void; drawer: StudioDrawer; setDrawer: (drawer: StudioDrawer) => void; projectId: string; switchProject: (id: string) => void }) {
   const [locale, setLocale] = useState<Locale>(() => localStorage.getItem('ui-language') === 'zh-CN' ? 'zh-CN' : 'en')
   const [theme, setTheme] = useState<'light'|'dark'>(() => localStorage.getItem('ui-theme') === 'light' ? 'light' : 'dark')
   useEffect(() => { document.documentElement.lang = locale }, [locale])
@@ -142,11 +154,11 @@ function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab,
     <button onClick={() => perform(async () => { await creation.flushDraft(); await downloadProjectBackup(projectId) })}>{t('Back up project','备份项目')}</button>
     <label>{t('Restore backup','恢复备份')}<input type="file" accept=".zip" onChange={e => { const file=e.target.files?.[0]; e.target.value=''; if(file) perform(async () => { await creation.flushDraft();switchProject((await importProjectBackup(file)).id) }) }} /></label></section>
   return <><StudioLayout productName={productName} locale={locale} onLocaleChange={value => {localStorage.setItem('ui-language',value);setLocale(value)}} theme={theme}
-    onThemeChange={value => {localStorage.setItem('ui-theme',value);setTheme(value)}} activeTab={tab} onTabChange={setTab}
+    onThemeChange={value => {localStorage.setItem('ui-theme',value);setTheme(value)}} activeTab={tab} onTabChange={setTab} drawer={drawer} onDrawerChange={setDrawer}
     feedback={studio.error && <div className="workspace-alert" role="alert"><span>{feedback(studio.error,locale)}</span>
       <button type="button" onClick={()=>studio.setError('')}>{t('Dismiss','关闭')}</button></div>}
     home={home} canvas={canvas} composer={composer} inspector={creation.inspector} navigation={navigation} keySettings={<KeySettings locale={locale} />} library={library} />
-    <footer>{t('Build','构建版本')} {buildId}</footer></>
+    <footer inert={drawer !== null}>{t('Build','构建版本')} {buildId}</footer></>
 }
 
 function ReferenceReview({ locale, referenceIds, resultReady, checks, onAccept }: {

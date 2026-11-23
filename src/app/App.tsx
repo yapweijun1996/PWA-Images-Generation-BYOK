@@ -14,10 +14,7 @@ export function App() {
     </main>
   }
   return (
-    <>
-      <ConnectionStatus />
-      <Workspace productName={__PRODUCT_NAME__} buildId={__BUILD_ID__} />
-      <PwaControls />
-    </>
+    <Workspace productName={__PRODUCT_NAME__} buildId={__BUILD_ID__}
+      connectionStatus={<ConnectionStatus />} updateControls={<PwaControls />} />
   )
 }

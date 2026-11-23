@@ -7,6 +7,7 @@ import './studio-layout.css'
 export type StudioLocale = 'en' | 'zh-CN'
 export type StudioTheme = 'dark' | 'light'
 export type StudioTab = 'home' | 'create' | 'assets' | 'projects'
+export type StudioDrawer = 'navigation' | 'inspector' | null
 
 type StudioLayoutProps = {
   productName: string
@@ -16,6 +17,8 @@ type StudioLayoutProps = {
   onThemeChange: (theme: StudioTheme) => void
   activeTab: StudioTab
   onTabChange: (tab: StudioTab) => void
+  drawer: StudioDrawer
+  onDrawerChange: (drawer: StudioDrawer) => void
   navigation: ReactNode
   keySettings: ReactNode
   feedback?: ReactNode
@@ -39,9 +42,8 @@ const tabs = [
 ] as const
 
 /** Layout owns presentation only; the caller owns all content and persisted state. */
-export function StudioLayout({ productName, locale, onLocaleChange, theme, onThemeChange, activeTab, onTabChange, navigation, keySettings, feedback, home, canvas, composer, inspector, library }: StudioLayoutProps) {
+export function StudioLayout({ productName, locale, onLocaleChange, theme, onThemeChange, activeTab, onTabChange, drawer, onDrawerChange, navigation, keySettings, feedback, home, canvas, composer, inspector, library }: StudioLayoutProps) {
   const t = labels[locale]
-  const [drawer, setDrawer] = useState<'navigation' | 'inspector' | null>(null)
   const [composerOpen, setComposerOpen] = useState(false)
   const [headerHidden, setHeaderHidden] = useState(false)
   const [showBackToTop, setShowBackToTop] = useState(false)
@@ -64,7 +66,7 @@ export function StudioLayout({ productName, locale, onLocaleChange, theme, onThe
     if (!drawer) return
     drawerClose.current?.focus()
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setDrawer(null)
+      if (event.key === 'Escape') onDrawerChange(null)
       if (event.key !== 'Tab') return
       const panel = drawer === 'navigation' ? sidebarRef.current : inspectorRef.current
       const focusable = [...(panel?.querySelectorAll<HTMLElement>('a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), summary, [tabindex]:not([tabindex="-1"])') ?? [])].filter(element => {
@@ -82,18 +84,18 @@ export function StudioLayout({ productName, locale, onLocaleChange, theme, onThe
       window.removeEventListener('keydown', onKeyDown)
       opener.current?.focus()
     }
-  }, [drawer])
+  }, [drawer, onDrawerChange])
 
   useEffect(() => {
     const media = window.matchMedia('(min-width: 1280px)')
-    const closeOnDesktop = () => { if (media.matches) setDrawer(null) }
+    const closeOnDesktop = () => { if (media.matches) onDrawerChange(null) }
     media.addEventListener('change', closeOnDesktop)
     return () => media.removeEventListener('change', closeOnDesktop)
-  }, [])
+  }, [onDrawerChange])
 
-  const openDrawer = (name: 'navigation' | 'inspector', button: HTMLButtonElement) => {
+  const openDrawer = (name: NonNullable<StudioDrawer>, button: HTMLButtonElement) => {
     opener.current = button
-    setDrawer(name)
+    onDrawerChange(name)
   }
   useEffect(() => {
     const desktop = window.matchMedia('(min-width: 768px)')
@@ -125,13 +127,15 @@ export function StudioLayout({ productName, locale, onLocaleChange, theme, onThe
   }, [])
 
   const changeTab = (tab: StudioTab) => {
-    setDrawer(null)
+    onDrawerChange(null)
     onTabChange(tab)
   }
 
+  const drawerOpen = drawer !== null
+
   return (
     <div className="studio-layout" data-theme={theme} data-tab={activeTab}>
-      <header ref={headerRef} tabIndex={-1} className="studio-header" data-scrolled={headerHidden && !drawer}>
+      <header ref={headerRef} tabIndex={-1} className="studio-header" data-scrolled={headerHidden && !drawerOpen} inert={drawerOpen}>
         <button className="studio-icon-button studio-drawer-trigger" type="button" aria-label={t.menu} aria-expanded={drawer === 'navigation'} onClick={(event) => openDrawer('navigation', event.currentTarget)}><Menu aria-hidden="true" size={19} /></button>
         <div className="studio-brand"><span className="studio-brand-mark"><Sparkles aria-hidden="true" size={18} /></span><h1 aria-label={productName}><span className="studio-brand-full">{productName}</span><span className="studio-brand-short" aria-hidden="true">Studio</span><span className="studio-brand-tiny" aria-hidden="true">PWA</span></h1><span className="studio-byok">BYOK</span></div>
         <div className="studio-header-actions">
@@ -141,17 +145,17 @@ export function StudioLayout({ productName, locale, onLocaleChange, theme, onThe
           <button className="studio-icon-button studio-drawer-trigger" type="button" aria-label={t.settings} aria-expanded={drawer === 'inspector'} onClick={(event) => openDrawer('inspector', event.currentTarget)}><PanelRight aria-hidden="true" size={19} /></button>
         </div>
       </header>
-      {drawer && <button className="studio-backdrop" type="button" aria-label={t.close} onClick={() => setDrawer(null)} />}
+      {drawerOpen && <div className="studio-backdrop" aria-hidden="true" onClick={() => onDrawerChange(null)} />}
       <div className="studio-body">
         <aside ref={sidebarRef} className={`studio-sidebar${drawer === 'navigation' ? ' is-open' : ''}`} aria-label={t.menu} {...(drawer === 'navigation' ? { role: 'dialog', 'aria-modal': true } : {})}>
-          {drawer === 'navigation' && <button ref={drawerClose} className="studio-drawer-close studio-icon-button" type="button" aria-label={t.close} onClick={() => setDrawer(null)}><X aria-hidden="true" size={19} /></button>}
+          {drawer === 'navigation' && <button ref={drawerClose} className="studio-drawer-close studio-icon-button" type="button" aria-label={t.close} onClick={() => onDrawerChange(null)}><X aria-hidden="true" size={19} /></button>}
           <div className="studio-sidebar-content">{navigation}
             <nav className="studio-library-nav" aria-label={t.assets}>
               {tabs.filter(({ id }) => id !== 'home').map(({ id, Icon }) => <button key={id} type="button" aria-current={activeTab === id ? 'page' : undefined} onClick={() => changeTab(id)}><Icon size={18} aria-hidden="true" />{t[id]}</button>)}
             </nav>
             <div className="studio-key-settings">{keySettings}<DeviceStorage locale={locale} /></div></div>
         </aside>
-        <main className="studio-main">
+        <main className="studio-main" inert={drawerOpen}>
           {feedback}
           <div className="studio-home-region">{activeTab === 'home' && home}</div>
           <div className="studio-canvas-region">{canvas}</div>
@@ -162,7 +166,7 @@ export function StudioLayout({ productName, locale, onLocaleChange, theme, onThe
           </section>
         </main>
         <aside ref={inspectorRef} className={`studio-inspector${drawer === 'inspector' ? ' is-open' : ''}`} aria-label={t.settings} {...(drawer === 'inspector' ? { role: 'dialog', 'aria-modal': true } : {})}>
-          {drawer === 'inspector' && <button ref={drawerClose} className="studio-drawer-close studio-icon-button" type="button" aria-label={t.close} onClick={() => setDrawer(null)}><X aria-hidden="true" size={19} /></button>}
+          {drawer === 'inspector' && <button ref={drawerClose} className="studio-drawer-close studio-icon-button" type="button" aria-label={t.close} onClick={() => onDrawerChange(null)}><X aria-hidden="true" size={19} /></button>}
           <div className="studio-inspector-content">{inspector}</div>
         </aside>
       </div>
@@ -170,7 +174,7 @@ export function StudioLayout({ productName, locale, onLocaleChange, theme, onThe
         headerRef.current?.focus({ preventScroll: true })
         window.scrollTo(0, 0)
       }}><ArrowUp size={19} aria-hidden="true" /></button>}
-      <nav className="studio-mobile-nav" aria-label={t.menu}>{tabs.map(({ id, Icon }) => <button key={id} type="button" aria-current={activeTab === id ? 'page' : undefined} onClick={() => changeTab(id)}><Icon size={19} aria-hidden="true" /><span>{t[id]}</span></button>)}</nav>
+      <nav className="studio-mobile-nav" aria-label={t.menu} inert={drawerOpen}>{tabs.map(({ id, Icon }) => <button key={id} type="button" aria-current={activeTab === id ? 'page' : undefined} onClick={() => changeTab(id)}><Icon size={19} aria-hidden="true" /><span>{t[id]}</span></button>)}</nav>
     </div>
   )
 }

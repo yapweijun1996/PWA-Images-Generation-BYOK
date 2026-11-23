@@ -85,6 +85,17 @@ try {
       await page.keyboard.press('Enter')
       const dialog = page.getByRole('dialog')
       await dialog.waitFor()
+      const help = page.locator('.studio-header button[aria-label="Help and installation"]')
+      const outsideFocusBlocked = await help.evaluate(el => {
+        el.focus()
+        return document.activeElement !== el
+      })
+      const cdp = await context.newCDPSession(page)
+      const { nodes } = await cdp.send('Accessibility.getFullAXTree')
+      await cdp.detach()
+      const outsideRolesHidden = !nodes.some(node => !node.ignored
+        && (node.role?.value === 'main' || node.name?.value === 'Help and installation'))
+      assert(outsideFocusBlocked && outsideRolesHidden, name + ' leaves the background interactive')
       const outline = await page.evaluate(()=>getComputedStyle(document.activeElement).outline)
       observed.focus.push({name,outline})
       let trapped = true
@@ -94,7 +105,9 @@ try {
       }
       await page.keyboard.press('Escape')
       await dialog.waitFor({state:'hidden'})
-      observed.drawers.push({name,trapped,restored:await opener.evaluate(el=>el===document.activeElement)})
+      const restored = await opener.evaluate(el=>el===document.activeElement)
+      assert(trapped && restored, name + ' did not keep or restore keyboard focus')
+      observed.drawers.push({name,trapped,restored,outsideFocusBlocked,outsideRolesHidden})
     }
     if (width === 390) {
       const start = page.getByRole('button',{name:'Continue creating'})
