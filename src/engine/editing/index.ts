@@ -1,3 +1,4 @@
+import { canvas, png } from './canvas'
 import { openStorage } from '@engine/storage'
 import type { Asset } from '@engine/types'
 
@@ -20,21 +21,6 @@ export function frame(width: number, height: number, edge: Expansion, fraction: 
   const y = edge === 'top' || edge === 'all' ? vertical : 0
   return { x, y, width: width + x + (edge === 'right' || edge === 'all' ? horizontal : 0),
     height: height + y + (edge === 'bottom' || edge === 'all' ? vertical : 0) }
-}
-
-function canvas(width: number, height: number) {
-  if (width * height > 24_000_000 || width > 8192 || height > 8192) throw new Error('Image exceeds the editing canvas limit.')
-  const element = document.createElement('canvas')
-  element.width = width
-  element.height = height
-  const context = element.getContext('2d')
-  if (!context) throw new Error('Image editing is unavailable in this browser.')
-  return context
-}
-
-function png(ctx: CanvasRenderingContext2D) {
-  return new Promise<Blob>((resolve, reject) => ctx.canvas.toBlob(blob =>
-    blob ? resolve(blob) : reject(new Error('Could not save edited image.')), 'image/png'))
 }
 
 export async function renderEdit(source: ImageBitmap, region: Stroke[] | { edge: Expansion; fraction: number }) {

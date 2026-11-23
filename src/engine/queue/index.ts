@@ -1,5 +1,6 @@
 import type { GenerationRequest, JobStatus, ProviderAdapter } from '@engine/types'
 import type { StudioStorage } from '@engine/storage'
+import { prepareMaskedFrame, preserveMaskedPixels } from '@engine/editing/composite'
 import { ImageRequestError } from '@engine/providers/openai'
 
 export interface QueuedGenerationRequest extends Omit<GenerationRequest, 'references' | 'mask'> {
@@ -66,10 +67,22 @@ export async function processJob(storage: StudioStorage, id: string, provider: P
       }
       const references = await Promise.all(request.referenceAssetIds.map(read))
       const mask = request.maskAssetId ? await read(request.maskAssetId) : undefined
+      if (mask && !references[0]) throw new Error('Choose a source image for the mask.')
+      const model = mask ? (await provider.getCapabilities()).models.find(candidate => candidate.id === request.model) : undefined
+      const frame = mask ? await prepareMaskedFrame(references[0].blob, mask.blob, request.settings.size, model?.sizes ?? []) : undefined
+      const settings = frame ? { ...request.settings, size: frame.width + 'x' + frame.height } : request.settings
+      if (frame && mask) {
+        references[0].blob = frame.source
+        mask.blob = frame.mask
+      }
       await db.put('jobs', { ...job, status: 'running' })
       sent = true
-      const result = await provider.generate({ ...request, references, mask }, AbortSignal.timeout(300_000))
-      const image = result.images[0]
+      const result = await provider.generate({ ...request, settings, references, mask }, AbortSignal.timeout(300_000))
+      const generated = result.images[0]
+      const image = frame ? {
+        blob: await preserveMaskedPixels(frame, generated.blob),
+        dimensions: { width: frame.width, height: frame.height },
+      } : generated
       const assetId = crypto.randomUUID()
       const createdAt = new Date().toISOString()
       await storage.saveAsset({
@@ -77,7 +90,7 @@ export async function processJob(storage: StudioStorage, id: string, provider: P
         byteLength: image.blob.size, dimensions: image.dimensions, createdAt,
       }, image.blob, { job, version: {
         id: crypto.randomUUID(), createdAt, projectId, assetId, parentVersionId: request.parentVersionId,
-        provenance: { providerId: provider.id, prompt: request.prompt, model: request.model, settings: request.settings,
+        provenance: { providerId: provider.id, prompt: request.prompt, model: request.model, settings,
           referenceAssetIds: request.referenceAssetIds, maskAssetId: request.maskAssetId, providerRequestId: result.providerRequestId },
       } })
     } catch (error) {
