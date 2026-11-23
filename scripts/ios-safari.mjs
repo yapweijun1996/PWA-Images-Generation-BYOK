@@ -158,8 +158,8 @@ try {
     const action = await named('Add to Home Screen')
     if (action) return action
     if (!expanded) {
-      const more = await named('View More') || await named('More Actions') ||
-        (DEVICE_NAME.startsWith('iPad') && await named('More', 'Button'))
+      const more = await find('type == "XCUIElementTypeCell" AND name == "actionGroupCell" AND label IN {"More","View More"}') ||
+        await named('More Actions') || await named('View More')
       if (more) { await tap(more); expanded = true }
     }
   })
