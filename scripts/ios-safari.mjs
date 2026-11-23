@@ -130,12 +130,13 @@ const icon = () => find('type == "XCUIElementTypeIcon" AND label IN ' + '{' + [m
 try {
   await waitFor('Appium server', () => command('GET', '/status').then(value => value.ready).catch(() => false), 25_000)
   const started = await command('POST', '/session', {capabilities:{alwaysMatch:{
-    platformName:'iOS', 'appium:automationName':'XCUITest', 'appium:udid':SIMULATOR_UDID,
+    platformName:'iOS', 'appium:platformVersion':'26.2', 'appium:automationName':'XCUITest', 'appium:udid':SIMULATOR_UDID,
     'appium:deviceName':DEVICE_NAME, 'appium:bundleId':safari, 'appium:language':'en', 'appium:locale':'en_US',
-    'appium:noReset':true, 'appium:newCommandTimeout':120,
+    'appium:noReset':true, 'appium:isHeadless':true, 'appium:newCommandTimeout':120,
   }}})
   session = started.sessionId
   report.platformVersion = started.capabilities.platformVersion
+  step('Connected WebDriverAgent to the booted simulator')
   execFileSync('xcrun', ['simctl', 'openurl', SIMULATOR_UDID, url])
   await workspace()
   step('Opened the exact public artifact at its application subpath in mobile Safari')
@@ -151,7 +152,9 @@ try {
   const add = await waitFor('Add to Home Screen', async () => {
     const action = await named('Add to Home Screen')
     if (action) return action
-    await execute('swipe', {direction:'up'})
+    const more = await named('View More', 'Button')
+    if (more) await tap(more)
+    else await execute('swipe', {direction:'up'})
   })
   await tap(add)
   const webApp = await waitFor('Open as Web App', () => named('Open as Web App', 'Switch'))
@@ -168,6 +171,9 @@ try {
   const installed = await execute('activeAppInfo')
   assert(![safari, 'com.apple.springboard'].includes(installed.bundleId) && installed.bundleId, 'The icon opened Safari or stayed on Home Screen')
   report.installedBundleId = installed.bundleId
+  await tap(await waitFor('workspace Help', () => named('Help and installation', 'Button')))
+  await waitFor('studio standalone status', () => named('Installed on this device.'))
+  await tap(await waitFor('Help Close', () => named('Close', 'Button')))
   step('Launched the installed web app from its named Home Screen icon')
   await createView()
   const field = await prompt()

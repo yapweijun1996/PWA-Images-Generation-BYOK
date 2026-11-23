@@ -16,6 +16,8 @@ jobs:
   safari:
     runs-on: macos-15
     timeout-minutes: 14
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
     strategy:
       fail-fast: false
       matrix:
@@ -48,16 +50,16 @@ jobs:
           mkdir ios-evidence
           xcodebuild -version | tee ios-evidence/xcode.txt
           xcrun simctl list devices available --json > ios-evidence/devices.json
-          selection=$(jq -er --arg device "$DEVICE_NAME"             '[.devices | to_entries[] | select(.key | test("iOS-26-")) |
-              .key as $runtime | .value[] | select(.name == $device) | {udid, runtime: $runtime}] |
-              sort_by(.runtime | split("iOS-")[1] | split("-") | map(tonumber)) | last' ios-evidence/devices.json)
+          selection=$(jq -er --arg device "$DEVICE_NAME" \
+            '"com.apple.CoreSimulator.SimRuntime.iOS-26-2" as $runtime |
+              .devices[$runtime][] | select(.name == $device) | {udid, runtime: $runtime}' ios-evidence/devices.json)
           udid=$(jq -er '.udid' <<< "$selection")
           printf '%s\n' "$selection" > ios-evidence/selection.json
           printf 'SIMULATOR_UDID=%s\n' "$udid" >> "$GITHUB_ENV"
           xcrun simctl boot "$udid"
-          xcrun simctl bootstatus "$udid" -b
           npm install --prefix "$RUNNER_TEMP/ios-driver" --no-audit --no-fund appium@3.9.1
           "$RUNNER_TEMP/ios-driver/node_modules/.bin/appium" driver install xcuitest@10.43.1
+          xcrun simctl bootstatus "$udid" -b
       - name: Install, save a draft, and relaunch from the Home Screen
         env:
           APPIUM_HOME: ${{ runner.temp }}/ios-appium-home
