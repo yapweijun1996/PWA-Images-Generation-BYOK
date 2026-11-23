@@ -114,3 +114,13 @@ Additional device and lab results: [desktop browser compatibility](compatibility
 ## Integrated November 23 release
 
 [Pages run 45196879919](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45196879919) published source `3918d98`. Its clean build, deployment and live artifact comparison succeeded. Chrome opened the public app with displayed build `v0.1.0 · 2026-11-23T14:41:40.454Z`. A tester selected GPT Image 2.6 Flare and explicitly submitted a low-quality image request with a temporary key. OpenAI returned HTTP 200, Chrome decoded the image at 1024 × 1024, and an offline reload retained the image and enabled PNG download. The separate [UHD and masked-edit checks](advanced-generation.md) describe their respective release builds and models.
+
+## Current published candidate
+
+On 2026-11-23 [Pages run 45199196879](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45199196879) published commit `00559ca`, build `v0.1.0 · 2026-11-23T14:54:41.759Z`. The clean workflow ran 34 tests, lint, type checking and a production build. All 10 public files matched the retained artifact both in CI and in a separate local check. GitHub reports artifact expiry on 2027-02-21 at 14:54:14 UTC. A local check found the configured developer key in none of the 123 tracked files or ten deployed files inspected.
+
+- Public macOS Chrome received HTTP 200 from a single explicitly submitted GPT Image 2.6 Flare request, decoded the 1024 × 1024 result and downloaded it after an offline reload.
+- Public Playwright WebKit imported an image, exported a reviewed six-line board as a 640 × 618 PNG and recovered the caption after reload.
+- On an isolated Chromium 159 profile, the browser zoom API confirmed 200% zoom. A 1440 px browser window produced a 720 CSS px viewport and 720 px document, with no horizontal overflow. The user could open the composer, enter text and reach the enabled Generate action.
+- [Windows Chrome and Edge run 45199407605](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45199407605) verified this exact displayed build in both managed installed applications. Both reopened a saved draft in a fresh, offline standalone window.
+- Physical iPhone/iPad and Android acceptance, screen-reader observations, broader accessibility coverage and representative field percentiles remain outstanding. The release decision at the top of this matrix remains HOLD.
