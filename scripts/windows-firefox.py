@@ -13,6 +13,7 @@ from uuid import uuid4
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 
@@ -67,7 +68,8 @@ def verify(directory):
                     navigator.serviceWorker.ready.then(() => done(true), () => done(false));
                 """)
                 # The first page predates registration and acquires control on navigation.
-                browser.refresh()
+                browser.get("about:blank")
+                browser.get(url)
                 wait.until(lambda d: d.execute_script("return !!navigator.serviceWorker.controller"))
                 wait.until(lambda d: d.find_element(By.CSS_SELECTOR, ".creation-prompt textarea").get_property("value") == draft)
                 print("Online browser mode, build and persisted IndexedDB draft verified", flush=True)
@@ -77,7 +79,9 @@ def verify(directory):
         with socket.socket() as probe:
             probe.settimeout(2)
             assert probe.connect_ex((host, port)) != 0, "Origin still accepts connections"
-        browser.refresh()
+        old_document = browser.find_element(By.TAG_NAME, "html")
+        browser.execute_script("setTimeout(() => location.reload(), 0)")
+        wait.until(EC.staleness_of(old_document))
         wait.until(lambda d: expected_build in d.find_element(By.TAG_NAME, "footer").text)
         wait.until(lambda d: d.find_element(By.CSS_SELECTOR, ".creation-prompt textarea").get_property("value") == draft)
         assert browser.execute_script("return !!navigator.serviceWorker.controller")
