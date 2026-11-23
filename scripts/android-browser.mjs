@@ -49,12 +49,27 @@ async function installFromChrome(page) {
   await device.screenshot({ path: folder + '/install.png' })
   await tapNativeLabel('Install|Add')
   evidence.steps.push('Confirmed Chrome’s native installation dialog')
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 12; i++) {
     const installed = (await installedPackages()).filter(pkg => !baseline.includes(pkg))
-    if (installed.length === 1) return installed[0]
+    if (installed.length === 1) return { package: installed[0] }
+    if (i < 4 && await tapNativeControl(await readNativeWindow(), 'Add to home screen|Add to Home screen')) {
+      evidence.steps.push('Confirmed Android launcher pinning after Chrome offered a shortcut')
+      return { package: null }
+    }
     await delay(1000)
   }
-  throw new Error('Chrome did not register a WebAPK after confirming the install dialog')
+  throw new Error('Chrome did not register a WebAPK or offer launcher pinning after confirmation')
+}
+
+async function launchInstalled(installation) {
+  if (installation.package) {
+    await shell('am force-stop ' + installation.package)
+    const result = await shell('monkey -p ' + installation.package + ' -c android.intent.category.LAUNCHER 1')
+    assert(result.includes('Events injected: 1'), 'Android did not launch the installed package')
+  } else {
+    await shell('input keyevent KEYCODE_HOME')
+    await tapNativeLabel('(?:PWA )?Images Studio(?:, Web shortcut)?')
+  }
 }
 
 async function dismissNotificationOffer() {
@@ -111,8 +126,8 @@ try {
   evidence.steps.push('Landscape retained the draft without horizontal overflow')
   await shell('settings put system user_rotation 0')
   await page.waitForFunction(() => innerWidth < innerHeight)
-  const installedPackage = verifyInstall ? await installFromChrome(page) : undefined
-  if (installedPackage) evidence.installedPackage = installedPackage
+  const installation = verifyInstall ? await installFromChrome(page) : undefined
+  if (installation) evidence.installation = installation.package ? 'WebAPK' : 'launcher shortcut'
   await shell('cmd connectivity airplane-mode enable')
   await context.setOffline(true)
   await page.waitForFunction(() => !navigator.onLine)
@@ -126,20 +141,21 @@ try {
   await offline.waitForFunction(value => document.querySelector('.creation-prompt textarea')?.value === value, draft)
   await device.screenshot({ path: folder + '/offline.png' })
   evidence.steps.push('A fresh Chrome tab launched offline and recovered the same build and draft')
-  if (installedPackage) {
-    await shell('am force-stop ' + installedPackage)
-    const launched = context.waitForEvent('page', { timeout: 30_000 })
-    const result = await shell('monkey -p ' + installedPackage + ' -c android.intent.category.LAUNCHER 1')
-    assert(result.includes('Events injected: 1'), 'Android did not launch the installed package')
-    const installed = await launched
+  if (installation) {
+    const [installed] = await Promise.all([
+      context.waitForEvent('page', { timeout: 30_000 }),
+      launchInstalled(installation),
+    ])
     await installed.waitForFunction(build => document.querySelector('footer')?.textContent.includes(build), expectedBuild)
-    assert(await installed.evaluate(() => matchMedia('(display-mode: standalone)').matches && Boolean(navigator.serviceWorker.controller)))
+    evidence.launcherDisplay = await installed.evaluate(() => matchMedia('(display-mode: standalone)').matches ? 'standalone' : 'browser')
+    assert(await installed.evaluate(() => Boolean(navigator.serviceWorker.controller)))
     await assert.rejects(installed.evaluate(url => globalThis.fetch(url), new URL('/android-installed-probe-' + Date.now(), site).href))
     await installed.getByRole('button', { name: 'Continue creating' }).click()
     await installed.locator('.studio-composer-toggle').click()
     await installed.waitForFunction(value => document.querySelector('.creation-prompt textarea')?.value === value, draft)
     await device.screenshot({ path: folder + '/installed-offline.png' })
-    evidence.steps.push('Android launcher reopened the stopped WebAPK in standalone mode and recovered the draft offline')
+    evidence.steps.push('Android launcher opened the workspace and recovered the draft offline')
+    assert.equal(evidence.launcherDisplay, 'standalone', 'Android launcher opened the site in browser mode')
   }
   evidence.result = 'PASS'
 } catch (error) {
