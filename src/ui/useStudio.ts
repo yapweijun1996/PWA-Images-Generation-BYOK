@@ -3,7 +3,7 @@ import { openStorage } from '@engine/storage'
 import { registerUpdateGuard } from '@pwa'
 import { createProviders } from '@engine/providers'
 import { readProviderKey } from '@engine/secrets'
-import { enqueueBatch, processJob, subscribeToJobChanges } from '@engine/queue'
+import { enqueueBatch, processJob, subscribeToJobChanges, watchRunningJob } from '@engine/queue'
 import type { GenerationJob, QueuedGenerationRequest } from '@engine/queue'
 import type { Project, Version, Asset } from '@engine/types'
 
@@ -62,6 +62,17 @@ export function useStudio(projectId: string) {
     void load().catch(e => { if (current) setError(e.message) })
     return () => { current = false }
   }, [projectId, revision])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    for (const job of jobs) {
+      if (job.projectId !== projectId || job.status !== 'running') continue
+      void watchRunningJob(job.id, controller.signal).catch(error => {
+        if (!controller.signal.aborted) setError(error.message)
+      })
+    }
+    return () => controller.abort()
+  }, [projectId, jobs])
 
   // On entry, resume only jobs that could not have been sent. The lock protects other live tabs.
   useEffect(() => {

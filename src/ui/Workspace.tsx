@@ -8,6 +8,7 @@ import { useStudio } from './useStudio'
 import { useCreation } from './CreationPanel'
 import { openStorage } from '@engine/storage'
 import { patchProject } from '@engine/storage/draft'
+import { maxGenerationBatchSize } from '@engine/queue'
 import type { Project } from '@engine/types'
 import { downloadImage, downloadProjectBackup, importProjectBackup } from '@engine/export'
 import { AssetImage, AssetThumbnail } from './AssetImage'
@@ -168,7 +169,7 @@ function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab,
         })} />}
       </>
       : <p>{t('Your image will appear here.','生成的图片将显示在这里。')}</p>}
-    {studio.jobs.slice(0,3).map(job => <p key={job.id} role="status">{jobLabel(job.status,locale)} {feedback(job.message ?? '',locale)}</p>)}
+    {studio.jobs.slice(0, maxGenerationBatchSize).map(job => <p key={job.id} role="status">{jobLabel(job.status,locale)} {feedback(job.message ?? '',locale)}</p>)}
     {visibleVersions.length > 0 && <div className="version-history" aria-label={t('Version history','版本历史')}>{visibleVersions.map((v,i) =>
       <button key={v.id} title={v.provenance.prompt} onClick={() => selectAsset(v.assetId)}><AssetThumbnail locale={locale} id={v.assetId} />V{visibleVersions.length-i}</button>)}</div>}
   </section>

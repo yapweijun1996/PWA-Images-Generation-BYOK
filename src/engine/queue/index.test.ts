@@ -3,7 +3,7 @@ import 'fake-indexeddb/auto'
 import { deleteDB } from 'idb'
 import { afterEach, expect, it, vi } from 'vitest'
 import { DATABASE_NAME, openStorage } from '@engine/storage'
-import { enqueueBatch, enqueueGeneration, processJob, subscribeToJobChanges } from './index'
+import { enqueueBatch, enqueueGeneration, processJob, subscribeToJobChanges, watchRunningJob } from './index'
 
 afterEach(async () => { vi.unstubAllGlobals(); await deleteDB(DATABASE_NAME) })
 
@@ -71,4 +71,34 @@ it('notifies project readers after commit, including the version saved with a co
     await enqueueGeneration(store, 'p', request)
     expect(updates).toHaveLength(3)
   } finally { unsubscribe(); unsubscribeUnrelated(); store.db.close() }
+})
+
+it('waits for the owner and settles only the interrupted batch and its unsent dependents', async () => {
+  let releaseOwner!: () => void
+  const released = new Promise<void>(resolve => { releaseOwner = resolve })
+  const lock = vi.fn(async (_key: string, _options: object, callback: () => Promise<void>) => {
+    await released
+    await callback()
+  })
+  vi.stubGlobal('navigator', { locks: { request: lock } })
+  const storage = await openStorage()
+  let recovery: Promise<void> | undefined
+  try {
+    const request = { model: 'test', providerId: 'test', prompt: 'Leaf', settings: { size: 'auto', count: 1 }, referenceAssetIds: [] }
+    const [running, ...remaining] = await enqueueBatch(storage, 'p', request, 4)
+    await storage.db.put('jobs', { ...running, status: 'running' })
+    const unrelated = await enqueueGeneration(storage, 'p', request)
+    const signal = new AbortController().signal
+    recovery = watchRunningJob(running.id, signal)
+    expect(lock).toHaveBeenCalledWith('image-generation:' + running.id, { signal }, expect.any(Function))
+    expect((await storage.db.get('jobs', running.id))?.status).toBe('running')
+
+    releaseOwner()
+    await recovery
+    expect((await storage.db.get('jobs', running.id))?.status).toBe('uncertain')
+    expect(await Promise.all(remaining.map(async job => (await storage.db.get('jobs', job.id))?.status)))
+      .toEqual(['failed', 'failed', 'failed'])
+    expect((await storage.db.get('jobs', unrelated.id))?.status).toBe('queued')
+    expect(await storage.db.count('versions')).toBe(0)
+  } finally { releaseOwner(); await recovery?.catch(() => {}); storage.db.close() }
 })

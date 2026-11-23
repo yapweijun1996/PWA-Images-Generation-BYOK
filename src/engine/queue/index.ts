@@ -1,10 +1,15 @@
 import type { GenerationRequest, JobStatus, ProviderAdapter } from '@engine/types'
-import type { StudioStorage } from '@engine/storage'
+import { openStorage, type StudioStorage } from '@engine/storage'
 import { prepareMaskedFrame, preserveMaskedPixels } from '@engine/editing/composite'
 import { ImageRequestError } from '@engine/providers/openai'
 import { publishJobChange } from './changes'
 
 export { subscribeToJobChanges } from './changes'
+
+export const maxGenerationBatchSize = 4
+const jobLockName = (id: string) => 'image-generation:' + id
+const interruptedMessage = 'The previous session ended during generation. Check provider usage.'
+const batchStoppedMessage = 'Batch stopped after an earlier request. This item was not sent.'
 
 export interface QueuedGenerationRequest extends Omit<GenerationRequest, 'references' | 'mask'> {
   providerId: string
@@ -29,7 +34,7 @@ export async function enqueueGeneration(storage: StudioStorage, projectId: strin
 }
 
 export async function enqueueBatch(storage: StudioStorage, projectId: string, request: QueuedGenerationRequest, count: number) {
-  if (!Number.isInteger(count) || count < 1 || count > 4) throw new Error('Choose between one and four generations.')
+  if (!Number.isInteger(count) || count < 1 || count > maxGenerationBatchSize) throw new Error('Choose between one and four generations.')
   const jobs: GenerationJob[] = []
   const createdAt = new Date().toISOString()
   for (let i = 0; i < count; i++) {
@@ -41,9 +46,44 @@ export async function enqueueBatch(storage: StudioStorage, projectId: string, re
   return jobs
 }
 
+// Both the entry-time recovery and open observers must hold this job's lock.
+async function settleInterruptedJob(storage: StudioStorage, id: string) {
+  const tx = storage.db.transaction('jobs', 'readwrite')
+  const running = await tx.store.get(id)
+  if (running?.status !== 'running') { await tx.done; return }
+  const dependents = new Map<string, GenerationJob[]>()
+  for (const job of await tx.store.index('byProject').getAll(running.projectId)) {
+    if (job.status !== 'queued' || !job.dependsOn) continue
+    const siblings = dependents.get(job.dependsOn) ?? []
+    siblings.push(job)
+    dependents.set(job.dependsOn, siblings)
+  }
+  const writes = [tx.store.put({ ...running, status: 'uncertain', message: interruptedMessage })]
+  const stopped = [id]
+  for (const predecessor of stopped) {
+    for (const job of dependents.get(predecessor) ?? []) {
+      stopped.push(job.id)
+      writes.push(tx.store.put({ ...job, status: 'failed', message: batchStoppedMessage }))
+    }
+  }
+  await Promise.all([tx.done, ...writes])
+  publishJobChange(running.projectId)
+}
+
+export async function watchRunningJob(id: string, signal: AbortSignal) {
+  if (!navigator.locks || signal.aborted) return
+  await navigator.locks.request(jobLockName(id), { signal }, async () => {
+    if (signal.aborted) return
+    const storage = await openStorage()
+    try {
+      if (!signal.aborted) await settleInterruptedJob(storage, id)
+    } finally { storage.db.close() }
+  })
+}
+
 // The lock is released by the browser on tab termination. Only its holder can send or recover the job.
 export async function processJob(storage: StudioStorage, id: string, provider: ProviderAdapter) {
-  return navigator.locks.request('image-generation:' + id, { ifAvailable: true }, async lock => {
+  return navigator.locks.request(jobLockName(id), { ifAvailable: true }, async lock => {
     if (!lock) return
     const { db } = storage
     const job = await db.get('jobs', id)
@@ -54,7 +94,7 @@ export async function processJob(storage: StudioStorage, id: string, provider: P
       publishJobChange(projectId)
     }
     if (job.status === 'running') {
-      await saveState('uncertain', 'The previous session ended during generation. Check provider usage.')
+      await settleInterruptedJob(storage, id)
       return
     }
     if (job.status !== 'queued') return
@@ -62,7 +102,7 @@ export async function processJob(storage: StudioStorage, id: string, provider: P
       const previous = await db.get('jobs', job.dependsOn)
       if (previous?.status === 'queued' || previous?.status === 'running') return
       if (previous?.status !== 'succeeded') {
-        await saveState('failed', 'Batch stopped after an earlier request. This item was not sent.')
+        await saveState('failed', batchStoppedMessage)
         return
       }
     }

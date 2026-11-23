@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type PointerEvent } from 'react'
 import { patchProject } from '@engine/storage/draft'
 import { openStorage } from '@engine/storage'
+import { maxGenerationBatchSize } from '@engine/queue'
 import { saveEdit, type Expansion, type PreparedEdit, type Stroke } from '@engine/editing'
 import type { Asset } from '@engine/types'
 
@@ -174,7 +175,7 @@ function Editor({ projectId, selectedAssetId, assetCount, locale, onPrepared }: 
     </div>}
     <label>{t('Character reference lock', '角色参考锁定')} <select value={character} onChange={e => lock('character', e.target.value)}>{none}{options}</select></label>
     <label>{t('Style reference lock', '风格参考锁定')} <select value={style} onChange={e => lock('style', e.target.value)}>{none}{options}</select></label>
-    <label>{t('Images to generate', '生成张数')} <select value={count} onChange={e => setCount(+e.target.value)}>{[1,2,3,4].map(n => <option key={n}>{n}</option>)}</select></label>
+    <label>{t('Images to generate', '生成张数')} <select value={count} onChange={e => setCount(+e.target.value)}>{Array.from({ length: maxGenerationBatchSize }, (_, index) => <option key={index}>{index + 1}</option>)}</select></label>
     <button type="button" disabled={busy || (mode !== 'reference' && !size.width) || (mode === 'inpaint' && !strokes.length)} onClick={() => void prepare()}>{t('Apply to prompt', '应用至提示词')}</button>
     {status === 'ready' && <p role="status">{t('Ready to generate.', '可开始生成。')}</p>}
     {status === 'error' && <p role="alert">{t('Could not prepare the edit. Check image size, device storage and source availability.', '无法准备编辑素材，请检查图像大小、设备空间及原图是否可用。')}</p>}
