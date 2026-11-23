@@ -191,3 +191,11 @@ Current goal, what was achieved, files changed, verification (`PASS` / `FAIL` / 
 - Codex could not start Chrome (GPU process failed), so browser install and offline checks stay `NOT RUN` and must be done separately.
 - One Codex job per workspace. For a parallel batch, create one git worktree per job and give each job only its own folders.
 - Never trust the Codex summary. Re-run `tsc`, `vitest`, `eslint`, and `build` and scan for secrets before committing.
+
+## Release engineering reflection (2026-11-23)
+
+- A successful build from an existing dependency directory missed a broken lockfile. A clean Node 24 install reproduced the failure. The Pages workflow now starts with `npm ci`, so a new runner exercises the same boundary.
+- A browser tab that starts with its origin offline establishes shell recovery. To verify installed behavior, close the browser, launch the installed application and check its display mode. The initial CDP launch returned a tab. A later standalone launch passed, followed by an explicit A-to-B update on the public origin.
+- One simulated successful response exercises request serialization. A real browser request plus decoded image dimensions establishes a separate result. UI-level image edit, manual acceptance, backup, restore and byte comparison then exposed the data relationships that a provider-only test cannot cover.
+- Test two independent tabs against the same project. Saving a stale project object could erase another tab's new storyboard panel. Narrow transactional updates and a real two-tab check now protect that case. A complete draft includes references, mask, stage, model settings and batch count as well as prompt text.
+- Validate deployed bytes against retained artifacts. A green deployment job alone says little about CDN content or offline clients. The release runbook pairs the workflow result with file hashes, an installed-client update, and a restore drill.
