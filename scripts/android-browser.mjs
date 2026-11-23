@@ -76,12 +76,21 @@ async function launchInstalled(installation) {
   }
 }
 
-async function dismissNotificationOffer() {
-  const tree = await readNativeWindow()
-  if (!tree.includes('Chrome notifications make things easier')) return false
-  assert(await tapNativeControl(tree, 'No thanks'), 'Could not locate the exact Chrome notification decline action')
-  evidence.steps.push('Declined the Chrome notification offer on the disposable profile')
-  return true
+async function recoverKeyboardFocus() {
+  let tree = await readNativeWindow()
+  let recovered = false
+  if (tree.includes('Pixel Launcher isn') && tree.includes('responding')) {
+    assert(await tapNativeControl(tree, 'Wait'), 'Could not dismiss the emulator launcher startup overlay')
+    evidence.steps.push('Waited for the emulator Pixel Launcher startup overlay')
+    tree = await readNativeWindow()
+    recovered = true
+  }
+  if (tree.includes('Chrome notifications make things easier')) {
+    assert(await tapNativeControl(tree, 'No thanks'), 'Could not locate the exact Chrome notification decline action')
+    evidence.steps.push('Declined the Chrome notification offer on the disposable profile')
+    recovered = true
+  }
+  return recovered
 }
 
 async function waitForChrome(endpoint) {
@@ -135,7 +144,7 @@ try {
   try {
     await keyboardVisible()
   } catch (error) {
-    if (!await dismissNotificationOffer()) throw error
+    if (!await recoverKeyboardFocus()) throw error
     await prompt.tap()
     await keyboardVisible()
   }
