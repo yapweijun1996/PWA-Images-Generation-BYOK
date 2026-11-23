@@ -17,6 +17,8 @@ The Help dialog now describes the Safari share action on both iPhone and iPad, i
 
 Hosted Android 15 Chrome verified native installation confirmation, launcher shortcut, and offline cold start on the exact release. The standalone window recovered the same saved draft after Chrome terminated and blocked an uncached request. [Android run 45258325981](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45258325981).
 
+Public Chrome sent one direct OpenAI POST, decoded the returned image and exported a project ZIP with a later draft edit. Chrome then blocked generation while offline without another POST. Independent Chrome and Playwright WebKit contexts restored the ZIP offline and exported the original PNG byte for byte. [Live archive recovery](offline-recovery.md#public-release-archive-recovery).
+
 ## November 24 generation announcement release
 
 [Pages run 45250691263](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45250691263) published `c03b99fa5502040a553c3569ea7ded4fb021d202`, displayed as `v0.1.0 · 2026-11-23T19:36:53.094Z`. CI and an independent check matched the full source revision and 13 files to the public release. The worker SHA-256 is `053ce758a3437836c1d51dc31ec53312982a3ee91168b9f29e15f1f8c6015ad0`. The rollback artifact expires at 19:36:27 UTC on February 21, 2027. CI passed 42 tests, lint, type checking and the production build. The configured developer credential was absent from all 141 tracked files and 13 released files.
