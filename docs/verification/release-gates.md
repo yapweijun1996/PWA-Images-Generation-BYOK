@@ -9,6 +9,12 @@
 | G3 Performance | HOLD | Six local cold navigations met the lab thresholds. Real-user percentile coverage is outstanding. A public PageSpeed Insights query on November 23 returned HTTP 429 and provided no field records. Field P75 is INSUFFICIENT_DATA. Targets are LCP ≤2.5 s, INP ≤200 ms and CLS ≤0.1. |
 | G4 Evidence | HOLD | A release artifact is published. Remaining gaps include per-case build evidence and the full target matrix. The live rollback and restore-forward drill passed. |
 
+## Current public release
+
+[Pages run 45200603284](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45200603284) published application commit `955b8ad`, displayed build `v0.1.0 · 2026-11-23T15:02:20.861Z`. It adds the WebKit select sizing fix to the previous tested application. All 34 tests, lint, type checking and production build passed. The dependency audit reported zero known advisories. Both the workflow and a separate local comparison verified all ten public files. Inspection of 128 tracked files and the retained artifact found no copy of the configured developer key.
+
+[Windows Chrome and Edge](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45200839657) both reopened this exact build and draft offline in a managed installed window. Public WebKit exported a 640 × 618 board, recovered its six-line caption, and switched languages at 390 and 430 px with a measured 44 px selector and no horizontal overflow. Chromium at verified 200% browser zoom retained a usable composer with equal document and viewport widths (720 CSS px). The [WebKit evidence](webkit-compatibility/README.md) includes the storage diagnosis, backup round trip and mobile screenshots. The real image and rollback observations below identify the specific earlier builds they exercised.
+
 ## Evidence used
 
 - **E1 — shell and offline startup.** Local macOS Chrome 158.0.8127.37 with isolated persistent profile. The recorded browser install and cold-start attempts contain build IDs, environment and the observed standalone mismatch. [Browser verification](t101.md).
@@ -115,7 +121,7 @@ Additional device and lab results: [desktop browser compatibility](compatibility
 
 [Pages run 45196879919](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45196879919) published source `3918d98`. Its clean build, deployment and live artifact comparison succeeded. Chrome opened the public app with displayed build `v0.1.0 · 2026-11-23T14:41:40.454Z`. A tester selected GPT Image 2.6 Flare and explicitly submitted a low-quality image request with a temporary key. OpenAI returned HTTP 200, Chrome decoded the image at 1024 × 1024, and an offline reload retained the image and enabled PNG download. The separate [UHD and masked-edit checks](advanced-generation.md) describe their respective release builds and models.
 
-## Current published candidate
+## Byte-buffer compatibility release
 
 On 2026-11-23 [Pages run 45199196879](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45199196879) published commit `00559ca`, build `v0.1.0 · 2026-11-23T14:54:41.759Z`. The clean workflow ran 34 tests, lint, type checking and a production build. All 10 public files matched the retained artifact both in CI and in a separate local check. GitHub reports artifact expiry on 2027-02-21 at 14:54:14 UTC. A local check found the configured developer key in none of the 123 tracked files or ten deployed files inspected.
 

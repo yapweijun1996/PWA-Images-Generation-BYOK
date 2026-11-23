@@ -20,3 +20,5 @@ After the follow-up fix, the independent reviewer scored **90/100**: hierarchy 1
 ## Gate status and limitations
 
 The independent **screenshot taste assessment passes for the states actually reviewed**. The complete registered gate is **not fully verified**: populated Create screenshots in WebKit at 390/430, a physical iPhone, screen reader, comprehensive contrast measurement, axe-core, 200% browser zoom, all error/loading/long-content states and complete control-name/target audits were not established by this review. A separate Playwright WebKit attempt could not import the fixture because this test environment returned transient storage errors; see the compatibility follow-up rather than treating the Chrome screenshots as WebKit evidence. The test did not exercise the deployed site or a release. Any later UI change requires new evidence and review.
+
+Subsequent verification added [populated WebKit views and measured controls](../webkit-compatibility/README.md), [axe and keyboard results](../performance.md) and [public 200% zoom checks](../release-gates.md). Physical-device acceptance is tracked separately.
