@@ -135,6 +135,38 @@ The Canvas uses **non-destructive editing**. Regenerating creates a new version 
 
 Mobile has four bottom tabs: **Studio, Create, Assets, Settings**. The Prompt Composer opens as a bottom sheet so it does not permanently take Canvas space.
 
+### 6a. Mobile Visual Anchor V1
+
+![Mobile Visual Anchor V1: Home, Create, Settings](ui/anchors/anchor-v1-mobile.webp)
+
+File: `docs/ui/anchors/anchor-v1-mobile.webp`. Owner-selected on 2026-11-23 as the **mobile anchor**, the companion of the desktop anchor. The same rules apply: it is a generated mockup that shows direction, not an implementation, and its text and numbers (model name, resolution, counts) are placeholders. The real mobile UI must be judged from real screenshots at 390x844 (and 430x932) on a real phone-size viewport.
+
+**Three screens shown**
+
+| Screen | Content |
+|--------|---------|
+| Home: Studio Selection | Header with product name, BYOK badge, settings. A hero banner. Six studio cards in a 2x3 grid. Bottom navigation. |
+| Create: Canvas and Generation (main) | Header with a studio switcher dropdown, project folder, and menu. Large canvas with an image counter (1/4). Version thumbnails with an add button. Tool row: Fit, Adjust, Layers, Edit, Export, Delete. Composer with mode tabs (Text Prompt, Image to Image, Inpaint), prompt box with character count, chips (Prompt, Reference, Style), and a full-width Generate button. |
+| Settings: Model and Parameters | A sheet with Provider (BYOK), Model, Aspect Ratio, Resolution, Quality, Reference Images, Style, Advanced Settings, and an Apply button. |
+
+**Bottom navigation (anchor):** Home (studio selection, quick entry), Create (canvas, prompt, generate), Assets (image library, references, version management), Projects (project management, import/export, backup).
+
+**Mobile user flow:** 1 Select Studio (Home) → 2 Create and Generate (Canvas) → 3 Review and Edit (Tools) → 4 Manage Assets (Library) → 5 Project and Export (Projects).
+
+**Responsive anchor:** Mobile up to 767px (bottom navigation plus drawer), Tablet 768–1279px (two columns or drawer), Desktop 1280px and above (three-panel workspace). This matches section 6.
+
+**Differences from earlier text spec and desktop decisions (to resolve with the owner)**
+
+| Item | Note |
+|------|------|
+| Bottom tabs | The anchor uses Home, Create, Assets, Projects. The earlier text spec said Studio, Create, Assets, Settings. In the anchor, Settings is a sheet opened from the Create screen. |
+| Studio cards with thumbnails on Home | Desktop decision 8 says icons plus text, no thumbnails. The mobile Home uses picture cards. Needs one rule for both. |
+| Hero banner with marketing text | "Create Amazing Images with Your Own API Key" is promotional. Decide whether a workspace app should open on a banner or on recent projects. |
+| Inpaint tab and Layers tool | Phase 3 features. Before Phase 3 they must be disabled with an explanation. |
+| Adjust and Edit tools | Not defined in the spec. Need a definition or removal. |
+| Chinese labels in the anchor | The anchor mixes English and Chinese captions. UI languages are not decided. |
+| Provider and Model in the Settings sheet | Consistent with the desktop split (Provider in the left panel, Model in the inspector) only if mobile groups them in one sheet. Confirm. |
+
 ## 7. Design Tokens
 
 - Default theme: Dark. Neutral dark grey, a restrained indigo accent, a clear type hierarchy, and an 8px spacing system.
