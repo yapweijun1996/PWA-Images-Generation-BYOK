@@ -26,7 +26,7 @@ Exit gate:
 Goal: six studios, each with its own templates and workflow, on the shared engine.
 
 Depends on: Phase 1.
-Suggested order is open. Manga is the original focus, so it is a natural first studio.
+First studio: **Manga & Comics** (owner-decided 2026-11-23). The other five follow in an order still to be decided.
 
 ## Phase 3 — Advanced
 

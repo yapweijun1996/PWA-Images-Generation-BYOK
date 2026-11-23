@@ -8,9 +8,9 @@ Status values: `PENDING`, `IN_PROGRESS`, `DONE`, `BLOCKED`. A task becomes `DONE
 
 | ID | Task | Acceptance check | Status |
 |----|------|------------------|--------|
-| T-001 | Choose the first provider(s) | A named provider list is written into DESIGN.md | PENDING |
-| T-002 | Decide supported browsers and install targets | Matrix recorded in DESIGN.md | PENDING |
-| T-003 | Decide the license | `LICENSE` file added | PENDING |
+| T-001 | Choose the first provider(s) | OpenAI first, owner-decided 2026-11-23; recorded in DESIGN.md | DONE |
+| T-002 | Decide supported browsers and install targets | iPhone Safari, Android Chrome, desktop Chrome/Edge install; desktop Safari/Firefox as web pages; recorded in DESIGN.md | DONE |
+| T-003 | Decide the license | Apache-2.0; `LICENSE` file added | DONE |
 | T-004 | Decide the tech approach | Decision recorded in DESIGN.md: React + TypeScript + Vite, approved by owner 2026-11-23 | DONE |
 
 ## Phase 1 — Core
@@ -37,4 +37,5 @@ Tasks are not broken down yet. They will be split after Phase 1 is verified.
 
 ## Next executable task
 
-**T-001**: choose the first provider(s). It unblocks T-104, the first working end-to-end generation.
+**T-101**: scaffold the Vite + React + TypeScript PWA shell. All Phase 0 decisions (T-001 to T-004) are done.
+Before T-104, verify that OpenAI image APIs can be called directly from a browser (CORS). If not, the user-controlled proxy option becomes necessary.

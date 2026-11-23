@@ -25,8 +25,8 @@ Items the standard requires us to declare before implementation:
 | Profile | `STATIC_OFFLINE` |
 | Offline scope | App shell, project library, history, and exported assets work offline. Generation requires network. |
 | Sensitive data | The user's API key (high), reference photos (medium, may include private rooms or faces), generated images (low). |
-| Install targets | Not yet decided |
-| Supported browsers | Not yet decided |
+| Install targets | iPhone Safari (Home Screen), Android Chrome, desktop Chrome and Edge (owner-decided 2026-11-23) |
+| Supported browsers | The above, plus desktop Safari and Firefox as ordinary web pages with no install guarantee. Real-device iOS standalone checks are required for iOS claims. |
 | Device budget | Not yet decided |
 
 ## 2. Architecture
@@ -147,8 +147,7 @@ The full UI/UX Design System V1 draft is in [UIUX.md](UIUX.md). This is a layout
 
 ## 7. Open Design Questions
 
-- Which providers ship first?
+- Whether a second provider (Gemini) is added in Phase 1 or later. OpenAI is the first provider (owner-decided 2026-11-23); browser-direct CORS support must be verified.
 - Exact record layout within IndexedDB and OPFS.
 - Whether a user-controlled proxy is offered in Phase 1 or later.
 - How a character or style lock is represented (reference images, a text profile, or both).
-- Which browsers and install targets are officially supported.
