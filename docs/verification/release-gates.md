@@ -50,7 +50,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | INS-01 | HTTPS and manifest discovery | PASS (live Chrome) | Public HTTPS manifest retrieved and the app installed from its scoped URL. |
 | INS-02 | Stable manifest ID across releases | PASS (two live builds) | Both release manifests retained the same repository ID. |
 | INS-03 | Valid start_url and scope | PASS (live Chrome) | The published manifest subpath matched the artifact and the installed app launched there. |
-| INS-04 | 192/512 icons and maskable rendering | NOT_RUN | Inspect installed icon crop and safe zone on each install target. |
+| INS-04 | 192/512 icons and maskable rendering | PARTIAL | Branded PNGs decoded at their declared dimensions. The 512 px maskable asset is fully opaque and the contrasting glyph stayed within 161 px of center, inside the 204.8 px safe zone. Installed icon crop across target launchers remains open. [Manifest safe-zone rule](https://www.w3.org/TR/appmanifest/#icon-masks). |
 | INS-05 | Standalone launch | PASS (macOS Chrome) | The subsequent installed standalone-window check supersedes the earlier tab-only result. See the public upgrade observation below. |
 | INS-06 | iOS manual installation guidance | NOT_RUN | Walk through Add to Home Screen on a physical iPhone. |
 | INS-07 | Unsupported install prompt fallback | PASS (Playwright Firefox 159 and WebKit 27.2) | On the published candidate, Help displayed bookmark/browser instructions without an Install button. Closing Help returned to an editable prompt. |

@@ -96,7 +96,7 @@ Consequences:
 
 ### T-101 shell and service worker
 
-- Vite's base, manifest identity and icon URLs, and service-worker registration scope share `/PWA-Images-Generation-BYOK/`. The manifest links to placeholder PNGs. The shell displays the package version and UTC build timestamp.
+- Vite's base, manifest identity and icon URLs, and service-worker registration scope share `/PWA-Images-Generation-BYOK/`. The manifest links to 192 and 512 px PNGs of the studio’s Sparkles mark and a separate opaque maskable icon. The shell displays the package version and UTC build timestamp.
 - The build uses Workbox `injectManifest` to supply shell URLs and SHA-256 revisions to the service worker. It verifies each downloaded response and build descriptor before admitting the new cache. A failed installation cleans up the candidate cache and keeps the active shell available.
 - A waiting update activates on explicit user action when pending draft writes and generation jobs allow it. The precache covers only the app shell, manifest, build identity, icons and bundled assets. Same-scope unknown navigations open a recovery screen. Provider requests, credentials, project data and user images stay outside Cache Storage.
 
