@@ -49,6 +49,8 @@ node scripts/chromium-lab.mjs http://127.0.0.1:48925/PWA-Images-Generation-BYOK/
 
 The layout candidate from `28aa460` was rerun using the same Chromium lab profile. Six new navigations had LCP 1,416–1,528 ms, CLS 0–0.0004 and maximum observed interaction duration 80–112 ms. None overflowed the viewport. Navigation and settings drawers trapped and restored keyboard focus at 390 and 768 px. Axe-core 4.14.0 reported zero violations on the fresh 390 and 1440 px surfaces in both themes. The served JS SHA-256 was `33df4c58847a57bc5c7f4d591fe7c665f4d5b9eeb14e0f4a645c8fb591babfef`. Field P75 remains unmeasured.
 
+The mobile navigation and theme build was retested under the same lab settings in Chrome 158. The six fresh navigations measured LCP 1,264–1,340 ms, CLS 0–0.0004 and longest observed interaction events 48–56 ms. The local displayed build was `2026-11-23T15:23:36.917Z` with JS SHA-256 `f8d4606a28591caef80d1e6ec2d886317a2c2b5c1d18288b8494ab61a10ea09f`. The two mobile drawer sizes retained focus and restored it on dismissal. Axe reported zero violations and left color contrast for manual checking in all four sampled theme and width combinations.
+
 ## Field measurements and launch policy
 
 Test the published workspace URL through [PageSpeed Insights](https://pagespeed.web.dev/) or the [CrUX API](https://developer.chrome.com/docs/crux/api). Record the URL, phone and desktop form factors, collection dates, and P75 LCP, INP and CLS when URL-level data is available. This repository shares its GitHub Pages origin with other paths. Origin-level measurements describe that combined traffic and belong in the release record as context.

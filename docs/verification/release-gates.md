@@ -1,6 +1,6 @@
 # Production release gates
 
-**Decision: HOLD.** This assessment uses the STATIC_OFFLINE profile of KB-MCP `pwa:product-standard` v1.1.0 (registry body revision `80aad1538f3ecdddd7512de64cde4b8047196fb3637c075a87aab381bf314874`) and its service-worker install-integrity companion. Assessment date: 2026-11-23 Singapore time. Repository baseline: `0fab919`. This matrix records the scope of each observation. Historical local passes do not establish release-candidate or live acceptance.
+**Decision: HOLD.** This assessment uses the STATIC_OFFLINE profile of KB-MCP `pwa:product-standard` v1.1.0 (registry body revision `80aad1538f3ecdddd7512de64cde4b8047196fb3637c075a87aab381bf314874`) and its service-worker install-integrity companion. Assessment date: 2026-11-23 Singapore time. Current hosted build: `bc9f60d`. This matrix records the scope of each observation. Historical local passes do not establish release-candidate or live acceptance.
 
 | Gate | Decision | Outstanding evidence |
 |---|---|---|
@@ -10,6 +10,12 @@
 | G4 Evidence | HOLD | A release artifact is published. Remaining gaps include per-case build evidence and the full target matrix. The live rollback and restore-forward drill passed. |
 
 ## Current public release
+
+[Pages run 45204988515](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45204988515) published `bc9f60d`, build `v0.1.0 · 2026-11-23T15:25:32.252Z`. The workflow completed 35 tests, lint, production build and live artifact comparison. An independent check matched all ten files. Worker SHA-256: `0aa37882da270cdc7c2d3765cef2527ac0dd8f199579462b2e6f70f1273b9b97`. The retained artifact expires on 2027-02-21 at 15:25:07 UTC.
+
+The deployed change makes stalled service-worker activation retryable, keeps mobile controls at 16 CSS px, supports keyboard return to the top of long project lists, and matches browser theme hints to the visible setting. The [update fault test](update-guards.md) exercised a dropped activation message and one successful retry. Chrome and WebKit repeated [the mobile navigation and theme checks](keyboard-and-controls.md) against the published application. Field P75 remains unavailable. PageSpeed Insights reported that it could not resolve this URL on 2026-11-23 while an independent request to the same public URL returned HTTP 200.
+
+## November 23 WebKit select release
 
 [Pages run 45200603284](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45200603284) published application commit `955b8ad`, displayed build `v0.1.0 · 2026-11-23T15:02:20.861Z`. It adds the WebKit select sizing fix to the previous tested application. All 34 tests, lint, type checking and production build passed. The dependency audit reported zero known advisories. Both the workflow and a separate local comparison verified all ten public files. Inspection of 128 tracked files and the retained artifact found no copy of the configured developer key.
 
@@ -48,7 +54,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | INS-05 | Standalone launch | PASS (macOS Chrome) | The subsequent installed standalone-window check supersedes the earlier tab-only result. See the public upgrade observation below. |
 | INS-06 | iOS manual installation guidance | NOT_RUN | Walk through Add to Home Screen on a physical iPhone. |
 | INS-07 | Unsupported install prompt fallback | PASS (Playwright Firefox 159 and WebKit 27.2) | On the published candidate, Help displayed bookmark/browser instructions without an Install button. Closing Help returned to an editable prompt. |
-| INS-08 | Deep-link launch after installation | PASS (macOS Chrome CDP) | In build `2026-11-23T15:15:45.577Z`, the installed window opened `index.html?source=install-acceptance` offline. An unknown scope path displayed the recovery screen and returned to the workspace, also offline. |
+| INS-08 | Deep-link launch after installation | PASS (macOS Chrome CDP) | In builds `2026-11-23T15:15:45.577Z` and `2026-11-23T15:20:56.882Z`, the installed window opened `index.html?source=install-acceptance` offline. An unknown scope path displayed the recovery screen and returned to the workspace, also offline. |
 | SW-01 | Fresh install and first-load behavior | PASS (historical local) | Chrome registered and activated the shell worker at the app subpath (E1). |
 | SW-02 | Build A to B update discovery | PASS (historical local) | Two distinct preview builds triggered discovery and installation (E2). |
 | SW-03 | Mismatched build identity rejected | PASS (local Chrome, two builds) | [Build-bound integrity and recovery observations](shell-integrity.md). |
@@ -76,7 +82,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | MOB-05 | Portrait and landscape layout | NOT_RUN | Compare portrait and landscape tablet and phone layouts. |
 | MOB-06 | Smart top bar scroll direction | PASS (Chrome/WebKit viewport tests) | Long library hides the mobile header on downward scroll and reveals it on upward scroll. [Results](keyboard-and-controls.md). |
 | MOB-07 | Scroll-to-top accessibility | PARTIAL | Keyboard activation scrolls to top, focuses the header and proceeds to navigation. Screen-reader verification outstanding. [Results](keyboard-and-controls.md). |
-| MOB-08 | Light/dark system chrome | NOT_RUN | Inspect light/dark system chrome and transitions on physical devices. |
+| MOB-08 | Light/dark system chrome | PARTIAL | Browser theme metadata and native control scheme followed the selected app theme in Chrome and WebKit. Physical system chrome remains open. |
 | A11Y-01 | Keyboard-only navigation | PASS (bounded desktop Chrome journeys) | Keyboard-only validation, project creation and generation failure exercised. [Evidence](keyboard-and-controls.md). |
 | A11Y-02 | Visible focus indicator | PARTIAL | 48 focus visits per theme, with visible focus and contrast measured in desktop Chrome. Review on remaining platforms. [Evidence](keyboard-and-controls.md). |
 | A11Y-03 | Screen-reader landmarks and names | NOT_RUN | Use real VoiceOver to inspect navigation and form names. |
