@@ -209,3 +209,4 @@ Current goal, what was achieved, files changed, verification (`PASS` / `FAIL` / 
 
 - A successful image edit can still leave an undesirably transparent extension. Inspect the decoded RGBA output and distinguish the provider's generated edge from the local fitting margin. Preserve the original alpha and request an opaque new edge for an opaque source.
 - Version selection and image decoding are separate events. Bind the preview to the asset identity and gate approval on the decoded result and reference images. A test that holds each image load independently checks that users cannot approve during a transition.
+- Edge DevTools can return a tab-container ID when launching an installed app. Verify the page with a unique in-scope launch URL, a separate window ID, standalone display and service-worker control. Keep browser assertions and temporary preference cleanup visible in the result.

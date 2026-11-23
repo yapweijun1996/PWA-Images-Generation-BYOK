@@ -1,15 +1,21 @@
 # Production release gates
 
-**Decision: HOLD.** This assessment uses the STATIC_OFFLINE profile of KB-MCP `pwa:product-standard` v1.1.0 (registry body revision `80aad1538f3ecdddd7512de64cde4b8047196fb3637c075a87aab381bf314874`) and its service-worker install-integrity companion. Assessment date: 2026-11-23 Singapore time. Current hosted build: `b05ac79`. This matrix records the scope of each observation. Historical local passes do not establish release-candidate or live acceptance.
+**Decision: HOLD.** This assessment uses the STATIC_OFFLINE profile of KB-MCP `pwa:product-standard` v1.1.0 (registry body revision `80aad1538f3ecdddd7512de64cde4b8047196fb3637c075a87aab381bf314874`) and its service-worker install-integrity companion. Assessment date: 2026-11-24 Singapore time. Current hosted build: `db3c6ed`. This matrix records the scope of each observation. Historical local passes do not establish release-candidate or live acceptance.
 
 | Gate | Decision | Outstanding evidence |
 |---|---|---|
 | G1 Safety | HOLD | Build-integrity rejection and cross-tab activation have passed bounded Chrome checks. Review remaining offline failure, security and device cases below. |
-| G2 Compatibility | HOLD | Physical iOS Home Screen, VoiceOver, Android and remaining supported browsers need execution. |
+| G2 Compatibility | HOLD | Physical iPhone, iPad and Android installation and offline checks, plus spoken VoiceOver and TalkBack verification, remain open. See the device matrix for browser coverage. |
 | G3 Performance | HOLD | Six local cold navigations met the lab thresholds. Real-user percentile coverage is outstanding. A public PageSpeed Insights query on November 23 returned HTTP 429 and provided no field records. Field P75 is INSUFFICIENT_DATA. Targets are LCP ≤2.5 s, INP ≤200 ms and CLS ≤0.1. |
 | G4 Evidence | HOLD | A release artifact is published. Remaining gaps include per-case build evidence and the full target matrix. The live rollback and restore-forward drill passed. |
 
 ## Current public release
+
+[Pages run 45212692403](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45212692403) published `db3c6ed`, displayed as `v0.1.0 · 2026-11-23T16:06:51.928Z`. All 37 tests, lint, type checking and the production build passed. An independent comparison matched all 11 published files to the retained release artifact. Worker SHA-256: `f7a1a697333f3c65d70f7d040f37aa74fc7ee6d2c1d694c128be9cfe97599f7f`. The artifact expires on 2027-02-21 at 16:06:23 UTC. A scan of the tracked repository and all public files found no copy of the configured developer key. The npm advisory audit on November 24 Singapore time reported zero known vulnerabilities.
+
+The [public preview fixture](advanced-generation.md) confirmed that edited images can be approved only after the selected result and its references finish loading. An authenticated outpaint on this public build verified exact preservation of the sampled protected pixels, a filled extension, a transparent fitting margin, reviewed export and offline recovery. Two authenticated batch requests passed on the preceding public build.
+
+## November 23 update announcement release
 
 [Pages run 45210017661](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45210017661) published `b05ac79`, displayed as `v0.1.0 · 2026-11-23T15:52:30.039Z`. CI ran 36 tests, lint, type checking and the production build. CI and an independent check matched all 11 files to the retained artifact. Worker SHA-256: `787c0069cc24130174deabd6a6e4d836b5eb3cc42983b62bd6e7096fb8ffafcb`. The artifact expires on 2027-02-21 at 15:52:06 UTC. A local scan of 135 tracked files and all 11 public files found no copy of the developer key.
 
@@ -47,7 +53,7 @@ The deployed change makes stalled service-worker activation retryable, keeps mob
 |---|---|---|
 | Chrome on macOS | E1–E4 within stated scope | See the public installed upgrade and offline observations below; repeat against later releases as needed |
 | Chrome and Edge on Windows | PASS (managed installation on Windows Server 2025) | [Public installed and offline browser evidence](compatibility.md). Consumer installation UI and Windows client edition outstanding. |
-| Edge on macOS | NOT_RUN | [Installed and ordinary browser check](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45208483192) is queued for a GitHub macOS runner. |
+| Edge on macOS | PASS (hosted macOS 15, managed installation) | A fresh ordinary tab and separate installed standalone window recovered the live build and draft offline. Consumer installation and native launcher coverage remain open. [Platform evidence](compatibility.md#macos-installed-edge). |
 | Chrome on Android | PARTIAL (Android 15 emulator) | [Browser keyboard, system rotation and offline fresh-tab recovery](compatibility.md). [Native launcher shortcut reopened the app offline in standalone mode](compatibility.md). WebAPK registration, full Chrome restart, TalkBack and physical Android remain open. |
 | Safari on physical iPhone | NOT_RUN | Browser, Home Screen, VoiceOver, safe areas, keyboard and interrupted update |
 | iPadOS Safari | PARTIAL (WebKit tablet viewport only) | At 768 × 1024 and 1024 × 768 the hosted workspace retained its draft and enabled Generate without horizontal overflow. Physical iPad, keyboard and orientation events remain open. |

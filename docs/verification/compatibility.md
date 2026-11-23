@@ -1,6 +1,6 @@
-# Desktop browser compatibility checks
+# Browser compatibility checks
 
-Date: 2026-11-23 (Singapore). All checks used macOS 27.2 and a local production build under the `/PWA-Images-Generation-BYOK/` subpath. The repository contained uncommitted changes at build time; these observations do not establish the behavior of a clean commit or deployed Pages artifact.
+The initial Safari and Firefox checks used macOS 27.2 on 2026-11-23 Singapore time and an uncommitted local production build under the `/PWA-Images-Generation-BYOK/` subpath. Later checks identify their own environment and build.
 
 ## Safari 27.2
 
@@ -15,7 +15,7 @@ Date: 2026-11-23 (Singapore). All checks used macOS 27.2 and a local production 
 - After the Zod configuration fix, the later build `v0.1.0 · 2026-11-23T14:19:13.333Z` (`index.html` SHA-256 `6364990fe60adb64455bc65b0e0e36606fa055a9dd49b6193469c172a3cf8642`; script `index-C9de1mJ2.js`) loaded with no new console errors. An isolated test project was created, exported as a ZIP and imported; both the original and restored project appeared in the list. After stopping the local server and confirming connection refused, reload still displayed both projects and a service-worker controller. No console or page errors were observed during the project/backup or offline reload actions.
 - This is a scoped automation check, not complete Firefox compatibility or a cross-device test.
 
-## Other browsers and devices
+## Initial local browser and device inventory
 
 Microsoft Edge and stable Firefox were not found in the standard application locations. No iPhone or Android device was identified in USB profiler output; ADB showed only an offline emulator. `xcrun devicectl` and `simctl` were unavailable. These checks cannot rule out inaccessible or wirelessly connected devices. No Android, iOS, Edge or deployed Pages checks were performed.
 
@@ -26,6 +26,16 @@ On 2026-11-23, searches of `/Applications`, `~/Applications`, the Homebrew Cask 
 The [official Microsoft Edge download page](https://www.microsoft.com/en-us/edge/download) states that downloading Edge signifies agreement to the Microsoft Edge Software License Terms. No Edge package was downloaded or extracted, and no license terms were accepted; therefore the requested portable Edge, installation and offline checks remain **NOT RUN**.
 
 No already-running Windows environment was identified: the listed Tart instances were macOS or stopped, Lima listed no instances, and checks of the UTM container and running VM processes did not reveal a Windows VM. This is a bounded local inventory, not proof that no Windows environment exists elsewhere. No VM was provisioned or started. Stable Firefox and Edge compatibility, including Edge PWA installation and offline launch, still need testing in an authorized environment.
+
+## macOS installed Edge
+
+An Intel macOS 15 GitHub-hosted runner (Darwin 24.6.0) used preinstalled Microsoft Edge 151.0.4129.101 and a fresh profile. The ordinary browser opened public commit `db3c6ed`, displayed as `v0.1.0 · 2026-11-23T16:06:51.928Z`. An independent tab read the saved draft, Edge installed the app through DevTools, and the profile had a macOS app shim. After the original browser exited, a fresh process used a deliberately unreachable proxy and an uncached network probe failed. Its ordinary tab recovered the same build and draft with service-worker control.
+
+Under the same offline conditions, DevTools launched the installed app at the in-scope URL `?source=macos-edge-install`. Its page appeared in a different window from the ordinary browser. The new window reported standalone display and a service-worker controller and recovered the same build and draft. This is a managed installation and DevTools launch on hosted macOS. The consumer install dialog and launching from Finder or Dock remain untested.
+
+[Run 45214011839](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45214011839) captured both screenshots and all browser assertions. Its step exited after a cleanup command failed. Earlier attempts tested the ordinary offline path and showed that Edge returns a tab-container ID for the app launch. The page check identifies the app by its requested launch URL and verifies the separate window ID and display mode.
+
+[Run 45214322845](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45214322845) repeated the browser assertions on the same build and verified removal of the temporary policy. The retained `macos-edge` artifact includes `result.json` and the offline standalone screenshot, SHA-256 `a01c035dd811e0495d61f25d1086844d694b13e9064e1b027e6b21a248115276`.
 
 ## Windows installed Chrome and Edge
 
