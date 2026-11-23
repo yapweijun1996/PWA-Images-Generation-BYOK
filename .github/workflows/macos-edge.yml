@@ -1,0 +1,31 @@
+name: Verify macOS Edge installed app
+on: workflow_dispatch
+permissions:
+  contents: read
+
+jobs:
+  edge:
+    if: github.ref == 'refs/heads/main'
+    runs-on: macos-15
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '24'
+      - name: Install browser automation client
+        run: npm install --prefix "$RUNNER_TEMP/installed-app-driver" --ignore-scripts --no-audit --no-fund playwright-core@1.56.1
+      - name: Install and reopen the deployed studio in Edge
+        env:
+          PLAYWRIGHT_MODULE: ${{ runner.temp }}/installed-app-driver/node_modules/playwright-core/index.mjs
+        run: node scripts/macos-edge.mjs
+      - name: Retain evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: macos-edge
+          path: macos-edge-evidence/
+          if-no-files-found: warn
+          retention-days: 14
