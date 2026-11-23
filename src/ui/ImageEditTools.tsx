@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent } from 'react'
+import { patchProject } from '@engine/storage/draft'
 import { openStorage } from '@engine/storage'
 import { saveEdit, type Expansion, type PreparedEdit, type Stroke } from '@engine/editing'
 import type { Asset } from '@engine/types'
@@ -7,6 +8,7 @@ export type { PreparedEdit } from '@engine/editing'
 interface Props {
   projectId: string
   selectedAssetId?: string
+  assetCount?: number
   locale: 'en' | 'zh-CN'
   onPrepared: (edit: PreparedEdit) => void
 }
@@ -15,7 +17,7 @@ export function ImageEditTools(props: Props) {
   return <Editor key={JSON.stringify([props.projectId, props.selectedAssetId])} {...props} />
 }
 
-function Editor({ projectId, selectedAssetId, locale, onPrepared }: Props) {
+function Editor({ projectId, selectedAssetId, assetCount, locale, onPrepared }: Props) {
   const t = (en: string, zh: string) => locale === 'zh-CN' ? zh : en
   const [mode, setMode] = useState<'reference' | 'inpaint' | 'outpaint'>('reference')
   const [assets, setAssets] = useState<Asset[]>([])
@@ -45,18 +47,23 @@ function Editor({ projectId, selectedAssetId, locale, onPrepared }: Props) {
     void (async () => {
       const store = await openStorage()
       try {
-        const items = await store.db.getAllFromIndex('assets', 'byProject', projectId)
+        const [items, project] = await Promise.all([
+          store.db.getAllFromIndex('assets', 'byProject', projectId),
+          store.db.get('projects', projectId),
+        ])
         if (!current) return
         setAssets(items)
         for (const [name, set] of [['character', setCharacter], ['style', setStyle]] as const) {
-          let saved
-          try { saved = localStorage.getItem('image-studio:lock:' + projectId + ':' + name) } catch { continue }
-          if (saved && items.some(item => item.id === saved)) set(saved)
+          let saved = project?.referenceLocks?.[name]
+          if (!project?.referenceLocks) {
+            try { saved = localStorage.getItem('image-studio:lock:' + projectId + ':' + name) ?? undefined } catch { /* Legacy storage may be unavailable. */ }
+          }
+          set(saved && items.some(item => item.id === saved) ? saved : '')
         }
       } finally { store.db.close() }
     })().catch(() => { if (current) setStatus('error') })
     return () => { current = false }
-  }, [projectId])
+  }, [projectId, assetCount])
 
   useEffect(() => {
     let current = true
@@ -92,7 +99,9 @@ function Editor({ projectId, selectedAssetId, locale, onPrepared }: Props) {
   function lock(kind: 'character' | 'style', id: string) {
     if (kind === 'character') setCharacter(id)
     else setStyle(id)
-    try { localStorage.setItem('image-studio:lock:' + projectId + ':' + kind, id) } catch { /* Session selection remains usable. */ }
+    void patchProject(projectId, current => ({
+      referenceLocks: { character: character || undefined, style: style || undefined, ...current.referenceLocks, [kind]: id || undefined },
+    })).catch(() => setStatus('error'))
   }
 
   async function prepare() {

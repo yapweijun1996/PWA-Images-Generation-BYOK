@@ -3,7 +3,7 @@ import 'fake-indexeddb/auto'
 import { deleteDB } from 'idb'
 import { zipSync, unzipSync, strFromU8, strToU8 } from 'fflate'
 import { expect, it, afterEach, beforeEach } from 'vitest'
-import { loadDraft, saveDraft } from '@engine/storage/draft'
+import { loadDraft, saveDraft, patchProject } from '@engine/storage/draft'
 import { DATABASE_NAME, openStorage } from '@engine/storage'
 import { exportImage, exportProjectBackup, importProjectBackup } from './index'
 
@@ -80,10 +80,14 @@ it('rejects damaged bytes, unknown entries and invalid references before restori
 it('restores an unfinished masked batch with references and lineage remapped into its own project', async () => {
   const draft = { prompt: 'Change the sky', modelId: 'model', size: 'auto', quality: 'high', stageId: 'panel',
     referenceAssetIds: ['ref'], edit: { maskAssetId: 'output', promptHint: 'Keep the lighting', count: 3 }, parentVersionId: 'v2' }
+  await patchProject('source', { referenceLocks: {character:'ref',style:'output'}, trashedAssetIds:['output'] })
   await saveDraft('source', draft)
   const restored = await importProjectBackup(await exportProjectBackup('source'))
   const copy = await loadDraft(restored.id)
   expect(copy.prompt).toBe(draft.prompt)
+  expect(restored.referenceLocks?.character).toBe(copy.referenceAssetIds[0])
+  expect(restored.referenceLocks?.style).toBe(copy.edit?.maskAssetId)
+  expect(restored.trashedAssetIds).toEqual([copy.edit?.maskAssetId])
   expect(copy.stageId).toBe(draft.stageId)
   expect(copy.edit?.count).toBe(3)
   expect(copy.parentVersionId).not.toBe(draft.parentVersionId)

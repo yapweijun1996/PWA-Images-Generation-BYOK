@@ -13,7 +13,7 @@ export interface ProjectDraft {
 }
 
 type StoredProject = Project & { draft?: ProjectDraft }
-type ProjectPatch = Partial<Pick<Project, 'name' | 'studioId' | 'board' | 'reviewedAssetIds' | 'trashedAssetIds'>>
+type ProjectPatch = Partial<Pick<Project, 'name' | 'studioId' | 'board' | 'reviewedAssetIds' | 'trashedAssetIds' | 'referenceLocks'>>
 
 function initialDraft(projectId: string): ProjectDraft {
   let prompt = ''
@@ -49,6 +49,7 @@ export function patchProject(projectId: string, patch: ProjectPatch | ((current:
     const next = { ...current }
     if (delta.name !== undefined) next.name = delta.name
     if (delta.studioId !== undefined) next.studioId = delta.studioId
+    if ('referenceLocks' in delta) next.referenceLocks = delta.referenceLocks
     if ('board' in delta) next.board = delta.board
     if ('trashedAssetIds' in delta) next.trashedAssetIds = delta.trashedAssetIds
     if ('reviewedAssetIds' in delta) next.reviewedAssetIds = delta.reviewedAssetIds

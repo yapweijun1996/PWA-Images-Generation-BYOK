@@ -73,6 +73,7 @@ export interface Project {
   board?: { panels: { assetId: string; caption: string }[]; reviewed: boolean }
   reviewedAssetIds?: string[]
   trashedAssetIds?: string[]
+  referenceLocks?: {character?: string; style?: string}
   id: string
   name: string
   studioId: string
