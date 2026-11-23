@@ -27,7 +27,7 @@ const success = (name,details={}) => evidence.steps.push({name,...details})
 let child, browser, page
 async function start(offline) {
   const flags = ['--user-data-dir='+profile,'--remote-debugging-port=0','--no-first-run','--no-default-browser-check',
-    '--disable-background-mode','--disable-features=msEdgeFirstRunExperience','--window-size=1440,900']
+    '--enable-devtools-pwa-handler','--disable-background-mode','--disable-features=msEdgeFirstRunExperience','--window-size=1440,900']
   if (offline) flags.push('--proxy-server=http://127.0.0.1:1','--proxy-bypass-list=<-loopback>','--disable-quic')
   child = spawn(executable,[...flags,'about:blank'],{stdio:'ignore'})
   const portFile = path.join(profile,'DevToolsActivePort')
@@ -86,7 +86,7 @@ try {
   },draft),draft)
   await readback.close()
   success('Fresh tab loaded the project draft from local storage')
-  const cdp=await browser.newBrowserCDPSession()
+  const cdp=inspector
   await cdp.send('PWA.install',{manifestId:site,installUrlOrBundleUrl:site})
   const osState=await cdp.send('PWA.getOsAppState',{manifestId:site})
   success('Installed deployed manifest through the browser PWA domain',{osState})
@@ -100,7 +100,7 @@ try {
   catch(error){ unavailable=/ERR_PROXY_CONNECTION_FAILED|ERR_TUNNEL_CONNECTION_FAILED|ERR_NO_SUPPORTED_PROXIES/.test(String(error)) }
   assert(unavailable,'Uncached request did not prove the profile was offline.')
   success('Fresh browser process could not reach an uncached same-origin URL')
-  const cdpCold=await browser.newBrowserCDPSession()
+  const cdpCold=await cold.newCDPSession(probe)
   const {targetId}=await cdpCold.send('PWA.launch',{manifestId:site})
   assert(targetId)
   // Exclude ordinary tabs that startup recovery may have restored.
