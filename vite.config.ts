@@ -18,6 +18,25 @@ export default defineConfig(({ command }) => ({
   },
   plugins: [
     react(),
+    {
+      name: 'production-content-security-policy',
+      apply: 'build',
+      transformIndexHtml() {
+        return [{
+          tag: 'meta',
+          attrs: {
+            'http-equiv': 'Content-Security-Policy',
+            content: [
+              "default-src 'none'", "script-src 'self'", "style-src 'self'",
+              "img-src 'self' blob: data:", "font-src 'self'",
+              "connect-src 'self' https://api.openai.com", "worker-src 'self'",
+              "manifest-src 'self'", "form-action 'none'", "base-uri 'none'",
+            ].join('; '),
+          },
+          injectTo: 'head-prepend',
+        }]
+      },
+    },
     VitePWA({
       base,
       scope: base,
