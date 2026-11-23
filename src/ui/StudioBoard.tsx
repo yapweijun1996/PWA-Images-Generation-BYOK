@@ -1,12 +1,24 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { openStorage } from '@engine/storage'
 import type { Project } from '@engine/types'
+import { registerUpdateGuard } from '@pwa'
 import { feedback, type Locale } from './workspaceLocale'
 import { AssetImage } from './AssetImage'
 
 export interface BoardPanel { assetId: string; caption: string }
 export interface BoardState { panels: BoardPanel[]; reviewed: boolean }
 type BoardProject = Project & { board?: BoardState }
+interface CaptionEdit {
+  index: number
+  text: string
+  base: BoardState
+  status: 'editing' | 'saving' | 'failed' | 'saved'
+}
+
+function releaseDraft(guard: {current: (() => void) | null}) {
+  guard.current?.()
+  guard.current = null
+}
 
 export function StudioBoard({ project, selected, locale, onChange }: {
   project: BoardProject; selected?: string; locale: Locale; onChange: () => void
@@ -14,16 +26,37 @@ export function StudioBoard({ project, selected, locale, onChange }: {
   const t = (en: string, zh: string) => locale === 'en' ? en : zh
   const [message, setMessage] = useState('')
   const [caption, setCaption] = useState('')
+  const [edit, setEdit] = useState<CaptionEdit>()
+  const panelGuard = useRef<(() => void) | null>(null)
+  const newPanelGuard = useRef<(() => void) | null>(null)
+  const captionRevision = useRef(0)
   const board = project.board ?? { panels: [], reviewed: false }
-  useEffect(() => { setCaption('');setMessage('') }, [project.id])
-  const change = async (update: (current: BoardState) => BoardState) => {
+  const panels = edit && edit.status !== 'saved' ? edit.base.panels : board.panels
+  useEffect(() => {
+    const warn = (event: BeforeUnloadEvent) => {
+      if (panelGuard.current || newPanelGuard.current) event.preventDefault()
+    }
+    window.addEventListener('beforeunload', warn)
+    return () => {
+      window.removeEventListener('beforeunload', warn)
+      releaseDraft(panelGuard)
+      releaseDraft(newPanelGuard)
+    }
+  }, [])
+  useEffect(() => {
+    if (edit?.status === 'saved' && JSON.stringify(project.board) !== JSON.stringify(edit.base)) setEdit(undefined)
+  }, [edit, project.board])
+
+  const change = async (update: (current: BoardState) => BoardState, expected = board) => {
+    const release = registerUpdateGuard('draft')
+    setMessage('')
     try {
       const { db } = await openStorage()
       try {
         const tx = db.transaction('projects','readwrite')
         const current = await tx.store.get(project.id) as BoardProject
         const stored = current.board ?? { panels: [], reviewed: false }
-        if (JSON.stringify(stored) !== JSON.stringify(board)) {
+        if (JSON.stringify(stored) !== JSON.stringify(expected)) {
           onChange()
           throw new Error('The board changed in another tab. Review its current panels and try again.')
         }
@@ -31,7 +64,38 @@ export function StudioBoard({ project, selected, locale, onChange }: {
         await tx.done
       } finally { db.close() }
       onChange()
-    } catch (e) { setMessage((e as Error).message) }
+      return true
+    } catch (e) {
+      setMessage((e as Error).message)
+      return false
+    } finally { release() }
+  }
+
+  function changeCaption(index: number, text: string) {
+    const base = edit?.base ?? board
+    if (text === base.panels[index].caption) {
+      releaseDraft(panelGuard)
+      setEdit(undefined)
+    } else {
+      panelGuard.current ??= registerUpdateGuard('draft')
+      setEdit({ index, text, base, status: 'editing' })
+    }
+  }
+
+  async function saveCaption(draft: CaptionEdit) {
+    setEdit({ ...draft, status: 'saving' })
+    const saved = await change(current => ({
+      ...current, reviewed: false,
+      panels: current.panels.map((panel, index) => index === draft.index ? { ...panel, caption: draft.text } : panel),
+    }), draft.base)
+    if (saved) releaseDraft(panelGuard)
+    setEdit({ ...draft, status: saved ? 'saved' : 'failed' })
+  }
+
+  async function addPanel(assetId: string) {
+    const revision = captionRevision.current
+    const saved = await change(current => ({ ...current, reviewed: false, panels: [...current.panels, { assetId, caption }] }))
+    if (saved && captionRevision.current === revision) releaseDraft(newPanelGuard)
   }
   async function exportBoard() {
     const store = await openStorage()
@@ -83,13 +147,26 @@ export function StudioBoard({ project, selected, locale, onChange }: {
     } catch(e) {setMessage((e as Error).message)} finally {store.db.close()}
   }
   return <details><summary>{t('Storyboard & annotations','分镜与注释')}</summary>
-    <label>{t('Dialogue or annotation','对白或注释')}<textarea value={caption} maxLength={100} onChange={e=>setCaption(e.target.value)} /></label>
-    <button disabled={!selected || board.panels.length>=12} onClick={()=>{if(selected) void change(b=>({...b,reviewed:false,panels:[...b.panels,{assetId:selected,caption}]}))}}>{t('Add selected image','添加选中图片')}</button>
-    <ol>{board.panels.map((panel,i)=><li key={i}><AssetImage locale={locale} id={panel.assetId} alt={t('Panel','画格')+' '+(i+1)} />
-      <label>{t('Panel text','画格文字')}<textarea key={panel.caption} defaultValue={panel.caption} maxLength={100} onBlur={e=>{const text=e.target.value;if(text!==panel.caption)void change(b=>({...b,reviewed:false,panels:b.panels.map((p,n)=>n===i?{...p,caption:text}:p)}))}} /></label>
-      <button disabled={!i} onClick={()=>void change(b=>{const panels=[...b.panels];[panels[i-1],panels[i]]=[panels[i],panels[i-1]];return {panels,reviewed:false}})}>{t('Move earlier','前移')}</button>
-      <button onClick={()=>void change(b=>({reviewed:false,panels:b.panels.filter((_,n)=>n!==i)}))}>{t('Remove panel','移除画格')}</button></li>)}</ol>
-    <label><input type="checkbox" checked={board.reviewed} onChange={e=>{const reviewed=e.target.checked;void change(b=>({...b,reviewed}))}} />{t('I reviewed the captions, accuracy and image continuity','我已审核文字、准确性和画面连续性')}</label>
-    <button disabled={!board.panels.length || !board.reviewed} onClick={()=>void exportBoard()}>{t('Export reviewed board','导出已审核的分镜')}</button><p role="status">{feedback(message,locale)}</p>
+    <label>{t('Dialogue or annotation','对白或注释')}<textarea value={caption} maxLength={100} disabled={Boolean(edit)} onChange={e => {
+      const text = e.target.value
+      captionRevision.current++
+      setCaption(text)
+      if (text) newPanelGuard.current ??= registerUpdateGuard('draft')
+      else releaseDraft(newPanelGuard)
+    }} /></label>
+    <button disabled={Boolean(edit) || !selected || board.panels.length>=12} onClick={()=>{if(selected) void addPanel(selected)}}>{t('Add selected image','添加选中图片')}</button>
+    <ol>{panels.map((panel,i)=><li key={i}><AssetImage locale={locale} id={panel.assetId} alt={t('Panel','画格')+' '+(i+1)} />
+      <label>{t('Panel text','画格文字')}<textarea value={edit?.index === i ? edit.text : panel.caption} maxLength={100}
+        readOnly={Boolean(edit && (edit.index !== i || edit.status === 'saving' || edit.status === 'saved'))}
+        onChange={event => changeCaption(i, event.target.value)}
+        onBlur={() => { if (edit?.index === i && edit.status === 'editing') void saveCaption(edit) }} /></label>
+      <button disabled={Boolean(edit) || !i} onClick={()=>void change(b=>{const panels=[...b.panels];[panels[i-1],panels[i]]=[panels[i],panels[i-1]];return {panels,reviewed:false}})}>{t('Move earlier','前移')}</button>
+      <button disabled={Boolean(edit)} onClick={()=>void change(b=>({reviewed:false,panels:b.panels.filter((_,n)=>n!==i)}))}>{t('Remove panel','移除画格')}</button></li>)}</ol>
+    {edit?.status === 'failed' && <>
+      <button onClick={() => void saveCaption(edit)}>{t('Retry saving caption','重试保存文字')}</button>
+      <button onClick={() => { releaseDraft(panelGuard); setEdit(undefined); setMessage('') }}>{t('Discard caption changes','放弃文字改动')}</button>
+    </>}
+    <label><input type="checkbox" checked={!edit && board.reviewed} disabled={Boolean(edit)} onChange={e=>{const reviewed=e.target.checked;void change(b=>({...b,reviewed}))}} />{t('I reviewed the captions, accuracy and image continuity','我已审核文字、准确性和画面连续性')}</label>
+    <button disabled={Boolean(edit) || !board.panels.length || !board.reviewed} onClick={()=>void exportBoard()}>{t('Export reviewed board','导出已审核的分镜')}</button><p role="status">{feedback(message,locale)}</p>
   </details>
 }
