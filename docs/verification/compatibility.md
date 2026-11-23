@@ -28,7 +28,7 @@ In the compact-toolbar trial, native iPad Safari displayed `7aaefff` and opened 
 
 The iPhone job in the same trial built WebDriverAgent. The session request timed out while probing the driver port, with zero application requests recorded. The compact-toolbar selector remains unverified on the simulator. [iPhone job](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45267231119/job/138017248484).
 
-The focused iPad rerun exercises the revised action-cell selector against the published `83a4e07` artifact. [iPad actions-row trial](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45271979199).
+The focused iPad rerun connected WebDriverAgent and fetched the exact `83a4e07` shell and precache. The workspace lookup expired before rendering was visible in its screenshot. The accessibility snapshot taken immediately afterward contained the workspace and native Share button. The test stopped before the actions-row selector. The next run checks both workspace labels in a single query and allows up to two minutes for the workspace and 90 seconds for the share actions. [iPad actions-row trial](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45271979199), [iPad readiness retry](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45275050186).
 
 ## Firefox 159.0 (Playwright build)
 
