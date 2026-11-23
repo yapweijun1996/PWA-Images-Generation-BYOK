@@ -48,15 +48,15 @@ await new Promise(resolve => site.listen(0, '127.0.0.1', resolve))
 const url = 'http://127.0.0.1:' + site.address().port + base
 const driverUrl = 'http://127.0.0.1:4723'
 const log = openSync(join(folder, 'appium.log'), 'w')
-const driver = spawn(APPIUM_BIN, ['--address', '127.0.0.1', '--port', '4723', '--log-level', 'warn'], {
+const driver = spawn(APPIUM_BIN, ['--address', '127.0.0.1', '--port', '4723', '--log-level', 'info'], {
   stdio: ['ignore', log, log],
 })
 closeSync(log)
 let session
 
-async function command(method, resource, body) {
+async function command(method, resource, body, timeout = 75_000) {
   const response = await fetch(driverUrl + resource, {
-    method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(body), signal: AbortSignal.timeout(155_000),
+    method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(body), signal: AbortSignal.timeout(timeout),
   })
   const { value } = await response.json()
   if (!response.ok || value?.error) {
@@ -133,7 +133,8 @@ try {
     platformName:'iOS', 'appium:platformVersion':'26.2', 'appium:automationName':'XCUITest', 'appium:udid':SIMULATOR_UDID,
     'appium:deviceName':DEVICE_NAME, 'appium:bundleId':safari, 'appium:language':'en', 'appium:locale':'en_US',
     'appium:noReset':true, 'appium:isHeadless':true, 'appium:newCommandTimeout':120,
-  }}})
+    'appium:wdaLaunchTimeout':125_000, 'appium:wdaStartupRetries':1, 'appium:showXcodeLog':true,
+  }}}, 260_000)
   session = started.sessionId
   report.platformVersion = started.capabilities.platformVersion
   step('Connected WebDriverAgent to the booted simulator')
@@ -141,20 +142,24 @@ try {
   await workspace()
   step('Opened the exact public artifact at its application subpath in mobile Safari')
 
-  let share = await named('Share', 'Button')
+  let share = await find('type == "XCUIElementTypeButton" AND name == "ShareButton" AND visible == true')
   if (!share) {
-    const menu = await find('type == "XCUIElementTypeButton" AND (name IN {"Page Menu", "Page menu", "More", "More Options"} OR label IN {"Page Menu", "Page menu", "More", "More Options"})')
+    const menu = await named('Page Menu', 'Button')
     assert(menu, 'Safari Share and Page Menu controls are missing')
     await tap(menu)
     share = await waitFor('Safari Share', () => named('Share', 'Button'))
   }
   await tap(share)
+  await screenshot('share-sheet')
+  await writeFile(join(folder, 'share-sheet.xml'), await send('GET', '/source'))
+  let expanded = false
   const add = await waitFor('Add to Home Screen', async () => {
     const action = await named('Add to Home Screen')
     if (action) return action
-    const more = await named('View More', 'Button')
-    if (more) await tap(more)
-    else await execute('swipe', {direction:'up'})
+    if (!expanded) {
+      const more = await named('View More') || await named('More Actions')
+      if (more) { await tap(more); expanded = true }
+    }
   })
   await tap(add)
   const webApp = await waitFor('Open as Web App', () => named('Open as Web App', 'Switch'))
@@ -213,6 +218,9 @@ try {
   if (session) {
     await screenshot('failure').catch(() => {})
     await send('GET', '/source').then(source => writeFile(join(folder, 'failure.xml'), source)).catch(() => {})
+  } else {
+    try { execFileSync('xcrun', ['simctl', 'io', SIMULATOR_UDID, 'screenshot', join(folder, 'failure.png')], { timeout: 10_000 }) }
+    catch { /* The driver error is the primary evidence when the simulator is unavailable. */ }
   }
   throw error
 } finally {
