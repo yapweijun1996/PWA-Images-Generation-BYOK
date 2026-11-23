@@ -1,6 +1,6 @@
 # Production release gates
 
-**Decision: HOLD.** This assessment uses the STATIC_OFFLINE profile of KB-MCP `pwa:product-standard` v1.1.0 (registry body revision `80aad1538f3ecdddd7512de64cde4b8047196fb3637c075a87aab381bf314874`) and its service-worker install-integrity companion. Assessment date: 2026-11-23 Singapore time. Current hosted build: `83ba3a4`. This matrix records the scope of each observation. Historical local passes do not establish release-candidate or live acceptance.
+**Decision: HOLD.** This assessment uses the STATIC_OFFLINE profile of KB-MCP `pwa:product-standard` v1.1.0 (registry body revision `80aad1538f3ecdddd7512de64cde4b8047196fb3637c075a87aab381bf314874`) and its service-worker install-integrity companion. Assessment date: 2026-11-23 Singapore time. Current hosted build: `b05ac79`. This matrix records the scope of each observation. Historical local passes do not establish release-candidate or live acceptance.
 
 | Gate | Decision | Outstanding evidence |
 |---|---|---|
@@ -10,6 +10,12 @@
 | G4 Evidence | HOLD | A release artifact is published. Remaining gaps include per-case build evidence and the full target matrix. The live rollback and restore-forward drill passed. |
 
 ## Current public release
+
+[Pages run 45210017661](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45210017661) published `b05ac79`, displayed as `v0.1.0 · 2026-11-23T15:52:30.039Z`. CI ran 36 tests, lint, type checking and the production build. CI and an independent check matched all 11 files to the retained artifact. Worker SHA-256: `787c0069cc24130174deabd6a6e4d836b5eb3cc42983b62bd6e7096fb8ffafcb`. The artifact expires on 2027-02-21 at 15:52:06 UTC. A local scan of 135 tracked files and all 11 public files found no copy of the developer key.
+
+On the hosted build Chrome exposed the empty polite, atomic update region before discovery and showed no update card while idle. The [two-build update test](update-guards.md) verified initial discovery and draft blocking in the same DOM region. The [previous release's platform checks](compatibility.md) retain their original build scope.
+
+## November 23 install icon and update recovery release
 
 [Pages run 45207535206](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45207535206) published source `83ba3a4`, displayed build `v0.1.0 · 2026-11-23T15:39:10.092Z`. CI completed 36 tests, lint, type checking and production build. CI and an independent check matched all 11 public files to the release artifact. Worker SHA-256: `ba5c62652f1afe0c3e77a55872bbb90bd66b3ced68633b4288b219dfdb85ab7f`. The retained artifact expires on 2027-02-21 at 15:38:43 UTC. No copy of the configured developer key was found in the tracked files or deployed artifact.
 
@@ -41,7 +47,7 @@ The deployed change makes stalled service-worker activation retryable, keeps mob
 |---|---|---|
 | Chrome on macOS | E1–E4 within stated scope | See the public installed upgrade and offline observations below; repeat against later releases as needed |
 | Chrome and Edge on Windows | PASS (managed installation on Windows Server 2025) | [Public installed and offline browser evidence](compatibility.md). Consumer installation UI and Windows client edition outstanding. |
-| Edge on macOS | NOT_RUN | Installed and ordinary browser flows |
+| Edge on macOS | NOT_RUN | [Installed and ordinary browser check](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45208483192) is queued for a GitHub macOS runner. |
 | Chrome on Android | PARTIAL (Android 15 emulator) | [Browser keyboard, system rotation and offline fresh-tab recovery](compatibility.md). [Native launcher shortcut reopened the app offline in standalone mode](compatibility.md). WebAPK registration, full Chrome restart, TalkBack and physical Android remain open. |
 | Safari on physical iPhone | NOT_RUN | Browser, Home Screen, VoiceOver, safe areas, keyboard and interrupted update |
 | iPadOS Safari | PARTIAL (WebKit tablet viewport only) | At 768 × 1024 and 1024 × 768 the hosted workspace retained its draft and enabled Generate without horizontal overflow. Physical iPad, keyboard and orientation events remain open. |
