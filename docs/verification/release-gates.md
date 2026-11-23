@@ -1,15 +1,27 @@
 # Production release gates
 
-**Decision: HOLD.** This assessment uses the STATIC_OFFLINE profile of KB-MCP `pwa:product-standard` v1.1.0 (registry body revision `80aad1538f3ecdddd7512de64cde4b8047196fb3637c075a87aab381bf314874`) and its service-worker install-integrity companion. Assessment date: 2026-11-24 Singapore time. Current hosted build: `d05d51f`. This matrix records the scope of each observation. Historical local passes do not establish release-candidate or live acceptance.
+**Decision: HOLD.** This assessment uses the STATIC_OFFLINE profile of KB-MCP `pwa:product-standard` v1.1.0 (registry body revision `80aad1538f3ecdddd7512de64cde4b8047196fb3637c075a87aab381bf314874`) and its service-worker install-integrity companion. Assessment date: 2026-11-24 Singapore time. Current hosted build: `7cbb891`. This matrix records the scope of each observation. Historical local passes do not establish release-candidate or live acceptance.
 
 | Gate | Decision | Outstanding evidence |
 |---|---|---|
 | G1 Safety | HOLD | Build-integrity rejection and cross-tab activation have passed bounded Chrome checks. Review remaining offline failure, security and device cases below. |
 | G2 Compatibility | HOLD | Physical iPhone, iPad and Android installation and offline checks, plus spoken VoiceOver and TalkBack verification, remain open. See the device matrix for browser coverage. |
 | G3 Performance | HOLD | Six local cold navigations met the lab thresholds. Real-user percentile coverage is outstanding. A public PageSpeed Insights query on November 23 returned HTTP 429 and provided no field records. Field P75 is INSUFFICIENT_DATA. Targets are LCP ≤2.5 s, INP ≤200 ms and CLS ≤0.1. |
-| G4 Evidence | HOLD | A release artifact is published. Remaining gaps include per-case build evidence and the full target matrix. The live rollback and restore-forward drill passed. |
+| G4 Evidence | HOLD | The published artifact includes its verified source commit. Remaining gaps include per-case evidence across the full target matrix. The live rollback and restore-forward drill passed. |
 
 ## Current public release
+
+[Pages run 45219993424](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45219993424) published `7cbb891fd801be73c95a869cb7af507d77232e88`, displayed as `v0.1.0 · 2026-11-23T16:45:21.339Z`. The workflow checked out that SHA and recorded it as `sourceRevision` in `build-info.json`. All 37 tests, lint, type checking and the production build passed. The independent live verifier matched the full source revision and all 11 files. Worker SHA-256: `bd9930bcf0059d277e7931ffc9f7867a67e07f9d3f14f070c6f055f4ca4a0a39`. The retained artifact expires on 2027-02-21 at 16:45:04 UTC. A scan of 135 tracked files and all 11 published files found no copy of the developer credential.
+
+For REL-02 and OFF-01, a Chrome 158 browser tab was already controlled by the published `d05d51f` worker and had a saved draft before the new release was dispatched. The old app continued reading its original descriptor after the new one was available on the network. One explicit **Update and reload** caused one navigation. The tab then read the new descriptor and recovered it and the same draft again after an offline reload. This release-specific transition exercised a browser tab. The earlier native installed transition is recorded below.
+
+For INS-05 and OFF-01, Windows Chrome, Windows Edge and macOS Edge each recovered the same published revision and saved draft in an offline standalone window after browser restart. The hosted runs used managed installation and stored their observed revision in each result artifact. [Platform evidence](compatibility.md).
+
+Android 15 emulator Chrome also reopened this exact revision and draft from a pinned launcher shortcut in a fresh Chrome process. The test recorded both process IDs and verified that the previous Chrome process had stopped. The new standalone page had service-worker control, reported offline and rejected an uncached probe. [Android run 45221099348](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45221099348).
+
+For REL-05, the verifier rejects a malformed expected SHA, a missing revision when one was requested, and a different source revision. The published worker binds the descriptor digest `788b53c03a8f7cca950c8a43545488e91f1224e8fda3aa562962a79bc69152b7`. The legacy verification mode still matched all 11 files of `d05d51f` before deployment. The release workflow allows historical rollback artifacts to retain their original descriptor.
+
+## November 24 accessibility and build label release
 
 [Pages run 45217151933](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45217151933) published `d05d51f`, displayed as `v0.1.0 · 2026-11-23T16:30:20.736Z`. All 37 tests, lint, type checking and the production build passed. An independent comparison matched all 11 public files to the retained artifact. Worker SHA-256: `968c42d64f9e25d1034524652ac32bac85b49f6ef27900d82beab687260040da`. The retained artifact expires on 2027-02-21 at 16:29:49 UTC. A scan of 135 tracked files and all 11 published files found no copy of the configured developer key.
 
@@ -60,10 +72,11 @@ The deployed change makes stalled service-worker activation retryable, keeps mob
 | Chrome on macOS | E1–E4 within stated scope | See the public installed upgrade and offline observations below; repeat against later releases as needed |
 | Chrome and Edge on Windows | PASS (managed installation on Windows Server 2025) | [Public installed and offline browser evidence](compatibility.md). Consumer installation UI and Windows client edition outstanding. |
 | Edge on macOS | PASS (hosted macOS 15, managed installation) | A fresh ordinary tab and separate installed standalone window recovered the live build and draft offline. Consumer installation and native launcher coverage remain open. [Platform evidence](compatibility.md#macos-installed-edge). |
-| Chrome on Android | PARTIAL (Android 15 emulator) | [Browser keyboard, system rotation and offline fresh-tab recovery](compatibility.md). [Native launcher shortcut reopened the app offline in standalone mode](compatibility.md). WebAPK registration, full Chrome restart, TalkBack and physical Android remain open. |
+| Chrome on Android | PARTIAL (Android 15 emulator) | [Keyboard, rotation, offline fresh-tab and cold launcher recovery](compatibility.md#offline-launcher-after-full-chrome-restart) passed. WebAPK registration, TalkBack and physical Android remain open. |
 | Safari on physical iPhone | NOT_RUN | Browser, Home Screen, VoiceOver, safe areas, keyboard and interrupted update |
 | iPadOS Safari | PARTIAL (WebKit tablet viewport only) | At 768 × 1024 and 1024 × 768 the hosted workspace retained its draft and enabled Generate without horizontal overflow. Physical iPad, keyboard and orientation events remain open. |
-| Desktop Safari and Firefox | PARTIAL | Desktop Safari and Playwright Firefox ordinary/offline checks passed within [recorded limits](compatibility.md); [Windows release Firefox 160 ordinary offline reload also passed](compatibility.md) |
+| Desktop Safari | PASS (bounded origin-offline reload) | Safari 27.2 in a private tab recovered a draft after the local replay of the exact published artifact became unavailable. [Desktop observations](compatibility.md#safari-272). |
+| Desktop Firefox | PASS (bounded origin-offline reload) | Playwright Firefox and Windows release Firefox 160 ordinary offline reload passed within [recorded limits](compatibility.md). |
 
 ## Catalog
 
@@ -127,7 +140,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | REL-02 | Old-to-new build upgrade | PASS (live Chrome) | Installed A stayed on A until explicit activation, then displayed B after one navigation. |
 | REL-03 | Interrupted update recovery | PASS (bounded desktop Chrome faults) | Broken download retained the old shell. Dropped activation timed out with an explicit retry, one subsequent navigation, and a retained offline draft. [Activation evidence](update-guards.md). |
 | REL-04 | Rollback artifact available | PASS (live Pages) | A restore dispatch republished the exact nine files of A. A second restore republished the exact ten files of B. |
-| REL-05 | Release evidence completeness | NOT_RUN | Attach per-case test IDs, source/build digests, timestamps, environment and outcomes. |
+| REL-05 | Release evidence completeness | PARTIAL | Current public files are tied to the checked-out source SHA, with digests and scoped observations. Per-case evidence for the full catalog remains open. |
 | REL-06 | Cross-browser test matrix | NOT_RUN | Complete declared device/browser matrix below. |
 | REL-07 | Monitoring and alert validation | PASS (Actions operator view) | An intentional [invalid restore dispatch](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45199992786) failed at Verify rollback source; deploy was skipped. A subsequent check matched all 10 live files. End-user notification and external paging were outside this check. |
 | REL-08 | No unauthorized automatic resubmission | PASS (bounded fixtures) | Interrupted and uncertain jobs did not resend during the observation windows in [offline recovery](offline-recovery.md). |

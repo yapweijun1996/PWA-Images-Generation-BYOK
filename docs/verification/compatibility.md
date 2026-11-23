@@ -8,6 +8,8 @@ The initial Safari and Firefox checks used macOS 27.2 on 2026-11-23 Singapore ti
 - The local server was stopped and `curl` confirmed connection refused. Reloading the tab rendered the same build and Projects remained accessible.
 - This was a reload in an existing desktop tab. A browser-restart cold launch, browser-wide network disconnection, iPhone and Home Screen installation were not tested. Safari developer settings and permissions were not changed.
 
+On November 24 Singapore time, Safari 27.2 (22625.2.8.11.9) on arm64 macOS 27.2 replayed all 11 unmodified files from [Pages run 45217151933](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45217151933) at the same application subpath on loopback. The artifact had matched the public responses file by file. The HTTP server logged Safari fetching the worker and the version-keyed HTML, build descriptor, manifest, script, stylesheet and three icons. In an isolated private window, the synthetic draft survived an online reload. After the server stopped and a separate connection was refused, Safari replaced the document and displayed the same build `2026-11-23T16:30:20.736Z` and draft with Generate enabled. The scope is an ordinary private tab with the origin unavailable. Fresh launch after the private session is closed and physical iOS behavior remain open.
+
 ## Firefox 159.0 (Playwright build)
 
 - The installed Firefox Nightly 160.0a1 showed a first-run Terms of Use screen; it was not accepted. The following tests instead used Playwright's separate Firefox 159.0 build and an isolated automation session, not the installed Nightly profile or a stable Firefox release.
@@ -37,6 +39,8 @@ Under the same offline conditions, DevTools launched the installed app at the in
 
 [Run 45214322845](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45214322845) repeated the browser assertions on the same build and verified removal of the temporary policy. The retained `macos-edge` artifact includes `result.json` and the offline standalone screenshot, SHA-256 `a01c035dd811e0495d61f25d1086844d694b13e9064e1b027e6b21a248115276`.
 
+[Run 45220327329](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45220327329) passed the ordinary and installed offline checks with Edge 151.0.4129.101 on the production build `2026-11-23T16:45:21.339Z`. Its retained result directly records public source revision `7cbb891fd801be73c95a869cb7af507d77232e88` and verifies temporary policy cleanup.
+
 ## Windows installed Chrome and Edge
 
 On a disposable Windows Server 2025 GitHub-hosted runner (10.0.26100), Chrome 157.0.8103.79 and Edge 157.0.4341.60 opened the published release `2026-11-23T14:41:40.454Z` with service-worker control and no reported installability errors. The test entered a draft, read it from a fresh tab, and installed the site with each browser's managed web-app policy. Windows created app-specific shortcuts using the respective Chrome and Edge launchers.
@@ -44,6 +48,8 @@ On a disposable Windows Server 2025 GitHub-hosted runner (10.0.26100), Chrome 15
 After terminating each browser, the harness blocked its profile network and verified that an uncached same-origin request failed. Both a cold browser tab and the installed app launched via its registered app ID reopened the same release and draft. In each installed window, standalone matched, browser display mode did not, and the public service worker controlled the page. Both jobs passed. The managed policy route exercises installed windows and offline data. Consumer installation dialogs and Windows client-edition desktops were outside this run. [Windows evidence run](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45197514167).
 
 Windows Chrome 157.0.8103.79 and Edge 157.0.4341.60 repeated the managed-install check against `83ba3a4`, build `2026-11-23T15:39:10.092Z`. Both recovered the draft in a new standalone window after stopping the original browser and blocking network traffic. [Run 45207945582](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45207945582).
+
+[Run 45220327400](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45220327400) repeated this check with the same browser versions and both reports recorded the exact public build `2026-11-23T16:45:21.339Z` and source revision `7cbb891fd801be73c95a869cb7af507d77232e88`. Each standalone window reopened the saved draft and remained controlled by the production scoped worker.
 
 ## Windows stable Firefox
 
@@ -60,3 +66,11 @@ The `android-browser` artifact contains the result and three screenshots. SHA-25
 [Run 45207430801](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45207430801) used the same Android 15 emulator and Chrome 124.0.6367.219 on 2026-11-23 at 15:39 UTC. It loaded public build `2026-11-23T15:39:10.092Z` from source `83ba3a4`. The in-app installation action opened Chrome's confirmation with the new purple icon. Android then offered a second confirmation to pin the shortcut. With airplane mode enabled and browser network traffic blocked, launching from the system shortcut opened a new standalone target. Its service worker controlled the page, an uncached same-origin fetch failed, and the same build and saved draft appeared. This proves the launcher shortcut path on the emulator and leaves WebAPK registration, a full Chrome process restart and physical Android open.
 
 [Native installation dialog](android-install/install.webp) and [offline standalone workspace](android-install/offline.webp) are resized copies. The original images are in the Actions artifact with SHA-256 `759ed100460cb9293491413ee68d09b8534cde2353d236608b21ff45abdd321b` and `61faaad064295af0ea2606187c115c1755caec153a1c885eb51228530d787089`.
+
+### Offline launcher after full Chrome restart
+
+[Run 45221099348](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45221099348) passed in an Android 15 Play Store emulator with Chrome 124.0.6367.219. The result records production build `2026-11-23T16:45:21.339Z` and source revision `7cbb891fd801be73c95a869cb7af507d77232e88`. Keyboard resize and dismissal, landscape draft retention and portrait return passed before installation. Chrome's dialog and Android's second confirmation pinned a launcher shortcut.
+
+With confirmed airplane mode and Wi-Fi disabled, the original browser reopened a normal tab offline. The harness then stopped Chrome and verified that PID 2182 had exited. Tapping the system launcher shortcut started new Chrome PID 5449. The observed page opened in standalone display mode, reported offline and rejected an uncached network probe. It was controlled by the service worker and recovered the same build and draft. Attaching DevTools after launch did not emulate offline for the new process. The installed screenshot SHA-256 is `86317533cb747d39e6cb6a733a94734bdce02296c11160a14e3a1f800ca4c3d8`.
+
+Earlier runs captured Chrome's first-run welcome, a Pixel Launcher startup overlay and a requested rotation that left the display in portrait. The successful run preserved the initial browser automation flags for the disposable profile and verified the window manager's rotation before checking the viewport. The harness reports a rotation failure independently of the cold-start checks. WebAPK registration, TalkBack and physical Android acceptance remain open. [First-run observation](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45218411486), [launcher overlay](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45219557638), [rotation observation](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45220306123).
