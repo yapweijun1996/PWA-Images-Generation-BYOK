@@ -21,12 +21,12 @@
 
 | Environment | Verified coverage | Remaining release checks |
 |---|---|---|
-| Chrome on macOS | E1–E4 within stated scope | Current installed build, standalone display mode, live update and offline reopening |
+| Chrome on macOS | E1–E4 within stated scope | See the public installed upgrade and offline observations below; repeat against later releases as needed |
 | Chrome and Edge on Windows; Edge on macOS | NOT_RUN | Installed and ordinary browser flows |
 | Chrome on physical Android | NOT_RUN | Browser and installed app including rotation, keyboard and offline restart |
 | Safari on physical iPhone | NOT_RUN | Browser, Home Screen, VoiceOver, safe areas, keyboard and interrupted update |
 | iPadOS Safari | NOT_RUN | Responsive editing, keyboard and orientation |
-| Desktop Safari and Firefox | NOT_RUN | Ordinary website including supported offline behavior |
+| Desktop Safari and Firefox | PARTIAL | Desktop Safari and Playwright Firefox ordinary/offline checks passed within [recorded limits](compatibility.md); stable Firefox outstanding |
 
 ## Catalog
 
@@ -34,7 +34,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 
 | Test ID | Assertion | Result | Evidence or remaining acceptance check |
 |---|---|---|---|
-| INS-01 | HTTPS and manifest discovery | NOT_RUN | Loopback manifest discovery observed; deployed HTTPS origin pending. |
+| INS-01 | HTTPS and manifest discovery | PASS (live Chrome) | Public HTTPS manifest retrieved and the app installed from its scoped URL. |
 | INS-02 | Stable manifest ID across releases | PASS (two live builds) | Both release manifests retained the same repository ID. |
 | INS-03 | Valid start_url and scope | PASS (live Chrome) | The published manifest subpath matched the artifact and the installed app launched there. |
 | INS-04 | 192/512 icons and maskable rendering | NOT_RUN | Inspect installed icon crop and safe zone on each install target. |
@@ -93,7 +93,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | REL-05 | Release evidence completeness | NOT_RUN | Attach per-case test IDs, source/build digests, timestamps, environment and outcomes. |
 | REL-06 | Cross-browser test matrix | NOT_RUN | Complete declared device/browser matrix below. |
 | REL-07 | Monitoring and alert validation | NOT_RUN | Verify operator visibility of Pages failure and privacy-safe recovery instructions. |
-| REL-08 | No unauthorized automatic resubmission | NOT_RUN | One intentional image edit observed (E4); check uncertain/reloaded requests for implicit resubmission. |
+| REL-08 | No unauthorized automatic resubmission | PASS (bounded fixtures) | Interrupted and uncertain jobs did not resend during the observation windows in [offline recovery](offline-recovery.md). |
 
 ## First live release
 

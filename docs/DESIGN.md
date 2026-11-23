@@ -183,15 +183,12 @@ The full UI/UX Design System V1 draft is in [UIUX.md](UIUX.md). This is a layout
 - Do not blindly retry a request that may already have been billed.
 - Storage quota errors and cache eviction must be recoverable.
 
-## 7. Open Design Questions
+## 7. Implementation decisions
 
-- Whether a second provider (Gemini) is added in Phase 1 or later. OpenAI is the first provider (owner-decided 2026-11-23); browser-direct CORS support must be verified.
-- Exact record layout within IndexedDB and OPFS.
-- Whether a user-controlled proxy is offered in Phase 1 or later.
-- How a character or style lock is represented (reference images, a text profile, or both).
+The release uses the OpenAI browser-direct adapter. Additional providers and a proxy are outside this release. IndexedDB schema version 3 stores project, asset, version and job metadata. Image bytes use OPFS with an IndexedDB fallback. Projects persist character and style locks as local reference asset IDs. Project exports remap these IDs on restore.
 
 ### OpenAI direct connection evidence (2026-11-23)
 
-An isolated Chrome session on a loopback origin invoked the OpenAI adapter with a device-side key. A single low-quality text request to the generations endpoint using `gpt-image-2.6-sunburst` returned a PNG that Chrome decoded at 1024 × 1024 (1,405,421 bytes). This establishes browser CORS access and the adapter round trip for that model. The workspace generation flow, reference edits, and the deployed origin need their own checks. The adapter sends an explicit request once and reports a lost or unreadable response as uncertain.
+An isolated Chrome session on a loopback origin invoked the OpenAI adapter with a device-side key. A single low-quality text request to the generations endpoint using `gpt-image-2.6-sunburst` returned a PNG that Chrome decoded at 1024 × 1024 (1,405,421 bytes). This establishes browser CORS access and the adapter round trip for that model. Subsequent workspace, reference-edit and deployed-origin checks are recorded in the [release matrix](verification/release-gates.md). The adapter sends an explicit request once and reports a lost or unreadable response as uncertain.
 
 Model and endpoint reference: [OpenAI Image generation guide](https://developers.openai.com/api/docs/guides/image-generation).
