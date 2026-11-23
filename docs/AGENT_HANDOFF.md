@@ -183,3 +183,11 @@ Use the IDs from `docs/TASK.md`. Update the status there as you go, with evidenc
 ## 9. Report Format When Finishing
 
 Current goal, what was achieved, files changed, verification (`PASS` / `FAIL` / `NOT RUN` / `BLOCKED` per check), what remains, the next task, and the final destination of the project.
+
+## 10. Running Codex Locally (lessons from T-101, 2026-11-23)
+
+- Command used: `codex exec -m gpt-6.2-sol -c model_reasoning_effort=xhigh -s workspace-write -c sandbox_workspace_write.network_access=true -C <repo> -o <report> - < prompt.md`.
+- In the `workspace-write` sandbox on Windows, Codex **cannot write to `.git`** (`index.lock: Permission denied`). It writes the code but cannot commit. The orchestrator must verify the result independently and make the commit.
+- Codex could not start Chrome (GPU process failed), so browser install and offline checks stay `NOT RUN` and must be done separately.
+- One Codex job per workspace. For a parallel batch, create one git worktree per job and give each job only its own folders.
+- Never trust the Codex summary. Re-run `tsc`, `vitest`, `eslint`, and `build` and scan for secrets before committing.

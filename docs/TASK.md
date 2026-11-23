@@ -36,7 +36,20 @@ Status values: `PENDING`, `IN_PROGRESS`, `DONE`, `BLOCKED`. A task becomes `DONE
 
 Tasks are not broken down yet. They will be split after Phase 1 is verified.
 
-## Next executable task
+## Next executable tasks (as of 2026-11-23, end of day)
 
-**T-101**: scaffold the Vite + React + TypeScript PWA shell. All Phase 0 decisions (T-001 to T-004) are done.
-Before T-104, verify that OpenAI image APIs can be called directly from a browser (CORS). If not, the user-controlled proxy option becomes necessary.
+T-101 code is merged to `main` and verified (`tsc`, `vitest`, `eslint`, `build`). Still **NOT RUN**: browser install and offline cold start (INS-05, OFF-01). Do these first, on a machine where Chrome starts, before marking T-101 `DONE`.
+
+Parallel batch to start next (disjoint folders, one git worktree and branch each):
+
+| Batch | Tasks | Folders |
+|-------|-------|---------|
+| A | T-108 local storage | `src/engine/storage` |
+| B | T-104 provider adapter + OpenAI, T-106 queue | `src/engine/providers`, `src/engine/queue` |
+| C | T-103 BYOK key handling | `src/engine/secrets`, `src/engine/prompt` |
+| D | T-111 workspace UI from the anchors | `src/ui`, `src/app` |
+| E | T-102 update flow, T-113 Pages workflow (write only, no deploy) | `src/pwa`, `.github/workflows` |
+
+Then serially: T-107, T-109, T-110, T-112.
+
+Before T-104: the owner fills `OPENAI_API_KEY` in the local git-ignored `.env`. If it is empty, the real run is `NOT RUN`. If browser-direct calls hit CORS, stop and ask the owner.
