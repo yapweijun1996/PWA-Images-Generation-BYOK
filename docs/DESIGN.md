@@ -62,6 +62,38 @@ Rules:
 - A studio never calls a provider directly. It goes through the engine.
 - A provider is added by writing one adapter, with no change to any studio.
 
+### Technology stack (owner-approved 2026-11-23)
+
+| Area | Decision |
+|------|----------|
+| Front end | React + TypeScript + Vite PWA |
+| Studios | Six modular studio workflow configurations on top of shared services |
+| Shared services | Prompt Builder, Reference Asset Manager, Model/Provider Adapter, Job Queue, Generation History, Image Editor, Export |
+| Local storage | IndexedDB for metadata; OPFS for image files where supported; backup, import, and quota handling |
+| API key | Session-only handling preferred; never in exports, logs, telemetry, or service-worker caches |
+| Provider calls | Direct from the browser only where CORS and provider policy allow; otherwise an optional proxy that the user configures and controls |
+| Provider capabilities | Discovered per provider (resolution, reference editing, masks, cost), never assumed |
+| Offline | View and edit projects offline; remote generation needs a connection |
+| Backend | None. No mandatory account and no automatic upload to a platform server |
+
+### Deployment (owner decision 2026-11-23)
+
+The project must be a PWA and is deployed to **GitHub Pages using GitHub Actions**.
+
+| Area | Decision |
+|------|----------|
+| Hosting | GitHub Pages (static files only) |
+| Deploy | A GitHub Actions workflow builds with Vite and publishes the build output to Pages |
+| URL path | Served under a repository sub-path (`/PWA-Images-Generation-BYOK/`), so the Vite `base`, manifest `id`, `start_url`, `scope`, icon paths, and service worker scope must all use that sub-path |
+| HTTPS | Provided by GitHub Pages, as the PWA standard requires |
+| Server headers | GitHub Pages cannot set custom headers, so CSP is applied with a `<meta>` tag and its limits are documented |
+| Backend | None. Pages cannot host a proxy, so any proxy is one the user runs and configures |
+| Releases | Each deploy keeps a previous build available for rollback (PWA standard REL-04) |
+
+Consequences:
+- Service worker updates and build identity must work with Pages caching (CDN may serve a stale build, so tests SW-03 and SW-04 apply).
+- Deployment happens only through the workflow, on a separate explicit authorization from the owner. Writing this document does not deploy anything.
+
 ## 3. Reference Consistency (shared capability)
 
 Reference Consistency applies to all six studios:
@@ -107,7 +139,7 @@ This is a layout sketch for direction only. Under the taste gate, the real desig
 
 ## 6. Data and Security Design
 
-- The API key is stored only in the user's browser and sent only to the chosen provider.
+- The API key is handled session-only by preference, stored in the browser only if the user chooses, and sent only to the chosen provider.
 - The API key and authenticated responses are never put into a shared cache or into exported files.
 - Pending generation jobs are durable, so a reload does not lose them. A job is not reported as done until the provider returns a result.
 - Do not blindly retry a request that may already have been billed.
@@ -116,6 +148,7 @@ This is a layout sketch for direction only. Under the taste gate, the real desig
 ## 7. Open Design Questions
 
 - Which providers ship first?
-- Exact storage split between IndexedDB and OPFS.
+- Exact record layout within IndexedDB and OPFS.
+- Whether a user-controlled proxy is offered in Phase 1 or later.
 - How a character or style lock is represented (reference images, a text profile, or both).
 - Which browsers and install targets are officially supported.

@@ -8,7 +8,7 @@ Priority labels: **MUST** = required for the phase, **SHOULD** = intended, **MAY
 
 | ID | Feature | Requirement | Phase |
 |----|---------|-------------|-------|
-| F-01 | BYOK | User enters their own API key. It is stored only in the browser and sent only to the chosen provider. | 1 |
+| F-01 | BYOK | User enters their own API key. Session-only handling is preferred. It never leaves the browser except to the chosen provider (directly, or through a proxy the user controls). | 1 |
 | F-02 | Model Selector | User picks a provider and model. Options reflect that model's capabilities. | 1 |
 | F-03 | Text-to-Image | Generate an image from a text prompt. | 1 |
 | F-04 | Image-to-Image | Generate from one or more reference images. | 1 |
@@ -76,6 +76,7 @@ Source: `pwa:product-standard` v1.1.0, profile `STATIC_OFFLINE`.
 | NF-07 | Accessibility target: WCAG 2.2 AA (keyboard, focus, labels, contrast, reduced motion). |
 | NF-08 | Core Web Vitals target at field P75: LCP <= 2.5s, INP <= 200ms, CLS <= 0.1. |
 | NF-09 | Responsive: no horizontal overflow; usable at 390x844, 768x1024, and 1440x900. |
+| NF-11 | The product MUST be a PWA, deployed to GitHub Pages by a GitHub Actions workflow. All paths work under the repository sub-path. |
 | NF-10 | Storage quota errors and cache eviction are recoverable, with a clear message to the user. |
 
 ## 5. Acceptance Criteria
@@ -85,8 +86,49 @@ This project will select the applicable ones when Phase 1 starts. A test counts 
 
 The UI is accepted only after the taste gate: real screenshots at 390x844, 768x1024, and 1440x900 are viewed and scored, and no veto applies.
 
-## 6. Out of Scope (for now)
+## 6. Studio Journeys (owner-approved 2026-11-23)
 
-- A backend or user accounts.
-- Server-side storage of the user's images or API keys.
+Each flow can revisit an earlier stage without overwriting the original.
+
+| Studio | Journey | Notes |
+|--------|---------|-------|
+| Manga & Comics | Story > Character > Storyboard > Panel > Page > Chapter | Character sheets, speech bubbles, reading direction, black/white or color. Consistency is best-effort. |
+| Education | Topic > Learning Goal > Diagram > Editable Annotation > Factual Review > Export | Age and language options. Generated factual claims are not trusted. |
+| Movie & Cinematic | Script > Scene > Shot List > Storyboard > Keyframes > Export | Camera angles, lighting, scene continuity. Static images only in the MVP. |
+| Commercial Artwork | Brand > Product Reference > Campaign > Variants > Accuracy Review > Export | Logo, packaging, and brand fidelity must be checked. |
+| UI/UX Design | Requirements > Style > Layout Concept > Responsive Visual Variants > Review > Handoff | Outputs are images, not working code. |
+| Interior Design | Room Photo > Style > Materials > Render > Before/After > Export | Room geometry fidelity is best-effort. Not engineering plans. |
+
+## 7. MVP Scope (Phase 1)
+
+In scope: create a local project, choose a studio, set up a supported provider and key, enter a prompt and optional reference images, choose a supported model, aspect ratio, and quality, show estimated cost where pricing is known, generate on explicit user action, show result, error, and retry, save images with prompt/model/settings/time, browse project history, export an image and a project backup, responsive desktop and mobile.
+
+Acceptance for the MVP:
+- One real provider works end to end, including reference input.
+- Projects and images survive a restart.
+- Failure recovery does not cause duplicate charges where possible.
+- Export and import keep data intact.
+- No API keys in logs, exports, history, or service-worker cache.
+- Unsupported provider features are disabled or explained in plain language.
+- Timeouts never silently retry a request that may be billed.
+- Mobile works without hover.
+
+Studio acceptance (Phase 2):
+- Manga: multi-panel page with editable dialogue, exportable.
+- Education: annotated illustration with a review flag.
+- Movie: ordered storyboard export.
+- Commercial: product-reference comparison and review.
+- UI/UX: desktop and mobile visual comparisons.
+- Interior: original room photo and before/after.
+
+## 8. Out of Scope (initial MVP)
+
+- A backend, user accounts, or automatic sync to a server.
+- Collaborative cloud sync.
+- Guaranteed character identity.
+- Parity across all providers.
+- Guaranteed native 4K.
+- Video generation.
+- Automated factual accuracy checking.
+- Complex editing and character consistency tools (Phase 3, unless reprioritized).
 - Any provider not listed under supported APIs.

@@ -12,7 +12,7 @@ Users bring their own API key, choose a creation type, and use AI to generate, e
 
 ## Core Principles
 
-- **Browser-first** — runs as a Progressive Web App (PWA) in the browser; no backend required.
+- **Browser-first** — runs as a Progressive Web App (PWA) in the browser; no backend required. Deployed to GitHub Pages through GitHub Actions.
 - **Local-first** — user data and generated images are stored on the user's own device.
 - **BYOK (Bring Your Own Key)** — users supply their own AI provider API key. The key stays in the user's browser.
 

@@ -15,6 +15,8 @@ Build general image generation first, then add the specialized studios step by s
 
 Goal: a user can bring a key, generate an image from text or a reference, see its history, and export it.
 
+Delivery: the app is a PWA deployed to GitHub Pages through a GitHub Actions workflow (task T-113).
+
 Exit gate:
 - Applicable P0 tests from the PWA standard pass, with recorded evidence.
 - The UI passes the taste gate at 390x844, 768x1024, and 1440x900.
@@ -45,5 +47,6 @@ Depends on: Phases 1–3. Release gates G1–G4 of the PWA standard apply before
 | Reference consistency cannot be guaranteed by AI models | Manual review step is required (see SPEC RC-02). |
 | Provider API differences | Isolated behind the provider adapter layer. |
 | Browser storage limits | Quota and eviction recovery must be designed in Phase 1. |
+| GitHub Pages limits | Static only, no custom headers (CSP via meta tag), sub-path hosting, CDN caching. No hosted proxy. |
 | iOS PWA limitations | No `beforeinstallprompt`; real-device checks needed for iOS claims. |
 | UI quality | Machine checks do not prove good design; the taste gate needs real screenshots. |
