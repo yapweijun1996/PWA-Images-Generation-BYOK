@@ -27,7 +27,7 @@ const success = (name,details={}) => evidence.steps.push({name,...details})
 let child, browser, page
 async function start(offline) {
   const flags = ['--user-data-dir='+profile,'--remote-debugging-port=0','--no-first-run','--no-default-browser-check',
-    '--enable-devtools-pwa-handler','--disable-background-mode','--disable-features=msEdgeFirstRunExperience','--window-size=1440,900']
+    '--disable-background-mode','--disable-features=msEdgeFirstRunExperience','--window-size=1440,900']
   if (offline) flags.push('--proxy-server=http://127.0.0.1:1','--proxy-bypass-list=<-loopback>','--disable-quic')
   child = spawn(executable,[...flags,'about:blank'],{stdio:'ignore'})
   const portFile = path.join(profile,'DevToolsActivePort')
@@ -86,12 +86,13 @@ try {
   },draft),draft)
   await readback.close()
   success('Fresh tab loaded the project draft from local storage')
-  const cdp=inspector
-  await cdp.send('PWA.install',{manifestId:site,installUrlOrBundleUrl:site})
-  const osState=await cdp.send('PWA.getOsAppState',{manifestId:site})
-  success('Installed deployed manifest through the browser PWA domain',{osState})
-  await cdp.send('PWA.changeAppUserSettings',{manifestId:site,displayMode:'standalone'})
-  success('Selected standalone launch preference')
+  let shortcut
+  for(let attempt=0;attempt<30 && !shortcut;attempt++){
+    const record=execFileSync('powershell.exe',['-NoProfile','-File','scripts/windows-app-shortcut.ps1'],{encoding:'utf8'}).trim()
+    if(record) shortcut=JSON.parse(record)
+    else await delay(1000)
+  }
+  if(shortcut) success('Found Windows shortcut for policy-installed studio',shortcut)
   await stop()
   const cold=await start(true)
   const probe=await cold.newPage()
@@ -100,22 +101,16 @@ try {
   catch(error){ unavailable=/ERR_PROXY_CONNECTION_FAILED|ERR_TUNNEL_CONNECTION_FAILED|ERR_NO_SUPPORTED_PROXIES/.test(String(error)) }
   assert(unavailable,'Uncached request did not prove the profile was offline.')
   success('Fresh browser process could not reach an uncached same-origin URL')
-  const cdpCold=await cold.newCDPSession(probe)
-  const {targetId}=await cdpCold.send('PWA.launch',{manifestId:site})
-  assert(targetId)
-  // Exclude ordinary tabs that startup recovery may have restored.
-  for(let n=0;n<100;n++){
-    page=undefined
-    for(const candidate of cold.pages()){
-      if (!candidate.url().startsWith(site)) continue
-      const target=await cold.newCDPSession(candidate)
-      try {if((await target.send('Target.getTargetInfo')).targetInfo.targetId===targetId){page=candidate;break}}
-      finally{await target.detach()}
-    }
-    if(page)break
-    await delay(200)
-  }
-  assert(page,'The installed launch target was unavailable.')
+  const offlineTab=await cold.newPage()
+  await offlineTab.goto(site,{waitUntil:'domcontentloaded'})
+  await offlineTab.waitForFunction(expected=>document.querySelector('textarea')?.value===expected,draft)
+  assert((await offlineTab.locator('footer').innerText()).includes(expected))
+  success('Offline browser tab loaded the deployed release and saved draft')
+  await offlineTab.close()
+  assert(shortcut,'Windows did not publish the managed PWA shortcut.')
+  const fresh=cold.waitForEvent('page',{timeout:30000})
+  spawn(executable,['--user-data-dir='+profile,'--profile-directory=Default','--app-id='+shortcut.appId],{stdio:'ignore'})
+  page=await fresh
   await page.getByRole('heading',{name:'PWA Images Studio',exact:true}).waitFor()
   const mode=await page.evaluate(()=>({standalone:matchMedia('(display-mode: standalone)').matches,
     browser:matchMedia('(display-mode: browser)').matches, controller:navigator.serviceWorker.controller?.scriptURL}))

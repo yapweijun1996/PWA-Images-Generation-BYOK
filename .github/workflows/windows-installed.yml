@@ -28,6 +28,13 @@ jobs:
           BROWSER_CHANNEL: ${{ matrix.browser }}
         run: |
           $env:PLAYWRIGHT_MODULE = "$env:RUNNER_TEMP/installed-app-driver/node_modules/playwright-core/index.mjs"
+          $vendor = if ($env:BROWSER_CHANNEL -eq 'edge') { 'Microsoft\Edge' } else { 'Google\Chrome' }
+          $key = "HKLM:\SOFTWARE\Policies\$vendor"
+          New-Item -Path $key -Force | Out-Null
+          if ((Get-Item $key).GetValue('WebAppInstallForceList') -ne $null) { throw 'Runner already has managed web apps configured.' }
+          $entry = @{url='https://yapweijun1996.github.io/PWA-Images-Generation-BYOK/'; default_launch_container='window'; create_desktop_shortcut=$true}
+          $value = ConvertTo-Json -InputObject @($entry) -Compress
+          New-ItemProperty -Path $key -Name WebAppInstallForceList -Value $value -PropertyType String | Out-Null
           node scripts/windows-installed.mjs $env:BROWSER_CHANNEL
       - name: Retain scoped evidence
         if: always()
