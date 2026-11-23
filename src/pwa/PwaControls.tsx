@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { requestSafeActivation, updateBlocker, useUpdateBlocker } from './guards'
 
 const activationTimeoutMs = 15_000
+const announcementDelayMs = 250
 
 function activateWorker(worker: ServiceWorker, signal: AbortSignal) {
   const container = navigator.serviceWorker
@@ -44,6 +45,7 @@ export function PwaControls() {
   const t = (en: string, zh: string) => chinese ? zh : en
   const [waiting, setWaiting] = useState<ServiceWorker | null>(null)
   const [status, setStatus] = useState<'ready' | 'applying' | 'blocked' | 'failed' | 'reload'>('ready')
+  const [announcement, setAnnouncement] = useState('')
   const attempt = useRef<AbortController | null>(null)
   const unconfirmedWorker = useRef<ServiceWorker | null>(null)
   const blocker = useUpdateBlocker()
@@ -135,11 +137,21 @@ export function PwaControls() {
       : status === 'failed' ? t('The update could not finish. Try again when it is available.', '更新未能完成。新版本可用时请重试。')
       : status === 'reload' ? t('The update is installed. Reload to finish.', '新版本已安装。请重新加载以完成更新。')
       : t('An update is ready.', '新版本已就绪。')
-  // Mount the live region before the worker reports its first update.
-  return <div className={visible ? 'pwa-update' : undefined} role={visible ? 'complementary' : undefined}
-    aria-label={visible ? t('Application update', '应用更新') : undefined}>
-    <p className="pwa-update-status" role="status" aria-atomic="true">{message}</p>
-    {(waiting || status === 'reload' || status === 'applying') &&
-      <button type="button" disabled={Boolean(blocker) || status === 'applying'} onClick={() => void apply()}>{t('Update and reload', '更新并重新加载')}</button>}
-  </div>
+  const spokenMessage = !message ? '' : !blocker && status === 'ready'
+    ? t('Studio update available. Choose Update and reload.', '新版本已就绪。请选择更新并重新加载。')
+    : t(`Application update. ${message}`, `应用更新。${message}`)
+  useEffect(() => {
+    // Give the new card time to appear before delivering the separate spoken message.
+    const timer = window.setTimeout(() => setAnnouncement(spokenMessage), announcementDelayMs)
+    return () => window.clearTimeout(timer)
+  }, [spokenMessage])
+
+  return <>
+    <p className="pwa-update-announcement" role="status" aria-live="polite" aria-atomic="true">{announcement}</p>
+    {visible && <div className="pwa-update" role="complementary" aria-label={t('Application update', '应用更新')}>
+      <p aria-hidden="true">{message}</p>
+      {(waiting || status === 'reload' || status === 'applying') &&
+        <button type="button" disabled={Boolean(blocker) || status === 'applying'} onClick={() => void apply()}>{t('Update and reload', '更新并重新加载')}</button>}
+    </div>}
+  </>
 }

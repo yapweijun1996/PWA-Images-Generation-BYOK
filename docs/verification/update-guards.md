@@ -32,6 +32,16 @@ On 2026-11-23, Chrome 158.0.8127.37 inspected two production builds on a loopbac
 
 Build A displayed `15:51:18.587Z` with worker SHA-256 `b30300b58fbafa55094b55c66ed449268754bd1e8dd5be2c9014e4a467137f2c`. The candidate displayed `15:51:27.714Z` with worker SHA-256 `289580166a37777ebbb814109187cf559d5acbc09fc8e3e2a6153a7fee436ef4`.
 
+## Android TalkBack speech feedback
+
+On November 24 Singapore time, an isolated ARM64 Android 16 emulator ran Chrome 133.0.6943.137 and TalkBack 16.0.0.738667889. The test replayed the retained Pages assets from `86e510a` and `68ef70d` on a loopback origin. TalkBack's **Display speech output** setting produced captions for “Help and installation” and an independent polite test message. Captions were read from the overlay below the app's update card. The browser's update card displayed “An update is ready.” while focus stayed on Help, but the phrase did not appear in the 20 sampled caption frames spanning 11.4 seconds.
+
+A locally built structural change moved the live status outside the update card and explicitly marked it polite. The initial update message still went uncaptured when both the card and announcement changed together. After the card had settled, TalkBack captioned both a test phrase inserted into the app's existing update status and a separate test phrase inserted into a body-level status. [TalkBack developer settings](https://support.google.com/accessibility/android/answer/6006589?hl=en), [TalkBack speech overlay](https://github.com/google/talkback/blob/master/talkback/src/main/res/values/strings.xml).
+
+With the visible card and browser focus held steady, re-sending the same “An update is ready.” message into the app's status produced no recorded caption. In the same status, “Studio update available. Choose Update and reload.” appeared in the speech overlay. This comparison isolates the phrasing in that emulator run. The setup did not capture audio playback through a physical speaker.
+
+The corrected local production build `2026-11-23T18:31:39.221Z` kept the visual card immediate and posted a separate polite, actionable message from the persistent status region. In a real worker discovery, TalkBack captioned “Studio update available. Choose Update and reload.” without moving focus from Help. Desktop Chrome independently verified the visible card and explicit activation at 390 and 1440 CSS px. Component checks covered spoken text changes for an unsaved draft, a language switch and an explicit reload after takeover.
+
 ## Update during project backup or restore
 
 On November 24 Singapore time, Chrome 158.0.8127.37 ran the corrected local build `2026-11-23T17:20:00.313Z` and the previously published `95d5acd` artifact on one loopback origin. A fixture held a real export at its checksum step. The Projects controls were disabled and the current tab showed the backup-specific update message. Clicking Update in a second tab reported other-tab work, left the old build visible and kept the worker waiting. Releasing the archive produced the download. Selecting a file that was not a ZIP reported the validation error, cleared the busy state, and allowed the explicit update to finish.
