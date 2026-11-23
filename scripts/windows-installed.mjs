@@ -75,10 +75,17 @@ try {
   success('Online deployed build under service-worker control',{build:expected,installabilityErrors})
   const draft='Windows offline draft '+channel
   await page.getByRole('textbox',{name:'Prompt',exact:true}).fill(draft)
-  // Navigating through Projects flushes pending writes before switching projects or opening a backup.
-  await page.getByRole('button',{name:'Projects',exact:true}).click()
-  await page.getByRole('button',{name:'Untitled project',exact:true}).click()
-  assert.equal(await page.getByRole('textbox',{name:'Prompt',exact:true}).inputValue(),draft)
+  // Reload the actual project in a separate tab to verify autosave independently of layout.
+  const readback=await context.newPage()
+  await readback.goto(site,{waitUntil:'domcontentloaded'})
+  const saved=readback.getByRole('textbox',{name:'Prompt',exact:true})
+  await saved.waitFor()
+  assert.equal(await saved.evaluate(async (field,expected) => {
+    for(let n=0;n<100 && field.value!==expected;n++) await new Promise(resolve=>globalThis.setTimeout(resolve,50))
+    return field.value
+  },draft),draft)
+  await readback.close()
+  success('Fresh tab loaded the project draft from local storage')
   const cdp=await browser.newBrowserCDPSession()
   await cdp.send('PWA.install',{manifestId:site,installUrlOrBundleUrl:site})
   const osState=await cdp.send('PWA.getOsAppState',{manifestId:site})
