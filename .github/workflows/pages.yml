@@ -1,0 +1,86 @@
+name: Release GitHub Pages
+
+on:
+  workflow_dispatch:
+    inputs:
+      restore_run:
+        description: Successful Pages run ID to restore (leave empty to build main)
+        required: false
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: production-pages
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - if: inputs.restore_run == ''
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - if: inputs.restore_run == ''
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+      - if: inputs.restore_run == ''
+        name: Verify and build
+        run: |
+          npm ci
+          npm test
+          npm run lint
+          npm run build
+
+      - if: inputs.restore_run != ''
+        name: Verify rollback source
+        env:
+          RUN_ID: ${{ inputs.restore_run }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          [[ "$RUN_ID" =~ ^[0-9]+$ ]]
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID" |
+            jq -e '.path == ".github/workflows/pages.yml" and .head_branch == "main" and
+                   .event == "workflow_dispatch" and .conclusion == "success"'
+      - if: inputs.restore_run != ''
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: site-files
+          path: dist
+          run-id: ${{ inputs.restore_run }}
+          github-token: ${{ github.token }}
+          digest-mismatch: error
+      - name: Check required files
+        run: |
+          test -s dist/index.html
+          test -s dist/sw.js
+          jq -e '.scope == "/PWA-Images-Generation-BYOK/" and .start_url == .scope and .id == .scope' dist/manifest.webmanifest
+      - name: Retain files for rollback
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: site-files
+          path: dist/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: dist/
+
+  deploy:
+    needs: prepare
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.publish.outputs.page_url }}
+    steps:
+      - id: publish
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
