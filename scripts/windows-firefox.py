@@ -61,7 +61,15 @@ def verify(directory):
                       request.onerror = () => { db.close(); done(null); };
                     };
                 """) == draft)
+                browser.set_script_timeout(45)
+                assert browser.execute_async_script("""
+                    const done = arguments[arguments.length - 1];
+                    navigator.serviceWorker.ready.then(() => done(true), () => done(false));
+                """)
+                # The first page predates registration and acquires control on navigation.
+                browser.refresh()
                 wait.until(lambda d: d.execute_script("return !!navigator.serviceWorker.controller"))
+                wait.until(lambda d: d.find_element(By.CSS_SELECTOR, ".creation-prompt textarea").get_property("value") == draft)
                 print("Online browser mode, build and persisted IndexedDB draft verified", flush=True)
             finally:
                 server.shutdown()
