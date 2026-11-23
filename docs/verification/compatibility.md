@@ -18,3 +18,11 @@ Date: 2026-11-23 (Singapore). All checks used macOS 27.2 and a local production 
 ## Other browsers and devices
 
 Microsoft Edge and stable Firefox were not found in the standard application locations. No iPhone or Android device was identified in USB profiler output; ADB showed only an offline emulator. `xcrun devicectl` and `simctl` were unavailable. These checks cannot rule out inaccessible or wirelessly connected devices. No Android, iOS, Edge or deployed Pages checks were performed.
+
+## Edge and stable Firefox availability follow-up
+
+On 2026-11-23, searches of `/Applications`, `~/Applications`, the Homebrew Cask directory, the Downloads directory and Spotlight's app bundle index did not find an existing Microsoft Edge or stable Firefox application. Firefox Nightly and Playwright Firefox remain the distinct builds described above.
+
+The [official Microsoft Edge download page](https://www.microsoft.com/en-us/edge/download) states that downloading Edge signifies agreement to the Microsoft Edge Software License Terms. No Edge package was downloaded or extracted, and no license terms were accepted; therefore the requested portable Edge, installation and offline checks remain **NOT RUN**.
+
+No already-running Windows environment was identified: the listed Tart instances were macOS or stopped, Lima listed no instances, and checks of the UTM container and running VM processes did not reveal a Windows VM. This is a bounded local inventory, not proof that no Windows environment exists elsewhere. No VM was provisioned or started. Stable Firefox and Edge compatibility, including Edge PWA installation and offline launch, still need testing in an authorized environment.
