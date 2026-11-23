@@ -64,6 +64,8 @@ it('retains an unsaved caption after a concurrent board change until it is disca
     const discard = await screen.findByRole('button', { name: 'Discard caption changes' })
     expect(updateBlocker()).toBe('draft')
     expect(field.value).toBe('Unsaved caption')
+    expect(field.readOnly).toBe(true)
+    expect(screen.queryByRole('button', { name: 'Retry saving caption' })).toBeNull()
     expect((await db.get('projects', initial.id))?.board).toEqual(other.board)
     fireEvent.click(discard)
     expect(updateBlocker()).toBeNull()

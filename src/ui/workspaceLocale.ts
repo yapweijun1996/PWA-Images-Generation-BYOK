@@ -58,7 +58,10 @@ const errors: Record<string,string> = {
   'The parent version must belong to this project.': '父版本必须属于当前项目。',
   'Canvas unavailable': '画布不可用。',
   'Export failed': '导出失败。',
-  'The board changed in another tab. Review its current panels and try again.': '另一标签页已修改分镜。请查看最新画格后重试。',
+  'The board changed in another tab. Check its latest panels and try again.': '另一标签页已修改分镜。请查看最新画格后重试。',
+  'Another tab changed this board. Copy your unsaved text before discarding the edit to see the latest board.': '另一标签页已修改分镜。如需保留未保存的文字，请先复制，再放弃本次修改以查看最新分镜。',
+  'Save or discard your panel text changes before switching projects.': '请先保存或放弃画格文字修改，再切换项目。',
+  'Add the new panel or clear its caption before switching projects.': '请先添加新画格或清空其文字，再切换项目。',
 }
 export function feedback(message: string, locale: Locale) {
   if (!message) return ''

@@ -52,3 +52,43 @@ it('announces new generation outcomes while the assets view has focus', async ()
     db.close()
   }
 })
+
+it('preserves an unsaved, conflicted board edit when switching projects', async () => {
+  vi.stubGlobal('matchMedia', () => ({ matches: false, addEventListener() {}, removeEventListener() {} }))
+  const timestamp = '2026-11-24T00:00:00.000Z'
+  const project = {
+    id: 'board-conflict', name: 'Current board', studioId: 'manga', createdAt: timestamp, updatedAt: timestamp,
+    board: { panels: [{ assetId: 'board-fixture', caption: 'Original text' }], reviewed: true },
+  }
+  const other = { id: 'board-switch-target', name: 'Switch target', studioId: 'manga', createdAt: timestamp, updatedAt: timestamp }
+  const { db } = await openStorage()
+  try {
+    await db.put('projects', project)
+    await db.put('projects', other)
+    localStorage.setItem('active-project', project.id)
+    render(<Workspace productName={__PRODUCT_NAME__} buildId={__BUILD_ID__} />)
+    const summary = await screen.findByText('Storyboard & annotations')
+    fireEvent.click(summary)
+    const board = within(summary.closest('details')!)
+    const caption = board.getByRole<HTMLTextAreaElement>('textbox', { name: 'Panel text' })
+    fireEvent.change(caption, { target: { value: 'My unsaved text' } })
+    await db.put('projects', { ...project, board: { panels: [{ assetId: 'board-fixture', caption: 'Other tab text' }], reviewed: false } })
+    fireEvent.blur(caption)
+    const discard = await board.findByRole('button', { name: 'Discard caption changes' })
+
+    const projects = within(screen.getByRole('navigation', { name: 'Assets' })).getByRole('button', { name: 'Projects' })
+    fireEvent.click(projects)
+    fireEvent.click(await screen.findByRole('button', { name: other.name }))
+    expect(await screen.findByText('Save or discard your panel text changes before switching projects.', { exact: true })).toBeTruthy()
+    expect(localStorage.getItem('active-project')).toBe(project.id)
+    expect(caption.value).toBe('My unsaved text')
+
+    fireEvent.click(discard)
+    await waitFor(() => expect(caption.value).toBe('Other tab text'))
+    fireEvent.click(projects)
+    fireEvent.click(await screen.findByRole('button', { name: other.name }))
+    await waitFor(() => expect(localStorage.getItem('active-project')).toBe(other.id))
+  } finally {
+    db.close()
+  }
+})

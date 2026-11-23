@@ -2,9 +2,9 @@ import { ArrowRight, BookOpen, BriefcaseBusiness, Building2, Clapperboard, Downl
 import { feedback, jobLabel, projectLabel, sourceLabel } from './workspaceLocale'
 import { ImageEditTools } from './ImageEditTools'
 import { GenerationStatus } from './GenerationStatus'
-import { StudioBoard } from './StudioBoard'
+import { StudioBoard, type BoardDraftHandle } from './StudioBoard'
 import './workspace.css'
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode, type Ref } from 'react'
 import { useStudio } from './useStudio'
 import { useCreation } from './CreationPanel'
 import { openStorage } from '@engine/storage'
@@ -35,12 +35,23 @@ export function Workspace({ connectionStatus, updateControls, ...props }: Worksp
   const [tab, setTab] = useState<Tab>(() => window.matchMedia('(max-width: 767px)').matches ? 'home' : 'create')
   const [drawer, setDrawer] = useState<StudioDrawer>(null)
   const selectedProject = useRef(projectId)
+  const boardDraft = useRef<BoardDraftHandle>(null)
   const archiveRunning = useRef(false)
   const [archiveAction, setArchiveAction] = useState<ArchiveAction | null>(null)
   const [archiveError, setArchiveError] = useState('')
   const drawerOpen = drawer !== null
 
+  function requireSettledBoard() {
+    const pending = boardDraft.current?.pendingDraft()
+    if (!pending) return
+    setTab('create')
+    setDrawer(null)
+    throw new Error(pending === 'panel' ? 'Save or discard your panel text changes before switching projects.'
+      : 'Add the new panel or clear its caption before switching projects.')
+  }
+
   function switchProject(id: string) {
+    if (id !== selectedProject.current) requireSettledBoard()
     localStorage.setItem('active-project', id)
     selectedProject.current = id
     setProjectId(id)
@@ -70,13 +81,17 @@ export function Workspace({ connectionStatus, updateControls, ...props }: Worksp
   return <>
     <div inert={drawerOpen}>{connectionStatus}</div>
     <ProjectWorkspace {...props} key={projectId} projectId={projectId} tab={tab} setTab={setTab}
-      drawer={drawer} setDrawer={setDrawer} switchProject={switchProject}
+      drawer={drawer} setDrawer={setDrawer} switchProject={switchProject} boardDraft={boardDraft} requireSettledBoard={requireSettledBoard}
       archive={{ action: archiveAction, error: archiveError, clearError: () => setArchiveError(''), run: runArchive }} />
     <div inert={drawerOpen}>{updateControls}</div>
   </>
 }
 
-function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab, setTab, drawer, setDrawer, archive }: WorkspaceProps & { tab: Tab; setTab: (tab: Tab) => void; drawer: StudioDrawer; setDrawer: (drawer: StudioDrawer) => void; projectId: string; switchProject: (id: string) => void; archive: ArchiveControls }) {
+function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab, setTab, drawer, setDrawer, archive, boardDraft, requireSettledBoard }: WorkspaceProps & {
+  tab: Tab; setTab: (tab: Tab) => void; drawer: StudioDrawer; setDrawer: (drawer: StudioDrawer) => void;
+  projectId: string; switchProject: (id: string) => void; archive: ArchiveControls;
+  boardDraft: Ref<BoardDraftHandle>; requireSettledBoard: () => void
+}) {
   const [locale, setLocale] = useState<Locale>(() => localStorage.getItem('ui-language') === 'zh-CN' ? 'zh-CN' : 'en')
   const [theme, setTheme] = useState<'light'|'dark'>(() => localStorage.getItem('ui-theme') === 'light' ? 'light' : 'dark')
   useEffect(() => { document.documentElement.lang = locale }, [locale])
@@ -180,7 +195,7 @@ function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab,
     {creation.composer}<details onToggle={event => { if (event.currentTarget.open) setEditToolsOpened(true) }}>
       <summary>{t('Edit, lock references or batch','编辑、锁定参考图或批量生成')}</summary>
       {editToolsOpened && <ImageEditTools assetCount={studio.assets.length} projectId={projectId} selectedAssetId={selectedAsset} locale={locale} onPrepared={creation.prepareEdit} />}
-    </details>{studio.project && <StudioBoard project={studio.project} selected={needsReview ? undefined : selectedAsset} locale={locale} onChange={studio.refresh} />}</>
+    </details>{studio.project && <StudioBoard project={studio.project} selected={needsReview ? undefined : selectedAsset} locale={locale} onChange={studio.refresh} draftRef={boardDraft} />}</>
   const library = tab === 'assets' ? <section><h2>{t('Assets','素材')}</h2>{visibleAssets.map(asset =>
     <button key={asset.id} aria-label={sourceLabel(asset.source,locale)} onClick={() => {selectAsset(asset.id);setTab('create')}}>
       <AssetThumbnail locale={locale} id={asset.id} />
@@ -191,6 +206,7 @@ function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab,
       const now = new Date().toISOString()
       const project = {id:crypto.randomUUID(), name:name.trim(), studioId:activeStudio.id, createdAt:now, updatedAt:now}
       await creation.flushDraft()
+      requireSettledBoard()
       const { db } = await openStorage()
       try { await db.add('projects', project) } finally { db.close() }
       switchProject(project.id)
@@ -205,6 +221,7 @@ function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab,
       event.currentTarget.value = ''
       if (file) void archive.run('restore', async () => {
         await creation.flushDraft()
+        requireSettledBoard()
         return (await importProjectBackup(file)).id
       })
     }} /></label>
