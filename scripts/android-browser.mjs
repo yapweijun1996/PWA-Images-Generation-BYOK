@@ -23,7 +23,7 @@ try {
   await shell('settings put secure show_ime_with_hard_keyboard 1')
   await shell('settings put system accelerometer_rotation 0')
   await shell('settings put system user_rotation 0')
-  context = await device.launchBrowser({ viewport: null, timeout: 60000 })
+  context = await device.launchBrowser({ viewport: null, hasTouch: true, timeout: 60000 })
   const page = await context.newPage()
   await page.goto(site)
   const expectedBuild = (await (await globalThis.fetch(new URL('build-info.json', site))).json()).buildId
