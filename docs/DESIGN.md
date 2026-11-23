@@ -1,6 +1,6 @@
 # DESIGN
 
-> Status: The T-101 shell and shared contracts are implemented. The remaining product architecture describes planned behavior.
+> Status: The published application implements the browser-direct provider, local storage, generation queue, studios and export flows described below. The release matrix records tested environments and outstanding acceptance.
 
 ## 1. Design Standards Applied
 

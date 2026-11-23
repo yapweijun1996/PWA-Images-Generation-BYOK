@@ -46,3 +46,5 @@ PLAYWRIGHT_MODULE=/absolute/path/to/playwright/index.mjs \
 AXE_SCRIPT=/absolute/path/to/axe-core/axe.min.js \
 node scripts/chromium-lab.mjs http://127.0.0.1:48925/PWA-Images-Generation-BYOK/
 ```
+
+The layout candidate from `28aa460` was rerun using the same Chromium lab profile. Six new navigations had LCP 1,416–1,528 ms, CLS 0–0.0004 and maximum observed interaction duration 80–112 ms. None overflowed the viewport. Navigation and settings drawers trapped and restored keyboard focus at 390 and 768 px. Axe-core 4.14.0 reported zero violations on the fresh 390 and 1440 px surfaces in both themes. The served JS SHA-256 was `33df4c58847a57bc5c7f4d591fe7c665f4d5b9eeb14e0f4a645c8fb591babfef`. Field P75 remains unmeasured.
