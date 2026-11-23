@@ -78,10 +78,11 @@ On November 24 Singapore time, Chrome 158.0.8127.37 at 1440 × 900 exported and 
 | --- | ---: | ---: | ---: |
 | Public `95d5acd`, `2026-11-23T17:07:47.117Z` | 2 | 683 ms | 177 ms |
 | Corrected production preview, `2026-11-23T17:20:00.313Z` | 1 | No task ≥50 ms reported | No task ≥50 ms reported |
+| Public `86e510a`, `2026-11-23T17:24:30.594Z` | 1 | No task ≥50 ms reported | 76 ms (also one 50 ms task) |
 
 Entry-by-entry export avoids concatenating the entire archive into one array on the UI thread. Restore performs the existing validations and atomic IndexedDB write in a dedicated worker. A compatibility fallback invokes the same restore implementation when the environment has no Worker API. The result above reflects main-thread responsiveness in one sample. It does not measure total operation time, peak process memory or field INP.
 
-The old public build restored the candidate's ZIP. WebKit 27.2 restored the old public build's ZIP in the candidate with the browser offline and an uncached probe rejected. Both checks recovered 48 assets and versions, and the selected image downloaded with the original SHA-256 `c036dea708ffbf65dd888b037611064145a86387b1fe2a1257833b743b7c668f`. The WebKit run observed the dedicated restore worker start from the cached shell.
+The old public build restored the candidate's ZIP. WebKit 27.2 restored the old public build's ZIP in the candidate and in the new public release with the browser offline and an uncached probe rejected. These checks recovered 48 assets and versions, and the selected image downloaded with the original SHA-256 `c036dea708ffbf65dd888b037611064145a86387b1fe2a1257833b743b7c668f`. The WebKit runs observed the dedicated restore worker start from the cached shell.
 
 The empty-workspace lab reran on the corrected archive build. Six cold loads reported LCP of 1,508–1,668 ms, observed interaction events of 88–136 ms and CLS up to 0.0004. No sampled viewport overflowed horizontally. The offline shell added the restore worker and fallback chunk, about 112 KB of built JavaScript before HTTP compression.
 

@@ -1,15 +1,21 @@
 # Production release gates
 
-**Decision: HOLD.** This assessment uses the STATIC_OFFLINE profile of KB-MCP `pwa:product-standard` v1.1.0 (registry body revision `80aad1538f3ecdddd7512de64cde4b8047196fb3637c075a87aab381bf314874`) and its service-worker install-integrity companion. Assessment date: 2026-11-24 Singapore time. Current hosted build: `95d5acd`. This matrix records the scope of each observation. Historical local passes do not establish release-candidate or live acceptance.
+**Decision: HOLD.** This assessment uses the STATIC_OFFLINE profile of KB-MCP `pwa:product-standard` v1.1.0 (registry body revision `80aad1538f3ecdddd7512de64cde4b8047196fb3637c075a87aab381bf314874`) and its service-worker install-integrity companion. Assessment date: 2026-11-24 Singapore time. Current hosted build: `86e510a`. This matrix records the scope of each observation. Historical local passes do not establish release-candidate or live acceptance.
 
 | Gate | Decision | Outstanding evidence |
 |---|---|---|
-| G1 Safety | HOLD | Build-integrity rejection and cross-tab activation have passed bounded Chrome checks. Review remaining offline failure, security and device cases below. |
+| G1 Safety | HOLD | Build integrity and cross-tab activation have passed bounded Chrome checks, including a waiting update during an active project backup. Review remaining offline failure, security and device cases below. |
 | G2 Compatibility | HOLD | Physical iPhone, iPad and Android installation and offline checks, plus spoken VoiceOver and TalkBack verification, remain open. See the device matrix for browser coverage. |
-| G3 Performance | HOLD | Six local cold navigations met the lab thresholds and the public populated library verified deferred thumbnail reads. On November 24, CrUX Vis returned no data for the exact URL. Field P75 is INSUFFICIENT_DATA. Targets are LCP ≤2.5 s, INP ≤200 ms and CLS ≤0.1. [Measurements](performance.md). |
+| G3 Performance | HOLD | Six local cold navigations met the lab thresholds. The large project fixture also reduced the longest reported main-thread tasks in the published backup and restore. On November 24, CrUX Vis returned no data for the exact URL. Field P75 is INSUFFICIENT_DATA. Targets are LCP ≤2.5 s, INP ≤200 ms and CLS ≤0.1. [Measurements](performance.md). |
 | G4 Evidence | HOLD | The published artifact includes its verified source commit. Remaining gaps include per-case evidence across the full target matrix. The live rollback and restore-forward drill passed. |
 
 ## Current public release
+
+[Pages run 45227232851](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45227232851) published `86e510ab8abf0e129b7b04d4b822cd2b80d9d03f`, displayed as `v0.1.0 · 2026-11-23T17:24:30.594Z`. The full source revision and all 13 public files matched the retained artifact. The worker SHA-256 is `73938611a05ff50e8e637fe870d5f1c503ca556759bc25ee7678bc582f615a69`. The asset worker for restoration is included in the precache with its own SHA-256. The artifact expires at 17:23:59 UTC on February 21, 2027. The pipeline passed 38 tests, lint, type checking and production build. A scan of the 138 tracked files and all 13 public files found no copy of the developer credential.
+
+The public Chrome build exported a single file after a rapid double click. In the separate 193 MB fixture, export reported no main-thread tasks at or above 50 ms, and restore retained all 48 assets and versions with a longest reported task of 76 ms. Public WebKit restored the previous release's ZIP offline and exported the selected image with its original digest. A loopback replay of the exact release blocked update activation from both tabs during backup, then completed the update after release. [Archive measurements](performance.md#large-project-backup-and-restore), [update evidence](update-guards.md#update-during-project-backup-or-restore).
+
+## November 24 populated library release
 
 [Pages run 45224109099](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45224109099) published `95d5acd0464684bf2542e88db7457e60a01c0fa4`, displayed as `v0.1.0 · 2026-11-23T17:07:47.117Z`. The source revision and all 11 live files matched the retained artifact. The worker SHA-256 is `f8dc96ab7ebcc41d98e242f5c05afb8a7e38e2049aebbcc3d8bd57af811057a7`. The artifact expires at 17:07:16 UTC on February 21, 2027. The workflow passed 38 tests, lint, type checking and the build. A scan of 136 tracked files and all 11 public files found no copy of the developer credential. The npm advisory audit returned zero known vulnerabilities.
 
@@ -104,7 +110,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | SW-04 | CDN stale asset rejection | PASS (local Chrome, two builds) | [Build-bound integrity and recovery observations](shell-integrity.md). |
 | SW-05 | Update prompt visible | PASS (historical local) | Waiting worker displayed an actionable prompt in real Chrome (E2). |
 | SW-06 | Unsaved draft blocks activation | PASS (two-tab Chrome) | [Actual drafts, double click and update navigation](update-guards.md). |
-| SW-07 | Multiple tabs coordinate activation | PASS (two-tab Chrome) | [Actual drafts, double click and update navigation](update-guards.md). |
+| SW-07 | Multiple tabs coordinate activation | PASS (two-tab Chrome) | A waiting worker could be activated only after the shared draft or backup guard was released. [Observed checks](update-guards.md). |
 | SW-08 | Duplicate Update click prevented | PASS (two-tab Chrome) | [Actual drafts, double click and update navigation](update-guards.md). |
 | SW-09 | Activation loader and controllerchange | PASS (two-tab Chrome) | [Actual drafts, double click and update navigation](update-guards.md). |
 | SW-10 | Offline update failure preserves old build | PASS (local Chrome, two builds) | [Build-bound integrity and recovery observations](shell-integrity.md). |
