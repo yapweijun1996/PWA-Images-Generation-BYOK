@@ -37,12 +37,15 @@ export function useUpdateBlocker() {
 }
 
 
-export async function requestSafeActivation(activate: () => void): Promise<boolean> {
+export async function requestSafeActivation(activate: () => void | Promise<void>): Promise<boolean> {
   if (updateBlocker()) return false
-  if (!navigator.locks) { activate(); return true }
-  return navigator.locks.request(operationLock, { mode: 'exclusive', ifAvailable: true }, lock => {
+  if (!navigator.locks) {
+    await activate()
+    return true
+  }
+  return navigator.locks.request(operationLock, { mode: 'exclusive', ifAvailable: true }, async lock => {
     if (!lock || updateBlocker()) return false
-    activate()
+    await activate()
     return true
   })
 }

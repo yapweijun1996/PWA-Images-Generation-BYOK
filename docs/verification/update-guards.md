@@ -15,3 +15,9 @@ Local production acceptance on 2026-11-23 at 22:22 Singapore time. macOS, Chrome
 | SW-09 | PASS | A DOM observer recorded “Updating…” in the update status region. The requesting tab then rendered B; the second tab still displayed A. |
 
 This run covers Chromium tabs with Web Locks support. Status-region observation establishes DOM behavior; screen-reader announcement and real-device behavior require their own checks.
+
+## Interrupted activation and retry
+
+On 2026-11-23, Chrome 158.0.8127.37 on macOS used a loopback origin, two isolated tabs and a persisted prompt. A fault injected before the first activation click dropped only the `SKIP_WAITING` message. With the earlier public artifacts (runs 45199196879 and 45200603284), the update control remained disabled throughout the 16.5-second observation window.
+
+Two production builds containing the fix were served in the same harness. A (`15:13:30.249Z`, worker SHA-256 `bd9bbf53579c06fb2a0c93144af5451c7ce97727f8cb07d160596eecb7463882`) held the draft and did not navigate after the first message was dropped. After 15 seconds, it announced failure, re-enabled Update and released the Web Lock. A rapid double-click retried the request and performed exactly one navigation to B (`15:14:03.869Z`, worker SHA-256 `5bbf7e33402c8e156f2feebf889ba0d1792b396d4562c77d322830eae8e8b5b9`). The other tab did not navigate. An offline refresh loaded B and recovered the original prompt. Same-tab and cross-tab draft blocking were also rechecked against these builds. This covers interruption before takeover and explicit retry under desktop Chromium.

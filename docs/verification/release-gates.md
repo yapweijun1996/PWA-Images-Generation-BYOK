@@ -95,7 +95,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | QA-08 | Recoverable runtime errors | PASS (bounded fixtures) | On the public candidate, Chrome displayed an intercepted HTTP 401, restored the prompt on reload and issued no duplicate request. Network/quota fixtures and malformed-ZIP feedback were also exercised. |
 | REL-01 | Clean production deployment | PASS (first live release) | Workflow 45192152435, live HTTPS entry, nine matching artifact files. |
 | REL-02 | Old-to-new build upgrade | PASS (live Chrome) | Installed A stayed on A until explicit activation, then displayed B after one navigation. |
-| REL-03 | Interrupted update recovery | PARTIAL | Broken candidate download retained the old shell and recovered to a subsequent healthy build after explicit activation. Interruption during activation remains open. |
+| REL-03 | Interrupted update recovery | PASS (bounded desktop Chrome faults) | Broken download retained the old shell. Dropped activation timed out with an explicit retry, one subsequent navigation, and a retained offline draft. [Activation evidence](update-guards.md). |
 | REL-04 | Rollback artifact available | PASS (live Pages) | A restore dispatch republished the exact nine files of A. A second restore republished the exact ten files of B. |
 | REL-05 | Release evidence completeness | NOT_RUN | Attach per-case test IDs, source/build digests, timestamps, environment and outcomes. |
 | REL-06 | Cross-browser test matrix | NOT_RUN | Complete declared device/browser matrix below. |
