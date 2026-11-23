@@ -36,6 +36,12 @@ The temporary credential was absent from inspected local and session storage. Af
 
 On 2026-11-23, an isolated macOS Chrome session loaded the public GitHub Pages release built from `318ff9d`. The tester entered a temporary credential, selected 3840 × 2160 at low quality and explicitly submitted one generation. The provider returned HTTP 200. Chrome decoded the image at 3840 × 2160, reopened it after an offline reload and downloaded an 8,609,201-byte PNG whose IHDR width and height matched the selected dimensions.
 
+## Public default-model generation
+
+On November 24 Singapore time, an isolated Chrome 158 profile opened public `8d5a29a` and verified its build descriptor under the scoped service worker. Without changing the model, quality or size, one explicit Generate action sent one authenticated request to `/v1/images/generations` for `gpt-image-2.6-sunburst` at low quality and 1024 × 1024. OpenAI returned HTTP 200. Chrome decoded the preview as 1024 × 1024 and exported an 851,186-byte PNG with SHA-256 `4c01fa86634e7017a19033296264130d135c9f0c9508472cdf0ba0de92d84857`.
+
+After disabling the browser context network, an uncached request failed. Reload recovered the same build, prompt and decoded preview. The offline export matched the online PNG byte for byte. The credential was absent from inspected local and session storage and the reloaded workspace reported no key configured. The provider POST count stayed at one. [Pages run 45281471335](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45281471335).
+
 ## Six studio journeys on the current public build
 
 On November 24 Singapore time, an isolated Chrome 158 profile opened public `8d5a29a`, displayed as `v0.1.0 · 2026-11-23T22:38:00.624Z`. Through the workspace, the tester selected all 36 stages across six studios and applied all 12 prompt templates. The Education studio, annotation stage, and edited prompt survived a project reopen and page reload. [Studio acceptance](../SPEC.md#7-mvp-scope-phase-1), [Pages release](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45281471335).
