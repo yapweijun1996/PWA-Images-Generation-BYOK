@@ -1,6 +1,7 @@
 import { ArrowRight, BookOpen, BriefcaseBusiness, Building2, Clapperboard, Download, FolderOpen, GraduationCap, Maximize, PanelsTopLeft, Trash2, ZoomIn } from 'lucide-react'
 import { feedback, jobLabel, projectLabel, sourceLabel } from './workspaceLocale'
 import { ImageEditTools } from './ImageEditTools'
+import { GenerationStatus } from './GenerationStatus'
 import { StudioBoard } from './StudioBoard'
 import './workspace.css'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
@@ -169,7 +170,7 @@ function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab,
         })} />}
       </>
       : <p>{t('Your image will appear here.','生成的图片将显示在这里。')}</p>}
-    {studio.jobs.slice(0, maxGenerationBatchSize).map(job => <p key={job.id} role="status">{jobLabel(job.status,locale)} {feedback(job.message ?? '',locale)}</p>)}
+    {studio.jobs.slice(0, maxGenerationBatchSize).map(job => <p key={job.id}>{jobLabel(job.status,locale)} {feedback(job.message ?? '',locale)}</p>)}
     {visibleVersions.length > 0 && <div className="version-history" aria-label={t('Version history','版本历史')}>{visibleVersions.map((v,i) =>
       <button key={v.id} title={v.provenance.prompt} onClick={() => selectAsset(v.assetId)}><AssetThumbnail locale={locale} id={v.assetId} />V{visibleVersions.length-i}</button>)}</div>}
   </section>
@@ -211,7 +212,8 @@ function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab,
       : archive.action === 'restore' ? t('Restoring project backup…', '正在恢复项目备份…') : ''}</p>
     </section>
   const error = archive.error || studio.error
-  return <><StudioLayout productName={productName} locale={locale} onLocaleChange={value => {localStorage.setItem('ui-language',value);setLocale(value)}} theme={theme}
+  return <><GenerationStatus jobs={studio.project ? studio.jobs : undefined} locale={locale} paused={drawer !== null} />
+    <StudioLayout productName={productName} locale={locale} onLocaleChange={value => {localStorage.setItem('ui-language',value);setLocale(value)}} theme={theme}
     onThemeChange={value => {localStorage.setItem('ui-theme',value);setTheme(value)}} activeTab={tab} onTabChange={setTab} drawer={drawer} onDrawerChange={setDrawer}
     feedback={error && <div className="workspace-alert" role="alert"><span>{feedback(error,locale)}</span>
       <button type="button" onClick={archive.error ? archive.clearError : () => studio.setError('')}>{t('Dismiss','关闭')}</button></div>}

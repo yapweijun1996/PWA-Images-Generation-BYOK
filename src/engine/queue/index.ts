@@ -7,9 +7,9 @@ import { publishJobChange } from './changes'
 export { subscribeToJobChanges } from './changes'
 
 export const maxGenerationBatchSize = 4
+export const batchStoppedMessage = 'Batch stopped after an earlier request. This item was not sent.'
 const jobLockName = (id: string) => 'image-generation:' + id
 const interruptedMessage = 'The previous session ended during generation. Check provider usage.'
-const batchStoppedMessage = 'Batch stopped after an earlier request. This item was not sent.'
 
 export interface QueuedGenerationRequest extends Omit<GenerationRequest, 'references' | 'mask'> {
   providerId: string

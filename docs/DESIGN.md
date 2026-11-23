@@ -111,6 +111,8 @@ Consequences:
 
 After the queue commits a change, it signals open views of that project. Each view reads jobs, assets and versions from a single IndexedDB snapshot. Notifications carry an invalidation signal and do not start jobs. The Web Lock retains ownership of request submission and interruption recovery.
 
+The workspace keeps a polite generation status region mounted across its views. It announces new job transitions without moving focus or replaying the first snapshot of saved jobs. Create continues to show the recent per-item statuses, including any batch items that were never sent.
+
 An open project view waits on the owner lock for each running job it observes. After acquiring the lock, it rereads the committed state. A job still marked running becomes uncertain, and the same transaction stops its unsent batch dependents. The observer never sends a provider request. Leaving the view cancels pending observation.
 
 Project, asset, and version records use string IDs and ISO 8601 UTC timestamps. Assets hold metadata and link to their project. Versions link a project and its output asset and can point to a parent version. A version records its creation time and captures the prompt, provider, model, applied settings, and source asset IDs. T-108 owns the persistence layout and file lookup.
