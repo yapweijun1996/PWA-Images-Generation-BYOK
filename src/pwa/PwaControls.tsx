@@ -45,6 +45,7 @@ export function PwaControls() {
   const [waiting, setWaiting] = useState<ServiceWorker | null>(null)
   const [status, setStatus] = useState<'ready' | 'applying' | 'blocked' | 'failed' | 'reload'>('ready')
   const attempt = useRef<AbortController | null>(null)
+  const unconfirmedWorker = useRef<ServiceWorker | null>(null)
   const blocker = useUpdateBlocker()
 
   useEffect(() => {
@@ -57,7 +58,12 @@ export function PwaControls() {
 
     function inspect() {
       if (!active || !registration) return
-      setWaiting(container.controller ? registration.waiting : null)
+      const controller = container.controller
+      setWaiting(controller ? registration.waiting : null)
+      if (controller && controller === unconfirmedWorker.current) {
+        unconfirmedWorker.current = null
+        setStatus('reload')
+      }
     }
     function watch() {
       installing?.removeEventListener('statechange', inspect)
@@ -94,6 +100,7 @@ export function PwaControls() {
     if (!waiting) return
     const controller = new AbortController()
     attempt.current = controller
+    unconfirmedWorker.current = null
     setStatus('applying')
     try {
       const activated = await requestSafeActivation(() => activateWorker(waiting, controller.signal))
@@ -102,12 +109,18 @@ export function PwaControls() {
       else if (updateBlocker()) setStatus('reload')
       else location.reload()
     } catch {
-      if (!controller.signal.aborted) setStatus('failed')
+      if (!controller.signal.aborted) {
+        if (navigator.serviceWorker.controller === waiting) setStatus('reload')
+        else {
+          unconfirmedWorker.current = waiting
+          setStatus('failed')
+        }
+      }
     } finally {
       if (attempt.current === controller) attempt.current = null
     }
   }
-  return <aside aria-label={t('Application update', '应用更新')}>
+  return <aside className="pwa-update" aria-label={t('Application update', '应用更新')}>
     <p role="status">{blocker === 'draft' ? t('Save or discard your draft before updating.', '更新前请先保存或放弃草稿。')
       : blocker === 'job' ? t('An update is ready. Wait for your generation to finish.', '新版本已就绪，请等待生成完成。')
       : status === 'blocked' ? t('Finish or save work in other tabs, then try again.', '请先完成或保存其他标签页的工作，再重试。')

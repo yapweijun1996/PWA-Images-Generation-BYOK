@@ -37,6 +37,37 @@ body {
   padding: var(--safe-area-top) var(--safe-area-right) var(--safe-area-bottom) var(--safe-area-left);
 }
 
+.pwa-update {
+  position: fixed;
+  inset-inline-end: max(12px, var(--safe-area-right));
+  inset-block-end: calc(16px + var(--safe-area-bottom));
+  z-index: 12;
+  width: min(24rem, calc(100% - 2 * max(12px, var(--safe-area-left), var(--safe-area-right))));
+  padding: 12px;
+  border: 1px solid light-dark(#dcdde6, #434656);
+  border-radius: 12px;
+  background: light-dark(#fff, #20222c);
+  color: light-dark(#20212c, #f0f1f7);
+  box-shadow: 0 6px 24px #0004;
+  line-height: 1.4;
+}
+
+.pwa-update p {
+  margin: 0 0 8px;
+}
+
+.pwa-update button {
+  min-block-size: 44px;
+  padding: 6px 12px;
+  font: inherit;
+}
+
+@media (max-width: 767px) {
+  .pwa-update {
+    inset-block-end: calc(68px + var(--safe-area-bottom));
+  }
+}
+
 input, select, textarea {
   font: inherit;
   font-size: max(1rem, 16px);
