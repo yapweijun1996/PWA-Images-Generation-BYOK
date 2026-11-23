@@ -1,3 +1,4 @@
+import { DeviceStorage } from './DeviceStorage'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { FolderOpen, Home, Image, Menu, Moon, PanelRight, Sparkles, Sun, X } from 'lucide-react'
 import './studio-layout.css'
@@ -100,7 +101,7 @@ export function StudioLayout({ productName, locale, onLocaleChange, theme, onThe
             <nav className="studio-library-nav" aria-label={t.assets}>
               {tabs.filter(({ id }) => id !== 'home').map(({ id, Icon }) => <button key={id} type="button" aria-current={activeTab === id ? 'page' : undefined} onClick={() => changeTab(id)}><Icon size={18} aria-hidden="true" />{t[id]}</button>)}
             </nav>
-            <div className="studio-key-settings">{keySettings}</div></div>
+            <div className="studio-key-settings">{keySettings}<DeviceStorage locale={locale} /></div></div>
         </aside>
         <main className="studio-main">
           <div className="studio-canvas-region">{canvas}</div>
