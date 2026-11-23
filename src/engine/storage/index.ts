@@ -81,14 +81,24 @@ export class StudioStorage {
     try {
       if (directory) {
         file = crypto.randomUUID()
-        const handle = await directory.getFileHandle(file, { create: true })
-        const writer = await handle.createWritable()
         try {
-          await writer.write(blob)
-          await writer.close()
+          const handle = await directory.getFileHandle(file, { create: true })
+          if (typeof handle.createWritable !== 'function') {
+            throw new DOMException('OPFS writable streams unavailable', 'NotSupportedError')
+          }
+          const writer = await handle.createWritable()
+          try {
+            await writer.write(blob)
+            await writer.close()
+          } catch (error) {
+            await writer.abort().catch(() => {})
+            throw error
+          }
         } catch (error) {
-          await writer.abort().catch(() => {})
-          throw error
+          // A browser can expose OPFS handles while refusing main-thread writes.
+          if (!['UnknownError', 'NotSupportedError', 'InvalidStateError'].includes(String(errorName(error)))) throw error
+          await directory.removeEntry(file).catch(() => {})
+          file = undefined
         }
       }
       const tx = this.db.transaction(['assets', 'blobs', 'jobs', 'versions', 'projects'], 'readwrite')

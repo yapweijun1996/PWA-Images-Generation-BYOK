@@ -51,3 +51,15 @@ it('explains an OPFS quota failure without publishing partial metadata', async (
     expect(await store.db.count('assets')).toBe(0)
   } finally { store.db.close() }
 })
+
+it.each([{}, { createWritable: async () => { throw new DOMException('Transient failure', 'UnknownError') } }])(
+  'stores bytes in IndexedDB when OPFS writes are unavailable', async handle => {
+  const directory = { removeEntry: vi.fn().mockResolvedValue(undefined), getFileHandle: async () => handle }
+  vi.stubGlobal('navigator', { storage: { getDirectory: async () => ({ getDirectoryHandle: async () => directory }) } })
+  const store = await openStorage()
+  try {
+    await store.saveAsset(asset, blob)
+    expect(directory.removeEntry).toHaveBeenCalledOnce()
+    expect(await (await store.readAsset(asset.id)).text()).toBe('pixels')
+  } finally { store.db.close() }
+})
