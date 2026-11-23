@@ -130,7 +130,7 @@ The deployed change makes stalled service-worker activation retryable, keeps mob
 | Edge on macOS | PASS (hosted macOS 15, managed installation) | A fresh ordinary tab and separate installed standalone window recovered the live build and draft offline. Consumer installation and native launcher coverage remain open. [Platform evidence](compatibility.md#macos-installed-edge). |
 | Chrome on Android | PARTIAL (Android 15 and 16 emulators) | [Keyboard, rotation, offline fresh-tab and cold launcher recovery](compatibility.md#offline-launcher-after-full-chrome-restart) passed. Android 16 covered [TalkBack generation messages](keyboard-and-controls.md#generation-status-across-workspace-views). WebAPK registration, physical Android and remaining TalkBack journeys are open. |
 | Safari on physical iPhone | NOT_RUN | Browser, Home Screen, VoiceOver, safe areas, keyboard and interrupted update |
-| iPadOS Safari | PARTIAL (WebKit tablet viewport only) | At 768 × 1024 and 1024 × 768 the hosted workspace retained its draft and enabled Generate without horizontal overflow. Physical iPad, keyboard and orientation events remain open. |
+| iPadOS Safari | PARTIAL (native iPadOS 26.2 simulator and WebKit viewport) | Native Safari displayed `c03b99f` in an ordinary tab. WebKit tablet viewport checks covered draft retention at 768 × 1024 and 1024 × 768. Installed launch, offline relaunch, physical iPad, keyboard and orientation events remain open. [Simulator evidence](compatibility.md#safari-on-ios-and-ipados-simulators). |
 | Desktop Safari | PASS (bounded origin-offline reload) | Safari 27.2 in a private tab recovered a draft after the local replay of the exact published artifact became unavailable. [Desktop observations](compatibility.md#safari-272). |
 | Desktop Firefox | PASS (bounded origin-offline reload) | Playwright Firefox and Windows release Firefox 160 ordinary offline reload passed within [recorded limits](compatibility.md). |
 
@@ -163,7 +163,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | OFF-01 | Offline shell loads | PASS (live Chrome) | After an explicit installed-client update, offline refresh retained build B in standalone mode. |
 | OFF-02 | Offline network error detected | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
 | OFF-03 | Offline server transaction not falsely committed | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
-| OFF-04 | Durable pending operation recovery | PASS (bounded browser fixtures) | The current artifact recovered an uncertain job after the submitting tab closed, with the observer left open. The public Chrome batch also stopped three unsent items. Earlier fixtures covered recovery after reload. [Recovery evidence](offline-recovery.md#recovery-in-an-already-open-view). |
+| OFF-04 | Durable pending operation recovery | PASS (bounded browser fixtures) | The artifact for `8d319a6` recovered an uncertain job after the submitting tab closed, with the observer left open. The public Chrome batch also stopped three unsent items. Earlier fixtures covered recovery after reload. [Recovery evidence](offline-recovery.md#recovery-in-an-already-open-view). |
 | OFF-05 | Storage quota exceeded | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
 | OFF-06 | IndexedDB migration | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
 | OFF-07 | Cache eviction recovery | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
@@ -199,7 +199,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | REL-05 | Release evidence completeness | PARTIAL | Current public files are tied to the checked-out source SHA, with digests and scoped observations. Per-case evidence for the full catalog remains open. |
 | REL-06 | Cross-browser test matrix | NOT_RUN | Complete declared device/browser matrix below. |
 | REL-07 | Monitoring and alert validation | PASS (Actions operator view) | An intentional [invalid restore dispatch](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45199992786) failed at Verify rollback source; deploy was skipped. A subsequent check matched all 10 live files. End-user notification and external paging were outside this check. |
-| REL-08 | No unauthorized automatic resubmission | PASS (bounded fixtures) | The current artifact kept one intercepted request across interruption and recovery in open tabs. The separate invalidation fixture on `e9c076f` produced zero requests. [Offline recovery](offline-recovery.md#concurrent-project-views-and-interruption). |
+| REL-08 | No unauthorized automatic resubmission | PASS (bounded fixtures) | The artifact for `8d319a6` kept one intercepted request across interruption and recovery in open tabs. The separate invalidation fixture on `e9c076f` produced zero requests. [Offline recovery](offline-recovery.md#concurrent-project-views-and-interruption). |
 
 ## First live release
 
