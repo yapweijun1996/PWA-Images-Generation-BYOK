@@ -125,7 +125,7 @@ AI generation cannot guarantee exact preservation. When a result cannot be guara
 - **Desktop:** three columns.
 - **Mobile:** the canvas is the main view. Studio list and settings open as a drawer or tabs.
 
-This is a layout sketch for direction only. Under the taste gate, the real design must be judged from real screenshots at 390x844, 768x1024, and 1440x900 before it is accepted.
+The full UI/UX Design System V1 draft is in [UIUX.md](UIUX.md). This is a layout sketch for direction only. Under the taste gate, the real design must be judged from real screenshots at 390x844, 768x1024, and 1440x900 before it is accepted.
 
 ## 5. PWA Design Constraints (from `pwa:product-standard`)
 

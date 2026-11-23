@@ -132,6 +132,7 @@ All documents are in **Planning** status.
 | Document | Purpose |
 |----------|---------|
 | [docs/DESIGN.md](docs/DESIGN.md) | Architecture, applied standards, UI layout, data and security design |
+| [docs/UIUX.md](docs/UIUX.md) | UI/UX Design System V1: workspace layout, Canvas interaction, responsive rules |
 | [docs/SPEC.md](docs/SPEC.md) | Requirements, studios, non-functional requirements, acceptance criteria |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Four phases, dependencies, risks |
 | [docs/TASK.md](docs/TASK.md) | Executable task list and next task |
