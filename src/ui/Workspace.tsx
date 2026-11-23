@@ -101,14 +101,14 @@ function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab,
   const canvas = <section className="artboard">
     <h2>{studio.project ? projectLabel(studio.project,locale) : t('Canvas','画布')}</h2>
     {selectedAsset ? <><div className={'canvas-preview zoom-'+zoom}><AssetImage locale={locale} id={selectedAsset} alt={t('Selected project image','选中的项目图片')} />
-      {compareId && compareId !== selectedAsset && <AssetImage locale={locale} id={compareId} alt={t('Comparison image','对照图片')} />}</div>
+      {compareId && compareId !== selectedAsset && visibleAssets.some(asset => asset.id === compareId) && <AssetImage locale={locale} id={compareId} alt={t('Comparison image','对照图片')} />}</div>
       <div className="image-actions" role="group" aria-label={t('Image tools','图像工具')}>
         <button onClick={() => setZoom(1)}><Maximize size={17} aria-hidden="true"/>{t('Fit','适应画布')}</button>
         <button onClick={() => setZoom(zoom === 1 ? 2 : 1)} aria-pressed={zoom === 2}><ZoomIn size={17} aria-hidden="true"/>{t('Zoom','放大')}</button>
         <button disabled={needsReview} aria-label={t('Download image','下载图片')} onClick={() => perform(() => downloadImage(selectedAsset))}><Download size={17} aria-hidden="true"/>{t('Export','导出')}</button>
         <button aria-label={t('Move to trash','移至回收站')} onClick={() => perform(()=>trash(selectedAsset))}><Trash2 size={17} aria-hidden="true"/>{t('Delete','删除')}</button>
-      </div><div>
-      <label>{t('Compare with','对照图片')}<select value={compareId} onChange={e=>setCompareId(e.target.value)}><option value="">{t('None','无')}</option>{visibleAssets.filter(a=>a.id!==selectedAsset).map((a,i)=><option key={a.id} value={a.id}>{i+1} · {sourceLabel(a.source,locale)}</option>)}</select></label></div>
+      </div>{visibleAssets.some(asset => asset.id !== selectedAsset) && <div>
+      <label>{t('Compare with','对照图片')}<select value={compareId} onChange={e=>setCompareId(e.target.value)}><option value="">{t('None','无')}</option>{visibleAssets.filter(a=>a.id!==selectedAsset).map((a,i)=><option key={a.id} value={a.id}>{i+1} · {sourceLabel(a.source,locale)}</option>)}</select></label></div>}
       {needsReview && <section><h3>{t('Review against references','对照参考图审核')}</h3>{version!.provenance.referenceAssetIds.map(id=><AssetImage locale={locale} key={id} id={id} alt={t('Source reference','原始参考图')}/>)}
       <ul>{activeStudio.reviewChecks.map(check=><li key={check.id}>{check.label}</li>)}</ul>
       <button onClick={()=>perform(async()=>{ await patchProject(projectId, current => ({reviewedAssetIds:[...new Set([...(current.reviewedAssetIds || []),selectedAsset])]})); studio.refresh() })}>{t('Accept after review','审核并接受')}</button></section>}

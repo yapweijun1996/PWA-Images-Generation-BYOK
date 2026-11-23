@@ -100,7 +100,7 @@ export function StudioLayout({ productName, locale, onLocaleChange, theme, onThe
     <div className="studio-layout" data-theme={theme} data-tab={activeTab}>
       <header className="studio-header">
         <button className="studio-icon-button studio-drawer-trigger" type="button" aria-label={t.menu} aria-expanded={drawer === 'navigation'} onClick={(event) => openDrawer('navigation', event.currentTarget)}><Menu aria-hidden="true" size={19} /></button>
-        <div className="studio-brand"><span className="studio-brand-mark"><Sparkles aria-hidden="true" size={18} /></span><h1>{productName}</h1><span className="studio-byok">BYOK</span></div>
+        <div className="studio-brand"><span className="studio-brand-mark"><Sparkles aria-hidden="true" size={18} /></span><h1 aria-label={productName}><span className="studio-brand-full">{productName}</span><span className="studio-brand-short" aria-hidden="true">Studio</span><span className="studio-brand-tiny" aria-hidden="true">PWA</span></h1><span className="studio-byok">BYOK</span></div>
         <div className="studio-header-actions">
           <InstallHelp locale={locale} />
           <label className="studio-language"><span className="studio-visually-hidden">{t.language}</span><select value={locale} onChange={(event) => onLocaleChange(event.target.value as StudioLocale)}><option value="en">EN</option><option value="zh-CN">中文</option></select></label>
