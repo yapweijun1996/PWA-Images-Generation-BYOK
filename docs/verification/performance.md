@@ -101,7 +101,7 @@ The exact [published `7aaefff` artifact](https://github.com/yapweijun1996/PWA-Im
 
 The six views fit without horizontal overflow. The keyboard suite confirmed focus restoration for four drawer and viewport combinations. Axe-core 4.14.1 found no automatic violations in the four initial-workspace theme and viewport combinations and flagged color contrast for manual review. Field P75 remains `INSUFFICIENT_DATA`.
 
-### Current public release artifact
+### Share actions release artifact
 
 Chrome 158.0.8127.37 repeated the lab with the exact [published `83a4e07` artifact](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45271666647). The retained files matched all 13 public files. The entry script SHA-256 was `0b732ea8a26fe496cd5c64555902c15fef14571bc282003c85fd47da5e08cb8f`.
 
@@ -111,6 +111,17 @@ Chrome 158.0.8127.37 repeated the lab with the exact [published `83a4e07` artifa
 | 1440 × 900 | 1,456–1,672 | 0.0004 | 80–120 |
 
 No sampled view overflowed. Both drawers kept and restored focus at 390 and 768 px. Field P75 remains `INSUFFICIENT_DATA`.
+
+### Current public release artifact
+
+Chrome 158.0.8127.37 repeated the six-load lab with the exact [published `8d5a29a` artifact](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45281471335). All 13 files matched the deployed site. The entry script SHA-256 was `b301b5947e5249104bb7f7bac9a07c88635a4bcf2c63d15601ab302a4f80a1c1`.
+
+| Viewport | LCP range (ms) | CLS range | Longest interaction-event duration range (ms) |
+| --- | ---: | ---: | ---: |
+| 390 × 844 | 1,372–1,428 | 0 | 64–88 |
+| 1440 × 900 | 1,392–1,404 | 0.0004 | 64–72 |
+
+No sampled view overflowed. The four drawer and viewport combinations held and restored keyboard focus. Field P75 remains `INSUFFICIENT_DATA`.
 
 ## Populated asset library
 
