@@ -5,6 +5,7 @@ import { registerUpdateGuard } from './guards'
 
 afterEach(() => {
   cleanup()
+  document.documentElement.lang = 'en'
   vi.unstubAllEnvs()
   vi.unstubAllGlobals()
 })
@@ -21,6 +22,9 @@ it('requires an explicit unguarded click and sends just one activation request',
   await waitFor(() => expect(button.disabled).toBe(true))
   fireEvent.click(button)
   expect(postMessage).not.toHaveBeenCalled()
+  document.documentElement.lang = 'zh-CN'
+  await screen.findByRole('button', { name: '更新并重新加载' })
+  expect(screen.getByRole('status').textContent).toBe('更新前请先保存或放弃草稿。')
   act(release)
   fireEvent.click(button)
   fireEvent.click(button)

@@ -1,7 +1,15 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { updateBlocker, useUpdateBlocker } from './guards'
 
+function subscribeLanguage(notify: () => void) {
+  const observer = new MutationObserver(notify)
+  observer.observe(document.documentElement, { attributeFilter: ['lang'] })
+  return () => observer.disconnect()
+}
+
 export function PwaControls() {
+  const chinese = useSyncExternalStore(subscribeLanguage, () => document.documentElement.lang.startsWith('zh'))
+  const t = (en: string, zh: string) => chinese ? zh : en
   const [waiting, setWaiting] = useState<ServiceWorker | null>(null)
   const [applying, setApplying] = useState(false)
   const requested = useRef<ServiceWorker | null>(null)
@@ -67,10 +75,10 @@ export function PwaControls() {
     setApplying(true)
     waiting.postMessage({ type: 'SKIP_WAITING' })
   }
-  return <aside aria-label="Application update">
-    <p role="status">{blocker === 'draft' ? 'Save or discard your draft before updating.'
-      : blocker === 'job' ? 'An update is ready. Wait for your generation to finish.'
-      : applying ? 'Updating…' : 'An update is ready.'}</p>
-    <button type="button" disabled={Boolean(blocker) || applying} onClick={apply}>Update and reload</button>
+  return <aside aria-label={t('Application update', '应用更新')}>
+    <p role="status">{blocker === 'draft' ? t('Save or discard your draft before updating.', '更新前请先保存或放弃草稿。')
+      : blocker === 'job' ? t('An update is ready. Wait for your generation to finish.', '新版本已就绪，请等待生成完成。')
+      : applying ? t('Updating…', '正在更新…') : t('An update is ready.', '新版本已就绪。')}</p>
+    <button type="button" disabled={Boolean(blocker) || applying} onClick={apply}>{t('Update and reload', '更新并重新加载')}</button>
   </aside>
 }
