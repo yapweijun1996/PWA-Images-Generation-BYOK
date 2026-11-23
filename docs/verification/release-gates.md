@@ -15,6 +15,8 @@
 
 Help points users to the share actions row when expanding More or View More. WebKit 27.2 verified both languages, the dialog width, focus return and offline reopening at 390 × 664 and 768 × 1024 on this exact public build. Native iPad evidence distinguishes the actions row from the application-sharing row. [Simulator report](compatibility.md#safari-on-ios-and-ipados-simulators).
 
+Hosted Android 15 Chrome verified the keyboard, rotation, native install prompt and offline launcher cold start on `83a4e07`. The launcher shortcut opened a new Chrome process in standalone mode and recovered the saved draft. [Android run 45272348092](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45272348092).
+
 ## November 24 compact toolbar release
 
 [Pages run 45266948803](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45266948803) published `7aaefff0fd39ef035b4ebad641b50212af8e1618`, displayed as `v0.1.0 · 2026-11-23T21:11:07.042Z`. CI passed 42 tests, lint, type checking and the production build. The workflow and independent comparison matched all 13 public files to the retained artifact. The developer credential was absent from 142 tracked files and all 13 published files. The worker SHA-256 is `92443fd2c63214aa69676ad83d9cb68e1c393713205b059d2b6593256f962dce`. The rollback artifact expires at 21:10:36 UTC on February 21, 2027.
@@ -207,7 +209,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | QA-04 | Responsive layout without overflow | PARTIAL | No horizontal overflow on tested fresh shells at 390/768/1440 or at the end of the 48-image library in public WebKit at 1440 px. [Scope](performance.md). |
 | QA-05 | CSP and XSS regression | PASS (bounded desktop Chrome checks) | Project markup displayed as literal text. CSP blocked an off-origin request. [Evidence](keyboard-and-controls.md). |
 | QA-06 | No sensitive cache leakage | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
-| QA-07 | Dependency security review | PASS (2026-11-23 npm advisory snapshot) | Clean Node 24 install and full npm audit reported zero known vulnerabilities after overriding Workbox’s build-only glob dependency to 14.0.6. Lint, tests and production worker generation passed. |
+| QA-07 | Dependency security review | PASS (2026-11-24 Singapore npm advisory snapshot) | Full npm audit reported zero known vulnerabilities on the current lockfile. The previous clean-install audit followed the override of Workbox’s build-only glob dependency to 14.0.6. |
 | QA-08 | Recoverable runtime errors | PASS (bounded fixtures) | On the public candidate, Chrome displayed an intercepted HTTP 401, restored the prompt on reload and issued no duplicate request. Network/quota fixtures and malformed-ZIP feedback were also exercised. |
 | REL-01 | Clean production deployment | PASS (first live release) | Workflow 45192152435, live HTTPS entry, nine matching artifact files. |
 | REL-02 | Old-to-new build upgrade | PASS (live Chrome) | Installed A stayed on A until explicit activation, then displayed B after one navigation. |
