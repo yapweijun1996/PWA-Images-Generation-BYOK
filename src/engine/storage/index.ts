@@ -3,6 +3,7 @@ import type { Asset, Project, Version } from '@engine/types'
 
 export const DATABASE_NAME = 'pwa-images-generation-byok'
 export interface StudioSchema extends DBSchema {
+  jobs: { key: string; value: import('@engine/queue').GenerationJob; indexes: { byProject: string } }
   projects: { key: string; value: Project }
   assets: { key: string; value: Asset; indexes: { byProject: string } }
   versions: { key: string; value: Version; indexes: { byProject: string } }
@@ -43,7 +44,7 @@ async function fileDirectory() {
 export async function openStorage() {
   let db: IDBPDatabase<StudioSchema>
   try {
-    db = await openDB<StudioSchema>(DATABASE_NAME, 2, {
+    db = await openDB<StudioSchema>(DATABASE_NAME, 3, {
       upgrade(database, previous, _next, transaction) {
         if (previous < 1) {
           database.createObjectStore('projects', { keyPath: 'id' })
@@ -51,6 +52,7 @@ export async function openStorage() {
           database.createObjectStore('versions', { keyPath: 'id' })
           database.createObjectStore('blobs')
         }
+        if (previous < 3) database.createObjectStore('jobs', { keyPath: 'id' }).createIndex('byProject', 'projectId')
         if (previous < 2) {
           transaction.objectStore('assets').createIndex('byProject', 'projectId')
           transaction.objectStore('versions').createIndex('byProject', 'projectId')
