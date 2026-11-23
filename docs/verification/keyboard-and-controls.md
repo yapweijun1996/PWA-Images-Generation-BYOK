@@ -14,11 +14,13 @@ Chrome 158.0.8127.37 on macOS, isolated profiles, Playwright with keyboard input
 
 VoiceOver, physical-device touch behavior, subjective legibility, and comprehensive WCAG conformance require separate evidence.
 
-## Help and installation dialog on the current release
+## Help and installation dialog
 
 On November 24 Singapore time, Chrome 158.0.8127.37 inspected live source revision `6d70d15e6d7299464b3580d551d789a45b6aebfc` at 390 and 1440 CSS px in both themes. Each Help dialog exposed its name and the Add to Home Screen instructions, opened with focus on Close, and hid the workspace landmark from the Chrome accessibility tree. Forward and reverse Tab did not focus workspace content. Escape closed the dialog and restored focus to Help in all four combinations.
 
 Axe-core 4.14.1 reported zero WCAG 2, 2.1 or 2.2 A/AA violations and zero incomplete checks for the open dialog in those four combinations. This checks the updated instructions in desktop Chrome at two widths. Physical touch and spoken VoiceOver are tracked in the [physical-device acceptance record](physical-device.md).
+
+The corrected `7aaefff` public release repeated the same four Chrome combinations with zero axe violations and zero incomplete checks. The named dialog opened with focus on Close, isolated the workspace during forward and reverse Tab, and restored focus on Escape.
 
 ## Generation status across workspace views
 

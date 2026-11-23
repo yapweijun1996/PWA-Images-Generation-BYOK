@@ -77,7 +77,7 @@ An initial loopback server delivered the `c03b99f` entry script uncompressed at 
 
 Both gzip runs fit the viewport and passed the lab checks. The `c03b99f` entry script SHA-256 is `2476bcee5076e416b3f72d0c435401103cc8b938c1c44c34fb8473a49ee27df3`. The measured interaction events cover a short lab journey. Field P75 remains `INSUFFICIENT_DATA`. [Artifact for `c03b99f`](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45250691263).
 
-### Current public release artifact
+### Earlier Safari installation guidance artifact
 
 On November 24 Singapore time, the exact [published `6d70d15` artifact](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45256773772) matched the 13 public files byte for byte. Vite served those files on loopback under the same app subpath. The lab server and Pages each served the entry script with gzip. The script transferred in 133,319 bytes on loopback and 134,434 bytes from Pages, with uncompressed SHA-256 `3d6c396efb4341843100131b416e64e66deb6219d4426274e46106da18717744`.
 
@@ -89,6 +89,17 @@ Chrome 158.0.8127.37 repeated the standard 4× CPU and throttled network profile
 | 1440 × 900 | 1,376–1,416 | 0.0004 | 72–80 |
 
 Both drawers kept and restored keyboard focus and hid background content from the Chrome accessibility tree at 390 and 768 px. The build label was visible above mobile navigation. Axe-core 4.14.1 found no violations in the initial workspace at 390 and 1440 px in both themes. Color contrast remained flagged for manual review. The metrics describe a lab run with the retained release. Field P75 remains `INSUFFICIENT_DATA`.
+
+### Current public release artifact
+
+The exact [published `7aaefff` artifact](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45266948803) matched all 13 public files. Chrome 158.0.8127.37 repeated the six-load throttled lab on Vite preview under the same app subpath. The entry script SHA-256 was `c58ddd310b8848786de6525aa7f8f2b76c5ab7493723b98f6ae11c3414794977`.
+
+| Viewport | LCP range (ms) | CLS range | Longest interaction-event duration range (ms) |
+| --- | ---: | ---: | ---: |
+| 390 × 844 | 1,448–1,640 | 0 | 104–168 |
+| 1440 × 900 | 1,364–1,432 | 0.0004 | 72–80 |
+
+The six views fit without horizontal overflow. The keyboard suite confirmed focus restoration for four drawer and viewport combinations. Axe-core 4.14.1 found no automatic violations in the four initial-workspace theme and viewport combinations and flagged color contrast for manual review. Field P75 remains `INSUFFICIENT_DATA`.
 
 ## Populated asset library
 
