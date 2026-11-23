@@ -52,6 +52,15 @@ export function StudioLayout({ productName, locale, onLocaleChange, theme, onThe
   const opener = useRef<HTMLButtonElement | null>(null)
 
   useEffect(() => {
+    const header = headerRef.current
+    if (!header) return
+    // Use the same surface color for the browser chrome and the rendered header.
+    const surface = getComputedStyle(header).backgroundColor
+    for (const meta of document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')) meta.content = surface
+    document.documentElement.dataset.studioTheme = theme
+  }, [theme])
+
+  useEffect(() => {
     if (!drawer) return
     drawerClose.current?.focus()
     const onKeyDown = (event: KeyboardEvent) => {

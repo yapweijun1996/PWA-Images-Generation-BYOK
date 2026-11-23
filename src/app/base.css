@@ -16,6 +16,18 @@
   }
 }
 
+:root[data-studio-theme='light'] {
+  color-scheme: light;
+  color: #20212c;
+  background: #fff;
+}
+
+:root[data-studio-theme='dark'] {
+  color-scheme: dark;
+  color: #f0f1f7;
+  background: #171920;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
