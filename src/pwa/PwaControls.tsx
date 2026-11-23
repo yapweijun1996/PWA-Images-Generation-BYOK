@@ -93,7 +93,7 @@ export function PwaControls() {
     }
   }, [])
 
-  if (!waiting && !['applying', 'failed', 'reload'].includes(status)) return null
+  const visible = Boolean(waiting) || status === 'applying' || status === 'failed' || status === 'reload'
   async function apply() {
     if (attempt.current || updateBlocker()) return
     if (status === 'reload') { location.reload(); return }
@@ -120,15 +120,18 @@ export function PwaControls() {
       if (attempt.current === controller) attempt.current = null
     }
   }
-  return <aside className="pwa-update" aria-label={t('Application update', '应用更新')}>
-    <p role="status">{blocker === 'draft' ? t('Save or discard your draft before updating.', '更新前请先保存或放弃草稿。')
+  const message = !visible ? '' : blocker === 'draft' ? t('Save or discard your draft before updating.', '更新前请先保存或放弃草稿。')
       : blocker === 'job' ? t('An update is ready. Wait for your generation to finish.', '新版本已就绪，请等待生成完成。')
       : status === 'blocked' ? t('Finish or save work in other tabs, then try again.', '请先完成或保存其他标签页的工作，再重试。')
       : status === 'applying' ? t('Updating…', '正在更新…')
       : status === 'failed' ? t('The update could not finish. Try again when it is available.', '更新未能完成。新版本可用时请重试。')
       : status === 'reload' ? t('The update is installed. Reload to finish.', '新版本已安装。请重新加载以完成更新。')
-      : t('An update is ready.', '新版本已就绪。')}</p>
+      : t('An update is ready.', '新版本已就绪。')
+  // Mount the live region before the worker reports its first update.
+  return <div className={visible ? 'pwa-update' : undefined} role={visible ? 'complementary' : undefined}
+    aria-label={visible ? t('Application update', '应用更新') : undefined}>
+    <p className="pwa-update-status" role="status" aria-atomic="true">{message}</p>
     {(waiting || status === 'reload' || status === 'applying') &&
       <button type="button" disabled={Boolean(blocker) || status === 'applying'} onClick={() => void apply()}>{t('Update and reload', '更新并重新加载')}</button>}
-  </aside>
+  </div>
 }

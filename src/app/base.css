@@ -52,7 +52,11 @@ body {
   line-height: 1.4;
 }
 
-.pwa-update p {
+.pwa-update-status {
+  margin: 0;
+}
+
+.pwa-update .pwa-update-status {
   margin: 0 0 8px;
 }
 

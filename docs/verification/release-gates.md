@@ -96,7 +96,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | A11Y-05 | Touch target spacing | PARTIAL | Measured desktop Chrome viewports and corrected undersized disclosures, header buttons and key controls. Physical touch acceptance remains open. [Evidence](keyboard-and-controls.md). |
 | A11Y-06 | Reduced-motion preference | PASS (Chrome preference emulation) | Reduced-motion behavior verified in Chrome. [Evidence](keyboard-and-controls.md). |
 | A11Y-07 | Modal focus trapping and restoration | PASS (Chromium drawers) | Four drawer cases verified keyboard containment, Escape and focus restoration. See performance.md. |
-| A11Y-08 | Accessible update status announcements | NOT_RUN | Observe update and blocked-update announcements with a screen reader. |
+| A11Y-08 | Accessible update status announcements | PARTIAL | Chrome exposed a polite atomic status node before discovery. The same node changed on discovery and draft blocking. Spoken announcements with VoiceOver and TalkBack remain open. [Update status evidence](update-guards.md). |
 | QA-01 | LCP target | LAB PASS; FIELD INSUFFICIENT_DATA | Six fresh navigations measured LCP 1260–1368 ms in the bounded lab. See performance.md. |
 | QA-02 | INP target | LAB ONLY; FIELD INSUFFICIENT_DATA | Worst observed interaction event duration was 120 ms. The bounded sample does not establish field INP P75. |
 | QA-03 | CLS target | LAB PASS; FIELD INSUFFICIENT_DATA | Observed CLS 0.0003–0.0004 in six fresh navigations. See performance.md. |

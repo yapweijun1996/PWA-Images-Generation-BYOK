@@ -25,3 +25,9 @@ Two production builds containing the fix were served in the same harness. A (`15
 ## Late takeover and update notice placement
 
 On 2026-11-23, a separate two-build loopback run used Chrome 158.0.8127.37 and delayed the requested worker message by 17 seconds. The update first timed out. After the candidate took control, the status offered an explicit reload. The old page stayed open until that click, which navigated once to the new build. This passed at 1440 × 844 and 390 × 844. In both viewports the notice was visible without scrolling. On the phone viewport its bounds cleared the bottom navigation. The checked builds were `15:34:41.420Z` (worker SHA-256 `89cc59d27dc7e3aaee59008834059411eaf379f12d16947aa2624f1aa1c751df`) and `15:34:46.019Z` (worker SHA-256 `2cde493681a0a9a699d42ca9a56e4a561c1d9ea9dc8ebb560a4010241dc92f93`). A regression test also verifies that a pending draft disables the explicit reload until saved.
+
+## Update live region
+
+On 2026-11-23, Chrome 158.0.8127.37 inspected two production builds on a loopback origin. Before discovery, the page contained an empty update status node with polite and atomic properties in Chrome's accessibility tree. After worker discovery, a mutation observer recorded “An update is ready.” in the same node. An unsaved settings draft then disabled the update button and changed the same node to the draft-blocked message. This exercises the markup and accessibility event source. Spoken announcements remain unverified. [W3C status-message technique](https://www.w3.org/WAI/WCAG21/Techniques/aria/ARIA22).
+
+Build A displayed `15:51:18.587Z` with worker SHA-256 `b30300b58fbafa55094b55c66ed449268754bd1e8dd5be2c9014e4a467137f2c`. The candidate displayed `15:51:27.714Z` with worker SHA-256 `289580166a37777ebbb814109187cf559d5acbc09fc8e3e2a6153a7fee436ef4`.
