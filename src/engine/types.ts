@@ -70,6 +70,8 @@ export interface ProviderAdapter {
 export type JobStatus = 'queued' | 'running' | 'succeeded' | 'failed' | 'uncertain'
 
 export interface Project {
+  board?: { panels: { assetId: string; caption: string }[]; reviewed: boolean }
+  reviewedAssetIds?: string[]
   id: string
   name: string
   studioId: string

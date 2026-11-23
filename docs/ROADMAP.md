@@ -1,6 +1,6 @@
 # ROADMAP
 
-> Status: **Planning.** No phase has started. Dates are not set.
+> Status: Implementation underway. Release acceptance is tracked in [TASK.md](TASK.md).
 
 Build general image generation first, then add the specialized studios step by step.
 

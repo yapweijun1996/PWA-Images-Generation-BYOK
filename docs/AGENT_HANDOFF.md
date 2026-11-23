@@ -1,6 +1,6 @@
 # Coding Agent Handoff
 
-> Status: **Planning.** The repository has no application code. This file tells a coding agent how to start Phase 1 without re-discovering the project.
+> Status: Implementation underway. This handoff records the project contracts and acceptance criteria. See [TASK.md](TASK.md) for current results.
 > The module layout and interfaces below are a **proposal** for the agent to follow or improve. Where it improves on them, update the docs in the same change.
 
 ## 1. Read First (in order)

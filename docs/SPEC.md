@@ -1,6 +1,6 @@
 # SPEC
 
-> Status: **Planning.** Requirements below are intended behavior. Nothing is implemented or verified.
+> Status: Requirements and release criteria. See [TASK.md](TASK.md) for current acceptance evidence.
 
 Priority labels: **MUST** = required for the phase, **SHOULD** = intended, **MAY** = optional.
 

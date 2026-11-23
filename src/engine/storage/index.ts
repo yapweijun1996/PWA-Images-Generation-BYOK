@@ -70,7 +70,9 @@ export async function openStorage() {
 export class StudioStorage {
   constructor(readonly db: IDBPDatabase<StudioSchema>) {}
 
-  async saveAsset(asset: Asset, blob: Blob) {
+  async saveAsset(asset: Asset, blob: Blob, completion?: {
+    job: import('@engine/queue').GenerationJob; version: Version
+  }) {
     if (asset.byteLength !== blob.size || asset.mediaType !== blob.type) {
       throw new Error('Asset metadata does not match image data.')
     }
@@ -89,9 +91,24 @@ export class StudioStorage {
           throw error
         }
       }
-      const tx = this.db.transaction(['assets', 'blobs'], 'readwrite')
+      const tx = this.db.transaction(['assets', 'blobs', 'jobs', 'versions', 'projects'], 'readwrite')
+      if (completion) {
+        const { job, version } = completion
+        const parent = version.parentVersionId ? await tx.objectStore('versions').get(version.parentVersionId) : undefined
+        const current = await tx.objectStore('jobs').get(job.id)
+        const project = await tx.objectStore('projects').getKey(asset.projectId)
+        if (!project || current?.status !== 'running' || current.projectId !== asset.projectId ||
+          version.projectId !== asset.projectId || version.assetId !== asset.id ||
+          (version.parentVersionId && parent?.projectId !== asset.projectId)) {
+          throw new Error('The generation record or project changed while the image was being created.')
+        }
+      }
       await Promise.all([
         tx.done,
+        ...(completion ? [
+          tx.objectStore('versions').add(completion.version),
+          tx.objectStore('jobs').put({ ...completion.job, status: 'succeeded', versionId: completion.version.id }),
+        ] : []),
         tx.objectStore('assets').add(asset),
         tx.objectStore('blobs').add(file ? { file } : blob, asset.id),
       ])

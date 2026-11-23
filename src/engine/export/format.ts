@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 const id = z.string().min(1).max(512)
 const timestamp = z.iso.datetime()
-const project = z.object({ id, name: z.string(), studioId: id, createdAt: timestamp, updatedAt: timestamp })
+const project = z.object({ board: z.object({ panels: z.array(z.object({assetId: id, caption: z.string().max(100)})).max(12), reviewed: z.boolean() }).optional(), reviewedAssetIds: z.array(id).optional(), id, name: z.string(), studioId: id, createdAt: timestamp, updatedAt: timestamp })
 export const assetRecord = z.object({
   id, projectId: id, source: z.enum(['imported', 'generated', 'edited']),
   mediaType: z.enum(['image/png', 'image/jpeg', 'image/webp']), byteLength: z.number().int().positive(),
@@ -28,6 +28,8 @@ export function validateLinks(data: Backup) {
   const assets = new Set(data.assets.map(a => a.id))
   const ancestors = new Map(data.versions.map(v => [v.id, v.parentVersionId]))
   if (assets.size !== data.assets.length || ancestors.size !== data.versions.length) throw new Error('Duplicate backup IDs.')
+  const projectLinks = [...(data.project.board?.panels.map(p => p.assetId) ?? []), ...(data.project.reviewedAssetIds ?? [])]
+  if (projectLinks.some(link => !assets.has(link))) throw new Error('Missing project image.')
   const complete = new Set<string>()
   for (const item of [...data.assets, ...data.versions]) {
     if (item.projectId !== data.project.id) throw new Error('Backup contains a different project.')

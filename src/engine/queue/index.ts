@@ -1,4 +1,3 @@
-import { appendVersion } from '@engine/history'
 import type { GenerationRequest, JobStatus, ProviderAdapter } from '@engine/types'
 import type { StudioStorage } from '@engine/storage'
 import { ImageRequestError } from '@engine/providers/openai'
@@ -18,12 +17,23 @@ export interface GenerationJob {
   createdAt: string
   message?: string
   versionId?: string
+  dependsOn?: string
 }
 
 export async function enqueueGeneration(storage: StudioStorage, projectId: string, request: QueuedGenerationRequest) {
-  const job: GenerationJob = { id: crypto.randomUUID(), projectId, request, status: 'queued', createdAt: new Date().toISOString() }
-  await storage.db.add('jobs', job)
-  return job
+  return (await enqueueBatch(storage, projectId, request, 1))[0]
+}
+
+export async function enqueueBatch(storage: StudioStorage, projectId: string, request: QueuedGenerationRequest, count: number) {
+  if (!Number.isInteger(count) || count < 1 || count > 4) throw new Error('Choose between one and four generations.')
+  const jobs: GenerationJob[] = []
+  const createdAt = new Date().toISOString()
+  for (let i = 0; i < count; i++) {
+    jobs.push({ id: crypto.randomUUID(), projectId, request, status: 'queued', createdAt, dependsOn: jobs.at(-1)?.id })
+  }
+  const tx = storage.db.transaction('jobs','readwrite')
+  await Promise.all([tx.done, ...jobs.map(job => tx.store.add(job))])
+  return jobs
 }
 
 // The lock is released by the browser on tab termination. Only its holder can send or recover the job.
@@ -38,6 +48,14 @@ export async function processJob(storage: StudioStorage, id: string, provider: P
       return
     }
     if (job.status !== 'queued') return
+    if (job.dependsOn) {
+      const previous = await db.get('jobs', job.dependsOn)
+      if (previous?.status === 'queued' || previous?.status === 'running') return
+      if (previous?.status !== 'succeeded') {
+        await db.put('jobs', { ...job, status: 'failed', message: 'Batch stopped after an earlier request. This item was not sent.' })
+        return
+      }
+    }
     const { request, projectId } = job
     let sent = false
     try {
@@ -54,17 +72,14 @@ export async function processJob(storage: StudioStorage, id: string, provider: P
       const image = result.images[0]
       const assetId = crypto.randomUUID()
       const createdAt = new Date().toISOString()
-      await storage.saveAsset({ id: assetId, projectId, source: references.length ? 'edited' : 'generated', mediaType: image.blob.type,
-        byteLength: image.blob.size, dimensions: image.dimensions, createdAt }, image.blob)
-      const version = await appendVersion({
-        projectId, assetId, parentVersionId: request.parentVersionId,
-        provenance: {
-          providerId: provider.id, prompt: request.prompt, model: request.model,
-          settings: request.settings, referenceAssetIds: request.referenceAssetIds,
-          maskAssetId: request.maskAssetId, providerRequestId: result.providerRequestId,
-        },
-      })
-      await db.put('jobs', { ...job, status: 'succeeded', versionId: version.id })
+      await storage.saveAsset({
+        id: assetId, projectId, source: references.length ? 'edited' : 'generated', mediaType: image.blob.type,
+        byteLength: image.blob.size, dimensions: image.dimensions, createdAt,
+      }, image.blob, { job, version: {
+        id: crypto.randomUUID(), createdAt, projectId, assetId, parentVersionId: request.parentVersionId,
+        provenance: { providerId: provider.id, prompt: request.prompt, model: request.model, settings: request.settings,
+          referenceAssetIds: request.referenceAssetIds, maskAssetId: request.maskAssetId, providerRequestId: result.providerRequestId },
+      } })
     } catch (error) {
       const status = error instanceof ImageRequestError ? error.status : sent ? 'uncertain' : 'failed'
       await db.put('jobs', { ...job, status, message: error instanceof Error ? error.message : 'Could not complete generation.' })

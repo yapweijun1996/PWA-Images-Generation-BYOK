@@ -127,7 +127,7 @@ Build general image generation first, then add the specialized studios step by s
 
 ## Documentation
 
-All documents are in **Planning** status.
+See [the task ledger](docs/TASK.md) for current implementation and acceptance results.
 
 | Document | Purpose |
 |----------|---------|
