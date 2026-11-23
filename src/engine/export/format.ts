@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '@engine/schema'
 
 const id = z.string().min(1).max(512)
 const timestamp = z.iso.datetime()

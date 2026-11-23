@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '@engine/schema'
 
 const message = z.object({
   type: z.literal('message'),

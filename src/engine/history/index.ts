@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '@engine/schema'
 import { openStorage } from '@engine/storage'
 import type { Version } from '@engine/types'
 
