@@ -21,6 +21,8 @@ Chrome 158 opened all six studios and 36 stages, applied all 12 prompt templates
 
 The unchanged default Sunburst model, low quality and 1024 × 1024 size produced a decoded image from one authenticated OpenAI request. Offline reload recovered the image and exported the same PNG bytes without another request. [Default generation evidence](advanced-generation.md#public-default-model-generation).
 
+In fresh Chrome and WebKit profiles, an initial online visit saved a draft before its document had a worker controller. The first reload took place offline and recovered the build and draft under worker control. [First-visit offline evidence](offline-recovery.md#offline-reload-after-the-first-visit).
+
 ## November 24 share actions release
 
 [Pages run 45271666647](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45271666647) published `83a4e07f58398120571457fe798a67fca5c4b61f`, displayed as `v0.1.0 · 2026-11-23T21:38:36.419Z`. CI passed 42 tests, lint, type checking and the production build. The workflow and independent comparison matched all 13 public files to the retained artifact. The developer credential was absent from 142 tracked files and all 13 published files. The worker SHA-256 is `b3f6cb7a83d65b7ae2292f64f307cfe4de3629fe3308906bdff8171d2f9d4c61`. The rollback artifact expires at 21:38:06 UTC on February 21, 2027.

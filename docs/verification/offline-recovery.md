@@ -39,6 +39,12 @@ In the normal WebKit completion control, the observer retained the succeeded sta
 
 The public Chrome build also completed one actual low-quality `gpt-image-2.6-flare` request. The test forwarded the browser's image request to OpenAI with the credential confined to the local test process. OpenAI returned HTTP 200. The observer saw `Generating` and then `Completed`, decoded the 1024 × 1024 PNG, and downloaded it with SHA-256 `9503d441779219197145763221e6d461e4f5b1feb192264cd3c3185768a95841`. The forwarding setup exercises real output and the queue's completion behavior. Earlier browser-direct tests supply the CORS evidence.
 
+## Offline reload after the first visit
+
+On November 24 Singapore time, fresh Chrome 158.0.8127.37 and Playwright WebKit 27.2 profiles each opened public `8d5a29a` once. The tester entered a synthetic prompt and confirmed its IndexedDB commit. In both profiles the scoped service worker was ready while the first document still had no controller. The harness disabled the browser context network before any second navigation and confirmed an uncached same-origin request failed.
+
+The first reload in each profile opened the same release with a service-worker controller and restored the exact draft in an enabled composer. Neither profile attempted an OpenAI request. [Pages run 45281471335](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45281471335).
+
 ## Public release archive recovery
 
 On November 24 Singapore time, Chrome 158.0.8127.37 opened public build `v0.1.0 · 2026-11-23T20:12:01.911Z` from source `6d70d15e6d7299464b3580d551d789a45b6aebfc`. Using the app's temporary key setting, the browser sent one direct, unintercepted OpenAI POST for a low-quality 1024 × 1024 `gpt-image-2.6-flare` image. OpenAI returned HTTP 200. Chrome decoded the resulting version, retained the generation prompt in its provenance and downloaded the 1,095,505-byte original PNG. A later edit to the draft was included in the 1,096,959-byte project ZIP.
