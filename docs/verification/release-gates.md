@@ -22,7 +22,8 @@
 | Environment | Verified coverage | Remaining release checks |
 |---|---|---|
 | Chrome on macOS | E1–E4 within stated scope | See the public installed upgrade and offline observations below; repeat against later releases as needed |
-| Chrome and Edge on Windows; Edge on macOS | NOT_RUN | Installed and ordinary browser flows |
+| Chrome and Edge on Windows | PASS (managed installation on Windows Server 2025) | [Public installed and offline browser evidence](compatibility.md). Consumer installation UI and Windows client edition outstanding. |
+| Edge on macOS | NOT_RUN | Installed and ordinary browser flows |
 | Chrome on physical Android | NOT_RUN | Browser and installed app including rotation, keyboard and offline restart |
 | Safari on physical iPhone | NOT_RUN | Browser, Home Screen, VoiceOver, safe areas, keyboard and interrupted update |
 | iPadOS Safari | NOT_RUN | Responsive editing, keyboard and orientation |
