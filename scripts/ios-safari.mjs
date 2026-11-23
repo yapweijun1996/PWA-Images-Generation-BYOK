@@ -103,6 +103,35 @@ async function screenshot(name) {
   const data = await send('GET', '/screenshot')
   await writeFile(join(folder, name + '.png'), Buffer.from(data, 'base64'))
 }
+const installAction = () => find('visible == true AND label == "Add to Home Screen" AND type IN {"XCUIElementTypeCell","XCUIElementTypeButton"}')
+const installDialog = () => find('visible == true AND type == "XCUIElementTypeNavigationBar" AND name == "Add to Home Screen"')
+const installSwitch = () => find('visible == true AND type == "XCUIElementTypeSwitch" AND (name == "Open as Web App" OR label == "Open as Web App")')
+const moreActions = () => find('visible == true AND type == "XCUIElementTypeCell" AND name == "actionGroupCell" AND label IN {"More","View More"}')
+async function openInstallDialog(evidenceName) {
+  if (!await installAction() && !await moreActions()) {
+    let share = await find('type == "XCUIElementTypeButton" AND name == "ShareButton" AND visible == true')
+    if (!share) {
+      const menu = await named('More', 'Button')
+      assert(menu, 'Safari Share and compact toolbar More controls are missing')
+      await tap(menu)
+      share = await waitFor('Safari Share in the More menu', () => named('Share'))
+    }
+    await tap(share)
+  }
+  await screenshot(evidenceName)
+  await writeFile(join(folder, evidenceName + '.xml'), await send('GET', '/source'))
+  let expanded = false
+  const add = await waitFor('Add to Home Screen action', async () => {
+    const action = await installAction()
+    if (action) return action
+    if (!expanded) {
+      const more = await moreActions() || await named('More Actions') || await named('View More')
+      if (more) { await tap(more); expanded = true }
+    }
+  }, 90_000)
+  await tap(add)
+  await waitFor('Add to Home Screen confirmation', installDialog, 45_000)
+}
 async function workspace() {
   const labels = '{"Continue creating","Your image will appear here."}'
   await waitFor('studio workspace', () => find('name IN ' + labels + ' OR label IN ' + labels), 120_000)
@@ -172,33 +201,28 @@ try {
   await workspace()
   step('Opened the exact public artifact at its application subpath in mobile Safari')
 
-  let share = await find('type == "XCUIElementTypeButton" AND name == "ShareButton" AND visible == true')
-  if (!share) {
-    const menu = await named('More', 'Button')
-    assert(menu, 'Safari Share and compact toolbar More controls are missing')
-    await tap(menu)
-    share = await waitFor('Safari Share in the More menu', () => named('Share'))
+  await openInstallDialog('share-sheet')
+  step('Opened the native Add to Home Screen confirmation')
+  let webApp
+  try {
+    webApp = await waitFor('Open as Web App', installSwitch, 90_000)
+  } catch (error) {
+    if (error.message !== 'Timed out waiting for Open as Web App' || !await installDialog()) throw error
+    await screenshot('stalled-install')
+    await writeFile(join(folder, 'stalled-install.xml'), await send('GET', '/source'))
+    const cancel = await find('visible == true AND type == "XCUIElementTypeButton" AND name == "Cancel"')
+    if (!cancel) throw error
+    await tap(cancel)
+    await waitFor('installation confirmation to dismiss', async () => !await installDialog())
+    await openInstallDialog('share-sheet-retry')
+    step('Reopened the native confirmation after its app metadata stayed empty')
+    webApp = await waitFor('Open as Web App after reopening confirmation', installSwitch, 90_000)
   }
-  await tap(share)
-  await screenshot('share-sheet')
-  await writeFile(join(folder, 'share-sheet.xml'), await send('GET', '/source'))
-  let expanded = false
-  const add = await waitFor('Add to Home Screen', async () => {
-    const action = await named('Add to Home Screen')
-    if (action) return action
-    if (!expanded) {
-      const more = await find('type == "XCUIElementTypeCell" AND name == "actionGroupCell" AND label IN {"More","View More"}') ||
-        await named('More Actions') || await named('View More')
-      if (more) { await tap(more); expanded = true }
-    }
-  }, 90_000)
-  await tap(add)
-  const webApp = await waitFor('Open as Web App', () => named('Open as Web App', 'Switch'))
   if (await element(webApp, 'GET', '/attribute/value') !== '1') await tap(webApp)
   assert.equal(await element(webApp, 'GET', '/attribute/value'), '1')
   await screenshot('install')
-  await tap(await waitFor('Add confirmation', () => named('Add', 'Button')))
-  await waitFor('the installation dialog to close', async () => !await named('Open as Web App', 'Switch'), 45_000)
+  await tap(await waitFor('enabled Add confirmation', () => find('visible == true AND enabled == true AND type == "XCUIElementTypeButton" AND name == "Add"')))
+  await waitFor('the installation dialog to close', async () => !await installDialog(), 45_000)
   step('Submitted Add to Home Screen with Open as Web App enabled')
   const installedRequestStart = await launchFromHome('launcher')
   await workspace()
