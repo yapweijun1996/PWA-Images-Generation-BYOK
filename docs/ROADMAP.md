@@ -1,15 +1,15 @@
 # ROADMAP
 
-> Status: Implementation underway. Release acceptance is tracked in [TASK.md](TASK.md).
+> Status: All four phases have working features on GitHub Pages. Production acceptance remains open. Release acceptance is tracked in [TASK.md](TASK.md).
 
 Build general image generation first, then add the specialized studios step by step.
 
 | Phase | Name | Scope | Status |
 |-------|------|-------|--------|
-| 1 | Core | BYOK, model selection, prompt, reference images, generation, history, export | Implementation and verification |
-| 2 | Studios | Six creation modes, each with its own templates | Implementation and verification |
-| 3 | Advanced | Image editing, Character Lock, Style Lock, batch generation | Implementation and verification |
-| 4 | Production | Cost control, offline project management, backup and restore, responsive polish | Implementation and verification |
+| 1 | Core | BYOK, model selection, prompt, reference images, generation, history, export | Real provider, installed desktop Chrome, native UHD export and restored project verified |
+| 2 | Studios | Six creation modes, each with its own templates | Six studios, 36 selectable stages and 12 prompt templates exercised through the workspace |
+| 3 | Advanced | Image editing, Character Lock, Style Lock, batch generation | Masked edits and reference preservation verified; project lock and batch recovery have automated coverage |
+| 4 | Production | Cost control, offline project management, backup and restore, responsive polish | Pages deployment, artifact rollback and desktop offline use verified; device and field gates remain open |
 
 ## Phase 1 — Core
 

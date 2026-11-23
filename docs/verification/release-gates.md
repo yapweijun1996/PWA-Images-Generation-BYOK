@@ -70,19 +70,19 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | MOB-06 | Smart top bar scroll direction | NOT_RUN | Exercise scrolling in real long-view contexts; document exceptions if unnecessary. |
 | MOB-07 | Scroll-to-top accessibility | NOT_RUN | Test keyboard and screen-reader access to return-to-top in long content. |
 | MOB-08 | Light/dark system chrome | NOT_RUN | Inspect light/dark system chrome and transitions on physical devices. |
-| A11Y-01 | Keyboard-only navigation | NOT_RUN | Complete core flow by keyboard, including form errors. |
-| A11Y-02 | Visible focus indicator | NOT_RUN | Inspect visible focus throughout drawers, composer and review. |
+| A11Y-01 | Keyboard-only navigation | PASS (bounded desktop Chrome journeys) | Keyboard-only validation, project creation and generation failure exercised. [Evidence](keyboard-and-controls.md). |
+| A11Y-02 | Visible focus indicator | PARTIAL | 48 focus visits per theme, with visible focus and contrast measured in desktop Chrome. Review on remaining platforms. [Evidence](keyboard-and-controls.md). |
 | A11Y-03 | Screen-reader landmarks and names | NOT_RUN | Use real VoiceOver to inspect navigation and form names. |
-| A11Y-04 | Contrast requirements | NOT_RUN | Measure contrast of text, controls, focus and error states in both themes. |
-| A11Y-05 | Touch target spacing | NOT_RUN | Measure actual target spacing at each breakpoint. |
-| A11Y-06 | Reduced-motion preference | NOT_RUN | Enable reduced motion and inspect transitions and scrolling. |
+| A11Y-04 | Contrast requirements | PARTIAL | Focus contrast exceeded 6.5:1 in both themes on sampled controls. Full state coverage remains open. [Evidence](keyboard-and-controls.md). |
+| A11Y-05 | Touch target spacing | PARTIAL | Measured desktop Chrome viewports and corrected undersized disclosures, header buttons and key controls. Physical touch acceptance remains open. [Evidence](keyboard-and-controls.md). |
+| A11Y-06 | Reduced-motion preference | PASS (Chrome preference emulation) | Reduced-motion behavior verified in Chrome. [Evidence](keyboard-and-controls.md). |
 | A11Y-07 | Modal focus trapping and restoration | PASS (Chromium drawers) | Four drawer cases verified keyboard containment, Escape and focus restoration. See performance.md. |
 | A11Y-08 | Accessible update status announcements | NOT_RUN | Observe update and blocked-update announcements with a screen reader. |
 | QA-01 | LCP target | LAB PASS; FIELD INSUFFICIENT_DATA | Six fresh navigations measured LCP 1260–1368 ms in the bounded lab. See performance.md. |
 | QA-02 | INP target | LAB ONLY; FIELD INSUFFICIENT_DATA | Worst observed interaction event duration was 120 ms. The bounded sample does not establish field INP P75. |
 | QA-03 | CLS target | LAB PASS; FIELD INSUFFICIENT_DATA | Observed CLS 0.0003–0.0004 in six fresh navigations. See performance.md. |
 | QA-04 | Responsive layout without overflow | PARTIAL | No horizontal overflow on tested fresh shells at 390/768/1440. See performance.md. |
-| QA-05 | CSP and XSS regression | NOT_RUN | CSP present in production output; execute defensive rendering and CSP checks on release candidate. |
+| QA-05 | CSP and XSS regression | PASS (bounded desktop Chrome checks) | Project markup displayed as literal text. CSP blocked an off-origin request. [Evidence](keyboard-and-controls.md). |
 | QA-06 | No sensitive cache leakage | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
 | QA-07 | Dependency security review | PASS (2026-11-23 npm advisory snapshot) | Clean Node 24 install and full npm audit reported zero known vulnerabilities after overriding Workbox’s build-only glob dependency to 14.0.6. Lint, tests and production worker generation passed. |
 | QA-08 | Recoverable runtime errors | NOT_RUN | Observe recovery paths for invalid credentials, network errors, quota and damaged restores. |

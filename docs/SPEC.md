@@ -60,7 +60,7 @@ Priority labels: **MUST** = required for the phase, **SHOULD** = intended, **MAY
 - Content: residential, office, retail, restaurant, and showroom spaces.
 - Features: upload space photos, style transfer, furniture concepts, materials, lighting, renovation plans.
 
-Detailed per-studio requirements are not written yet.
+The approved studio journeys and acceptance examples appear in sections 6 and 7.
 
 ## 4. Non-Functional Requirements
 
@@ -84,7 +84,7 @@ Source: `pwa:product-standard` v1.1.0, profile `STATIC_OFFLINE`.
 ## 5. Acceptance Criteria
 
 The PWA standard defines 60 E2E test specifications in groups INS, SW, OFF, MOB, A11Y, QA, and REL. They are specifications only.
-This project will select the applicable ones when Phase 1 starts. A test counts as passed only with recorded evidence (build, environment, runner, artifact).
+The [release matrix](verification/release-gates.md) records applicability, observations and outstanding checks. A test counts as passed only with recorded evidence (build, environment, runner, artifact).
 
 The UI is accepted only after the taste gate: real screenshots at 390x844, 768x1024, and 1440x900 are viewed and scored, and no veto applies.
 
