@@ -72,8 +72,8 @@ export function InstallHelp({ locale }: { locale: 'en' | 'zh-CN' }) {
       </div>
       {state !== 'installed' && <ul>
         <li>{t(
-          'On iPhone or iPad, open Share in Safari. Use the page menu if Share is hidden. Expand the share actions if needed, then choose Add to Home Screen. Turn on Open as Web App if shown and tap Add.',
-          '在 iPhone 或 iPad 上，打开 Safari 的“分享”。如果找不到“分享”，请先打开页面菜单。如有需要，展开分享操作，再选择“添加到主屏幕”。如有“作为网页 App 打开”选项，请启用并轻点“添加”。',
+          'On iPhone or iPad, open Share in Safari. On iPhone, tap More (⋯) first if Share is hidden. Scroll or tap View More to find Add to Home Screen. Turn on Open as Web App if shown, then tap Add.',
+          '在 iPhone 或 iPad 上，打开 Safari 的“分享”。如果 iPhone 上没有显示“分享”，请先轻点“更多（⋯）”。向下滚动或轻点“查看更多”，找到“添加到主屏幕”。如有“作为网页 App 打开”选项，请启用并轻点“添加”。',
         )}</li>
         <li>{t('Chrome or Edge: look for Install in the address bar or browser menu. When installation is unavailable, bookmark this page and use it in your browser.', 'Chrome 或 Edge：在地址栏或浏览器菜单中查找安装选项。如果无法安装，可将此页加入书签并在浏览器中使用。')}</li>
       </ul>}
