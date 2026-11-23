@@ -15,7 +15,7 @@ permissions:
 jobs:
   safari:
     runs-on: macos-15-intel
-    timeout-minutes: 28
+    timeout-minutes: 35
     env:
       DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
     strategy:

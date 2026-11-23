@@ -126,7 +126,34 @@ function verifyDraft(id) {
   return waitFor('the saved draft', async () => (await element(id, 'GET', '/attribute/value')) === draft)
 }
 const home = () => execute('pressButton', {name:'home'})
-const icon = () => find('type == "XCUIElementTypeIcon" AND label IN ' + '{' + [manifest.name, manifest.short_name].map(value => JSON.stringify(value)).join(',') + '}')
+const springboard = 'com.apple.springboard'
+const labels = '{' + [manifest.name, manifest.short_name].map(value => JSON.stringify(value)).join(',') + '}'
+const icon = () => find('type == "XCUIElementTypeIcon" AND (label IN ' + labels + ' OR name IN ' + labels + ') AND visible == true')
+const preferApp = defaultActiveApplication => send('POST', '/appium/settings', {settings:{defaultActiveApplication}})
+async function launchFromHome(capture) {
+  await home()
+  // The first Home Screen page can expose the Dock as a separate active application.
+  await preferApp(springboard)
+  try {
+    if ((await execute('activeAppInfo')).bundleId !== springboard) await execute('activateApp', {bundleId:springboard})
+    for (const direction of [null, 'left', 'right']) {
+      if (direction) await execute('swipe', {direction})
+      const found = await waitFor('the studio icon on this page', icon, 10_000).catch(error => {
+        if (error.message === 'Timed out waiting for the studio icon on this page') return undefined
+        throw error
+      })
+      if (found) {
+        if (capture) await screenshot(capture)
+        const requestStart = requests.length
+        await tap(found)
+        return requestStart
+      }
+    }
+    throw new Error('The studio Home Screen icon was not found while paging through SpringBoard')
+  } finally {
+    await preferApp('auto')
+  }
+}
 
 try {
   await waitFor('Appium server', () => command('GET', '/status').then(value => value.ready).catch(() => false), 25_000)
@@ -170,14 +197,12 @@ try {
   assert.equal(await element(webApp, 'GET', '/attribute/value'), '1')
   await screenshot('install')
   await tap(await waitFor('Add confirmation', () => named('Add', 'Button')))
-  await home()
-  const firstIcon = await waitFor('the studio Home Screen icon', icon)
-  await screenshot('launcher')
-  const installedRequestStart = requests.length
-  await tap(firstIcon)
+  await waitFor('the installation dialog to close', async () => !await named('Open as Web App', 'Switch'), 45_000)
+  step('Submitted Add to Home Screen with Open as Web App enabled')
+  const installedRequestStart = await launchFromHome('launcher')
   await workspace()
   const installed = await execute('activeAppInfo')
-  assert(![safari, 'com.apple.springboard'].includes(installed.bundleId) && installed.bundleId, 'The icon opened Safari or stayed on Home Screen')
+  assert(![safari, springboard].includes(installed.bundleId) && installed.bundleId, 'The icon opened Safari or stayed on Home Screen')
   report.installedBundleId = installed.bundleId
   await tap(await waitFor('workspace Help', () => named('Help and installation', 'Button')))
   await waitFor('studio standalone status', () => named('Installed on this device.'))
@@ -202,8 +227,7 @@ try {
   await new Promise((resolve, reject) => site.close(error => error ? reject(error) : resolve()))
   await assert.rejects(fetch(url + 'uncached-verification'), TypeError)
   step('Stopped the artifact origin and confirmed the installed process was gone')
-  await home()
-  await tap(await waitFor('the installed icon after termination', icon))
+  await launchFromHome()
   await workspace()
   const offlineApp = await execute('activeAppInfo')
   assert.equal(offlineApp.bundleId, installed.bundleId)
