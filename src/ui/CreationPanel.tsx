@@ -39,7 +39,7 @@ export function useCreation(studio: StudioState, projectId: string, t: Text, loc
     try {
       await flushDraft()
       await studio.generate({ providerId: provider.id, model: modelId, prompt: [prompt.trim(), edit?.promptHint].filter(Boolean).join('\n'),
-        settings: { size, quality, count: 1 }, parentVersionId: draft?.parentVersionId ?? fallbackParentId, referenceAssetIds: references, maskAssetId: edit?.maskAssetId }, count)
+        settings: { size, quality, count: 1, background: edit?.background }, parentVersionId: draft?.parentVersionId ?? fallbackParentId, referenceAssetIds: references, maskAssetId: edit?.maskAssetId }, count)
     } catch (error) { studio.setError((error as Error).message) }
     finally { submitting.current = false; setBusy(false) }
   }

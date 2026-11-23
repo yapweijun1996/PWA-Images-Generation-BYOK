@@ -79,7 +79,7 @@ it('rejects damaged bytes, unknown entries and invalid references before restori
 
 it('restores an unfinished masked batch with references and lineage remapped into its own project', async () => {
   const draft = { prompt: 'Change the sky', modelId: 'model', size: 'auto', quality: 'high', stageId: 'panel',
-    referenceAssetIds: ['ref'], edit: { maskAssetId: 'output', promptHint: 'Keep the lighting', count: 3 }, parentVersionId: 'v2' }
+    referenceAssetIds: ['ref'], edit: { maskAssetId: 'output', promptHint: 'Keep the lighting', background: 'opaque' as const, count: 3 }, parentVersionId: 'v2' }
   await patchProject('source', { referenceLocks: {character:'ref',style:'output'}, trashedAssetIds:['output'] })
   await saveDraft('source', draft)
   const restored = await importProjectBackup(await exportProjectBackup('source'))
@@ -90,6 +90,7 @@ it('restores an unfinished masked batch with references and lineage remapped int
   expect(restored.trashedAssetIds).toEqual([copy.edit?.maskAssetId])
   expect(copy.stageId).toBe(draft.stageId)
   expect(copy.edit?.count).toBe(3)
+  expect(copy.edit?.background).toBe('opaque')
   expect(copy.parentVersionId).not.toBe(draft.parentVersionId)
   const { db } = await openStorage()
   try {

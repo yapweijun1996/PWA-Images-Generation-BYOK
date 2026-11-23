@@ -23,7 +23,9 @@ function prepare(request: GenerationRequest) {
   if (mask && (mask.blob.type !== 'image/png' || !mask.blob.size || mask.blob.size >= 4_000_000)) {
     throw new ImageRequestError('Use a transparent PNG mask under 4 MB.', 'failed')
   }
-  const fields = { model, prompt, quality: settings.quality ?? 'medium', size: settings.size }
+  const fields = { model, prompt, quality: settings.quality ?? 'medium', size: settings.size,
+    ...(settings.background && { background: settings.background }),
+  }
   if (!references.length) return { path: 'generations', body: JSON.stringify(fields) }
   const body = new FormData()
   for (const [name, value] of Object.entries(fields)) body.append(name, value)

@@ -4,7 +4,7 @@ const id = z.string().min(1).max(512)
 const timestamp = z.iso.datetime()
 const draft = z.object({
   prompt: z.string(), referenceAssetIds: z.array(id),
-  edit: z.object({ maskAssetId: id.optional(), promptHint: z.string().optional(), count: z.number().int().min(1).max(4) }).optional(),
+  edit: z.object({ maskAssetId: id.optional(), promptHint: z.string().optional(), background: z.literal('opaque').optional(), count: z.number().int().min(1).max(4) }).optional(),
   modelId: z.string(), size: id, quality: id, parentVersionId: id.optional(), stageId: z.string(),
 })
 const project = z.object({ defaultName: z.boolean().optional(), referenceLocks: z.object({character:id.optional(),style:id.optional()}).optional(), trashedAssetIds: z.array(id).optional(), draft: draft.optional(), board: z.object({ panels: z.array(z.object({assetId: id, caption: z.string().max(100)})).max(12), reviewed: z.boolean() }).optional(), reviewedAssetIds: z.array(id).optional(), id, name: z.string(), studioId: id, createdAt: timestamp, updatedAt: timestamp })
@@ -18,7 +18,7 @@ const version = z.object({
   id, projectId: id, assetId: id, parentVersionId: id.optional(), createdAt: timestamp,
   provenance: z.object({
     providerId: id, model: id, prompt: z.string(),
-    settings: z.object({ size: id, quality: id.optional(), count: z.number().int().positive() }),
+    settings: z.object({ size: id, quality: id.optional(), background: z.literal('opaque').optional(), count: z.number().int().positive() }),
     referenceAssetIds: z.array(id), maskAssetId: id.optional(), providerRequestId: id.optional(),
   }),
 })

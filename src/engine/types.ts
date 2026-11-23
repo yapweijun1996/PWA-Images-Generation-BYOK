@@ -34,6 +34,7 @@ export interface ProviderCapabilities {
 export interface GenerationSettings {
   size: string
   quality?: string
+  background?: 'opaque'
   count: number
 }
 

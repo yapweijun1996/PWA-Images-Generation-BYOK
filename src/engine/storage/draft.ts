@@ -1,10 +1,10 @@
-import type { Project } from '@engine/types'
+import type { GenerationSettings, Project } from '@engine/types'
 import { openStorage } from './index'
 
 export interface ProjectDraft {
   prompt: string
   referenceAssetIds: string[]
-  edit?: { maskAssetId?: string; promptHint?: string; count: number }
+  edit?: { maskAssetId?: string; promptHint?: string; background?: GenerationSettings['background']; count: number }
   modelId: string
   size: string
   quality: string

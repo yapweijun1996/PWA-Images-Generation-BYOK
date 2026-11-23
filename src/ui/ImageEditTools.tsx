@@ -110,10 +110,12 @@ function Editor({ projectId, selectedAssetId, assetCount, locale, onPrepared }: 
     try {
       let primary = source
       let maskAssetId
+      let background: PreparedEdit['background']
       if (mode !== 'reference') {
         const saved = await saveEdit(projectId, source, mode === 'inpaint' ? strokes : { edge, fraction: margin / 100 })
         primary = saved.referenceId
         maskAssetId = saved.maskAssetId
+        background = saved.background
       }
       const referenceAssetIds = [...new Set([primary, character, style].filter(Boolean))]
       const hints = []
@@ -121,7 +123,7 @@ function Editor({ projectId, selectedAssetId, assetCount, locale, onPrepared }: 
       if (style) hints.push(t('Match the visual style in reference ', '保持画风与参考图一致，参考图编号 ') + (referenceAssetIds.indexOf(style) + 1) + '.')
       if (mode === 'outpaint') hints.push(t('Extend the scene into the transparent border.', '将画面自然延伸至透明边缘。'))
       if (live.current) {
-        onPrepared({ referenceAssetIds, maskAssetId, promptHint: hints.join(' ') || undefined, count })
+        onPrepared({ referenceAssetIds, maskAssetId, promptHint: hints.join(' ') || undefined, background, count })
         setStatus('ready')
       }
     } catch { if (live.current) setStatus('error') }

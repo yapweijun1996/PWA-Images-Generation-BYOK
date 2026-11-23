@@ -1,11 +1,12 @@
 import { canvas, png } from './canvas'
 import { openStorage } from '@engine/storage'
-import type { Asset } from '@engine/types'
+import type { Asset, GenerationSettings } from '@engine/types'
 
 export interface PreparedEdit {
   referenceAssetIds: string[]
   maskAssetId?: string
   promptHint?: string
+  background?: GenerationSettings['background']
   count: number
 }
 
@@ -23,6 +24,18 @@ export function frame(width: number, height: number, edge: Expansion, fraction: 
     height: height + y + (edge === 'bottom' || edge === 'all' ? vertical : 0) }
 }
 
+function sourceIsOpaque(context: CanvasRenderingContext2D, x: number, y: number, width: number, height: number) {
+  // Read the source rectangle in strips to keep the temporary pixel buffer bounded.
+  const stripHeight = 64
+  for (let row = 0; row < height; row += stripHeight) {
+    const pixels = context.getImageData(x, y + row, width, Math.min(stripHeight, height - row)).data
+    for (let alpha = 3; alpha < pixels.length; alpha += 4) {
+      if (pixels[alpha] !== 255) return false
+    }
+  }
+  return true
+}
+
 export async function renderEdit(source: ImageBitmap, region: Stroke[] | { edge: Expansion; fraction: number }) {
   if (!Array.isArray(region)) {
     const expanded = frame(source.width, source.height, region.edge, region.fraction)
@@ -30,7 +43,8 @@ export async function renderEdit(source: ImageBitmap, region: Stroke[] | { edge:
     image.drawImage(source, expanded.x, expanded.y)
     const mask = canvas(expanded.width, expanded.height)
     mask.fillRect(expanded.x, expanded.y, source.width, source.height)
-    return { width: expanded.width, height: expanded.height, image: await png(image), mask: await png(mask) }
+    const background = sourceIsOpaque(image, expanded.x, expanded.y, source.width, source.height) ? 'opaque' as const : undefined
+    return { width: expanded.width, height: expanded.height, image: await png(image), mask: await png(mask), background }
   }
   if (!region.some(stroke => stroke.points.length)) throw new Error('Select an area to edit.')
   const { width, height } = source
@@ -52,7 +66,7 @@ export async function renderEdit(source: ImageBitmap, region: Stroke[] | { edge:
     mask.lineWidth = pixels * 2
     mask.stroke()
   }
-  return { width, height, image: undefined, mask: await png(mask) }
+  return { width, height, image: undefined, mask: await png(mask), background: undefined }
 }
 
 export async function saveEdit(projectId: string, sourceId: string, region: Parameters<typeof renderEdit>[1]) {
@@ -75,6 +89,6 @@ export async function saveEdit(projectId: string, sourceId: string, region: Para
       return asset.id
     }
     const [maskAssetId, referenceId] = await Promise.all([save(result.mask, maskBytes), result.image && imageBytes ? save(result.image, imageBytes) : sourceId, tx.done])
-    return { maskAssetId, referenceId }
+    return { maskAssetId, referenceId, background: result.background }
   } finally { store.db.close() }
 }
