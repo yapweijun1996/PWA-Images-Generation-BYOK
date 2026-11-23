@@ -6,10 +6,10 @@ Build general image generation first, then add the specialized studios step by s
 
 | Phase | Name | Scope | Status |
 |-------|------|-------|--------|
-| 1 | Core | BYOK, model selection, prompt, reference images, generation, history, export | Planning |
-| 2 | Studios | Six creation modes, each with its own templates | Planning |
-| 3 | Advanced | Image editing, Character Lock, Style Lock, batch generation | Planning |
-| 4 | Production | Cost control, offline project management, backup and restore, responsive polish | Planning |
+| 1 | Core | BYOK, model selection, prompt, reference images, generation, history, export | Implementation and verification |
+| 2 | Studios | Six creation modes, each with its own templates | Implementation and verification |
+| 3 | Advanced | Image editing, Character Lock, Style Lock, batch generation | Implementation and verification |
+| 4 | Production | Cost control, offline project management, backup and restore, responsive polish | Implementation and verification |
 
 ## Phase 1 — Core
 

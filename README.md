@@ -2,7 +2,15 @@
 
 **AI Image Generation Studio — Browser-first · Local-first · BYOK**
 
-> Status: **Planning.** This repository does not contain application code yet. This document describes the intended direction only.
+The workspace supports browser-direct OpenAI generation, reference-guided edits, local version history, and project backups. See the [task ledger](docs/TASK.md) for verified flows and outstanding release checks.
+
+## Run locally
+
+Use Node 24. Run `npm ci` and `npm run dev`, then open the repository subpath printed by Vite. For install and offline testing use `npm run build` followed by `npm run preview`. Run `npm test` and `npm run lint` before publishing.
+
+Enter your own OpenAI key in the app's key settings. Clear **Remember on this device** to keep it only until the page closes or reloads. The app sends the key directly to OpenAI for requested generations and enhancements. A developer's local `.env` is excluded from Git and the client build.
+
+Create a project, choose a studio and model, enter a prompt, and generate. Use **Projects** to back up or restore a ZIP. Keep backups outside browser storage if you need to recover your work after clearing site data.
 
 ## Vision
 
@@ -14,7 +22,7 @@ Users bring their own API key, choose a creation type, and use AI to generate, e
 
 - **Browser-first** — runs as a Progressive Web App (PWA) in the browser; no backend required. Deployed to GitHub Pages through GitHub Actions.
 - **Local-first** — user data and generated images are stored on the user's own device.
-- **BYOK (Bring Your Own Key)** — users supply their own AI provider API key. The key stays in the user's browser.
+- **BYOK (Bring Your Own Key)** — users supply their own AI provider API key. Only the chosen provider receives the key for authenticated requests.
 
 ## Six Creative Studios
 
