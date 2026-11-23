@@ -7,7 +7,48 @@
 
 One professional, consistent, modular interface for all six studios. The studios share navigation, Canvas, Prompt Composer, Model Settings, and Asset Library.
 
-## 2. Design Direction: Canvas-first Creative Workspace
+## 1a. Visual Anchor V1 (desktop)
+
+![Visual Anchor V1, desktop Creative Workspace](ui/anchors/anchor-v1-desktop.webp)
+
+File: `docs/ui/anchors/anchor-v1-desktop.webp` (1535x1023). Owner-selected on 2026-11-23 as the **anchor project**: the visual target that the real UI is built toward.
+
+**What the anchor is, and is not**
+- It is a generated mockup. It shows direction for layout, density, and mood. It is not a working app and not evidence that anything is implemented.
+- Following the taste gate, the real UI is built in HTML and judged from real screenshots against this anchor (390x844, 768x1024, 1440x900). The mockup itself never counts as proof.
+- Text and numbers in the image (model name, cost, resolution, prices, "Saved 2 min ago") are placeholder content. They are not verified facts about any provider.
+
+**Structure shown in the anchor**
+
+| Region | Content |
+|--------|---------|
+| Global header | Logo and name "PWA Images Studio", BYOK badge, project breadcrumb ("My Projects / Future City Concept"), Help, Settings, theme toggle, avatar |
+| Studio tab strip | Six studio cards with a preview thumbnail each, the active one highlighted, and a collapse control |
+| Left navigation | Six studios, Library (Projects, Assets, History), BYOK Settings with key status, Provider and Model selectors, Manage Keys, short tagline |
+| Canvas toolbar | Project name with rename, save status, Undo, Redo, Compare, Fit, zoom percentage, overflow menu |
+| Canvas | Large image preview, the dominant element |
+| Version strip | Thumbnails of generated versions, add button, Download, Duplicate, Delete |
+| Composer | Mode tabs (Text Prompt, Image to Image, Inpainting, Outpainting), prompt box with character count, Prompt Templates, Enhance Prompt, Add Reference, Generate button |
+| Right inspector | Model, Resolution presets and custom size, Quality, Complexity, Number of images (1, 2, 4, 8), Reference Images, Style, Advanced Settings, Negative Prompt, Estimated Cost with pricing link |
+| Footer | Product line and "Local-first · Browser-first · BYOK" |
+
+Style: dark theme, neutral dark surfaces, a restrained blue-indigo accent for the primary action and selected states, rounded cards, and one dominant image.
+
+**Where the anchor adds to or differs from the text spec (to resolve)**
+
+| Item | Note |
+|------|------|
+| Studio tab strip with thumbnails | New. The text spec only lists studios in the left navigation. Needs a decision on whether both exist. |
+| Provider and Model in the left panel and Model in the right inspector | Duplicated. One place should own it. |
+| Avatar in the header | Implies an account. The project has no accounts, so this must become something else (for example a settings or profile-free menu) or be removed. |
+| "Complexity" setting | Not in the spec. Needs a definition or removal. |
+| Custom size with a 4K badge | 4K is not guaranteed (see SPEC out of scope). The badge must depend on provider capability. |
+| Model name `gpt-image-2.6-sunburst` | Placeholder. The real model list must come from the provider's capability discovery. |
+| Estimated Cost | Spec F-09 puts the cost estimator in Phase 4, while the MVP says "show estimated cost where pricing is known". Needs a decision. |
+| Inpainting and Outpainting tabs | Phase 3 features (F-10, F-11). In earlier phases they must appear disabled with an explanation, or be hidden. |
+| Studio preview thumbnails | Use real, owner-approved imagery in the real UI. Do not copy the mockup's pictures. |
+
+
 
 One workspace, not six unrelated pages.
 
