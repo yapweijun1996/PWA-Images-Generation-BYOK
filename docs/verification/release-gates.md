@@ -17,6 +17,8 @@ Chrome and WebKit replayed the exact published artifact with the preceding relea
 
 Windows Server Chrome and Edge relaunched this build in managed standalone windows with the saved draft offline. Stable Firefox 160 matched all 13 public files and recovered the exact descriptor and draft after the loopback origin stopped. Hosted Android 15 relaunched the saved draft in a fresh offline Chrome process through its launcher shortcut. [Windows installed run](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45281737552), [Firefox run](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45281736890), [Android run](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45281737207).
 
+Chrome 158 opened all six studios and 36 stages, applied all 12 prompt templates and verified the six studio review, comparison or export journeys with synthetic images. Independently decoded board exports preserved their visible panel order and caption ink. [Studio journey evidence](advanced-generation.md#six-studio-journeys-on-the-current-public-build).
+
 ## November 24 share actions release
 
 [Pages run 45271666647](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45271666647) published `83a4e07f58398120571457fe798a67fca5c4b61f`, displayed as `v0.1.0 · 2026-11-23T21:38:36.419Z`. CI passed 42 tests, lint, type checking and the production build. The workflow and independent comparison matched all 13 public files to the retained artifact. The developer credential was absent from 142 tracked files and all 13 published files. The worker SHA-256 is `b3f6cb7a83d65b7ae2292f64f307cfe4de3629fe3308906bdff8171d2f9d4c61`. The rollback artifact expires at 21:38:06 UTC on February 21, 2027.

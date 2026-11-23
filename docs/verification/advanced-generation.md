@@ -36,6 +36,21 @@ The temporary credential was absent from inspected local and session storage. Af
 
 On 2026-11-23, an isolated macOS Chrome session loaded the public GitHub Pages release built from `318ff9d`. The tester entered a temporary credential, selected 3840 × 2160 at low quality and explicitly submitted one generation. The provider returned HTTP 200. Chrome decoded the image at 3840 × 2160, reopened it after an offline reload and downloaded an 8,609,201-byte PNG whose IHDR width and height matched the selected dimensions.
 
+## Six studio journeys on the current public build
+
+On November 24 Singapore time, an isolated Chrome 158 profile opened public `8d5a29a`, displayed as `v0.1.0 · 2026-11-23T22:38:00.624Z`. Through the workspace, the tester selected all 36 stages across six studios and applied all 12 prompt templates. The Education studio, annotation stage, and edited prompt survived a project reopen and page reload. [Studio acceptance](../SPEC.md#7-mvp-scope-phase-1), [Pages release](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45281471335).
+
+| Studio | Verified with synthetic images |
+|---|---|
+| Manga & Comics | Two panels, edited dialogue, explicit board review and PNG export. Both panel images and caption ink appeared in the exported 1280 × 560 file. |
+| Education | Editing the annotation invalidated the board's review and disabled export. The revised annotation and renewed review survived reload. The single-panel export contained the illustration and caption ink. |
+| Movie & Cinematic | Move earlier reordered the second shot and caption. Independently decoded pixels in the 1280 × 560 export matched the new left-to-right order. |
+| Commercial Artwork | The decoded product reference and result appeared together with the product and packaging review guidance. Explicit acceptance enabled download. |
+| UI/UX Design | The Mobile companion template prepared an edit of the desktop-reference fixture. The workspace displayed both decoded images with the desktop and mobile guidance before the reviewed download. |
+| Interior Design | The Room renovation template prepared an edit of the room-reference fixture. The decoded before and after images remained available for comparison after review. |
+
+The browser fulfilled three edit POSTs locally and sent no traffic to OpenAI. The three downloaded result files matched the synthetic provider PNG, SHA-256 `7a363cc56b08a510705f06419e72a6b55771a24271f3b7d7ab735b9dbf56690d`. Generated subject fidelity and factual accuracy require separate evidence.
+
 ## Multi-line board captions
 
 Chrome on macOS imported a local image through the composer, added it to a board with a six-line caption, approved the board and exported a 640 × 618 PNG. Reopening the workspace retained all six caption lines. Board rows expand for the tallest caption in each row, while short captions retain the standard 560-pixel row.
