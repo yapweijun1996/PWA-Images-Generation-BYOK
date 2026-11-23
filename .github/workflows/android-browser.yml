@@ -1,5 +1,11 @@
 name: Verify Android Chrome on an emulator
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      verify_install:
+        description: Also install from Chrome and open the Android launcher entry offline
+        type: boolean
+        default: false
 permissions:
   contents: read
 
@@ -28,6 +34,7 @@ jobs:
         uses: ReactiveCircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
         env:
           PLAYWRIGHT_MODULE: ${{ runner.temp }}/android-driver/node_modules/playwright-core/index.mjs
+          VERIFY_INSTALL: ${{ inputs.verify_install }}
         with:
           api-level: 35
           arch: x86_64
