@@ -1,19 +1,5 @@
-import type { GenerationRequest, ModelCapabilities, ProviderAdapter } from '@engine/types'
-
-const sizes = [
-  { id: '1024x1024', label: '1024 × 1024', dimensions: { width: 1024, height: 1024 } },
-  { id: '1536x1024', label: '1536 × 1024', dimensions: { width: 1536, height: 1024 } },
-  { id: '1024x1536', label: '1024 × 1536', dimensions: { width: 1024, height: 1536 } },
-]
-const models: ModelCapabilities[] = ['sunburst', 'flare'].map(variant => ({
-  id: 'gpt-image-2.6-' + variant,
-  label: 'GPT Image 2.6 ' + (variant === 'sunburst' ? 'Sunburst' : 'Flare'),
-  sizes,
-  qualityLevels: ['low', 'medium', 'high'],
-  maxImagesPerRequest: 1,
-  maxReferenceImages: 4,
-  supportsMask: true,
-}))
+import type { GenerationRequest, ProviderAdapter } from '@engine/types'
+import { models } from './catalog'
 
 export class ImageRequestError extends Error {
   constructor(message: string, readonly status: 'failed' | 'uncertain') {
@@ -27,8 +13,15 @@ function prepare(request: GenerationRequest) {
   if (!capability || !capability.sizes.some(size => size.id === settings.size)
     || !capability.qualityLevels.includes(settings.quality ?? 'medium')
     || settings.count !== 1 || references.length > capability.maxReferenceImages
-    || (mask && !references.length) || !prompt.trim()) {
+    || (mask && (!capability.supportsMask || !references.length)) || !prompt.trim() || prompt.length > 32_000) {
     throw new ImageRequestError('Check the prompt, references and model settings.', 'failed')
+  }
+  const mediaTypes = ['image/png', 'image/webp', 'image/jpeg']
+  if (references.some(({ blob }) => !mediaTypes.includes(blob.type) || !blob.size || blob.size >= 50_000_000)) {
+    throw new ImageRequestError('Use PNG, JPEG or WebP references under 50 MB each.', 'failed')
+  }
+  if (mask && (mask.blob.type !== 'image/png' || !mask.blob.size || mask.blob.size >= 4_000_000)) {
+    throw new ImageRequestError('Use a transparent PNG mask under 4 MB.', 'failed')
   }
   const fields = { model, prompt, quality: settings.quality ?? 'medium', size: settings.size }
   if (!references.length) return { path: 'generations', body: JSON.stringify(fields) }
