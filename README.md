@@ -4,6 +4,8 @@
 
 The workspace supports browser-direct OpenAI generation, reference-guided edits, local version history, and project backups. See the [task ledger](docs/TASK.md) for verified flows and outstanding release checks.
 
+[Open PWA Images Studio](https://yapweijun1996.github.io/PWA-Images-Generation-BYOK/) · [Release verification](docs/verification/release-gates.md)
+
 ## Run locally
 
 Use Node 24. Run `npm ci` and `npm run dev`, then open the repository subpath printed by Vite. For install and offline testing use `npm run build` followed by `npm run preview`. Run `npm test` and `npm run lint` before publishing.

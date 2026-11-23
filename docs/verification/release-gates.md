@@ -7,7 +7,7 @@
 | G1 Safety | HOLD | Build-integrity rejection, cross-tab update safety, recovery and security checks remain open. |
 | G2 Compatibility | HOLD | Physical iOS Home Screen, VoiceOver, Android and remaining supported browsers need execution. |
 | G3 Performance | HOLD | Lab baselines and launch policy for absent field data are outstanding. Field P75 is INSUFFICIENT_DATA. Targets are LCP ≤2.5 s, INP ≤200 ms and CLS ≤0.1. |
-| G4 Evidence | HOLD | No complete release artifact, per-case build SHA/digest, live rollback drill or complete target matrix. |
+| G4 Evidence | HOLD | A release artifact is published. Remaining gaps include per-case build SHA/digest, live rollback drill or complete target matrix. |
 
 ## Evidence used
 
@@ -86,7 +86,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | QA-06 | No sensitive cache leakage | NOT_RUN | Fixture credential absent from inspected E3 caches and E4 backup; full release cache audit pending. |
 | QA-07 | Dependency security review | NOT_RUN | Review locked production and build dependencies and document dispositions. |
 | QA-08 | Recoverable runtime errors | NOT_RUN | Observe recovery paths for invalid credentials, network errors, quota and damaged restores. |
-| REL-01 | Clean production deployment | NOT_RUN | Run owner-authorized publication and verify the live build and HTTPS entry point. |
+| REL-01 | Clean production deployment | PASS (first live release) | Workflow 45192152435, live HTTPS entry, nine matching artifact files. |
 | REL-02 | Old-to-new build upgrade | NOT_RUN | Preview update observed (E2); repeat on installed Pages client. |
 | REL-03 | Interrupted update recovery | NOT_RUN | Interrupt update discovery, download and activation; verify recovery. |
 | REL-04 | Rollback artifact available | NOT_RUN | Workflow requests retained immutable artifact; actual release artifact and rollback unverified. |
@@ -94,3 +94,11 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | REL-06 | Cross-browser test matrix | NOT_RUN | Complete declared device/browser matrix below. |
 | REL-07 | Monitoring and alert validation | NOT_RUN | Verify operator visibility of Pages failure and privacy-safe recovery instructions. |
 | REL-08 | No unauthorized automatic resubmission | NOT_RUN | One intentional image edit observed (E4); check uncertain/reloaded requests for implicit resubmission. |
+
+## First live release
+
+GitHub Pages published commit `f4142674e1ebfa74c4722bbd0769824d3bf7d488` on 2026-11-23. Both build and deploy jobs succeeded. All nine published files matched the retained `site-files` artifact byte for byte, including the index served at the app entry point. [Workflow run 45192152435](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45192152435).
+
+On macOS Chrome, the live HTTPS workspace generated one low-quality image via OpenAI (HTTP 200). Chrome decoded it at 1024 × 1024, reloaded the workspace, went offline, reloaded again, and downloaded the reopened image as PNG. The test used a temporary BYOK credential in an isolated browser context. No credential or image payload is included in this report. This verifies REL-01 and browser-tab offline access for this release. See [T-101](t101.md) for installed-window verification on the local production preview.
+
+To compare a subsequent release, download its `site-files` artifact and run `node scripts/verify-pages.mjs /path/to/site-files` from the repository.
