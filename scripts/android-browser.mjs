@@ -1,17 +1,20 @@
 /* global URL, document, navigator, innerWidth, innerHeight, visualViewport, matchMedia, console */
 import assert from 'node:assert/strict'
+import { execFileSync } from 'node:child_process'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { setTimeout as delay } from 'node:timers/promises'
 import process from 'node:process'
 
-const { _android } = await import(process.env.PLAYWRIGHT_MODULE)
+const { _android, chromium } = await import(process.env.PLAYWRIGHT_MODULE)
 const site = 'https://yapweijun1996.github.io/PWA-Images-Generation-BYOK/'
 const folder = 'android-evidence'
 await mkdir(folder, { recursive: true })
 const evidence = { time: new Date().toISOString(), site, steps: [] }
 const [device, ...others] = await _android.devices()
-assert(device && device.serial().startsWith('emulator-') && !others.length, 'Expected exactly one isolated Android emulator')
+assert(device && /^emulator-\d+$/.test(device.serial()) && !others.length, 'Expected exactly one isolated Android emulator')
 const shell = async command => (await device.shell(command)).toString().trim()
+const adb = (...args) => execFileSync('adb', ['-s', device.serial(), ...args], { encoding: 'utf8' }).trim()
+const chromePackage = 'com.android.chrome'
 const draft = 'Android offline workspace check'
 const verifyInstall = process.env.VERIFY_INSTALL === 'true'
 const readNativeWindow = () => shell('uiautomator dump /data/local/tmp/studio-window.xml >/dev/null && cat /data/local/tmp/studio-window.xml')
@@ -79,14 +82,35 @@ async function dismissNotificationOffer() {
   evidence.steps.push('Declined the Chrome notification offer on the disposable profile')
   return true
 }
-let context
+
+async function waitForChrome(endpoint) {
+  for (let attempt = 0; attempt < 30; attempt++) {
+    const response = await globalThis.fetch(endpoint + '/json/version', { signal: globalThis.AbortSignal.timeout(1000) }).catch(() => null)
+    if (response?.ok) return
+    await delay(500)
+  }
+  throw new Error('Launcher did not start a debuggable Chrome process')
+}
+
+async function findStandalone(context) {
+  for (let attempt = 0; attempt < 30; attempt++) {
+    for (const page of context.pages()) {
+      if (!page.url().startsWith(site)) continue
+      if (await page.evaluate(() => matchMedia('(display-mode: standalone)').matches)) return page
+    }
+    await delay(500)
+  }
+  throw new Error('Chrome did not expose a standalone page for the launcher entry')
+}
+
+let context, restartedBrowser, debugPort
 try {
   evidence.android = await shell('getprop ro.build.version.release')
   evidence.model = device.model()
-  const details = await shell('dumpsys package com.android.chrome')
+  const details = await shell('dumpsys package ' + chromePackage)
   evidence.chrome = details.match(/versionName=(\S+)/)?.[1]
   assert(evidence.chrome, 'Chrome package is unavailable')
-  await shell('am set-debug-app --persistent com.android.chrome')
+  await shell('am set-debug-app --persistent ' + chromePackage)
   await shell('settings put secure show_ime_with_hard_keyboard 1')
   await shell('settings put system accelerometer_rotation 0')
   await shell('settings put system user_rotation 0')
@@ -129,6 +153,8 @@ try {
   const installation = verifyInstall ? await installFromChrome(page) : undefined
   if (installation) evidence.installation = installation.package ? 'WebAPK' : 'launcher shortcut'
   await shell('cmd connectivity airplane-mode enable')
+  await shell('svc wifi disable')
+  assert.equal(await shell('settings get global airplane_mode_on'), '1')
   await context.setOffline(true)
   await page.waitForFunction(() => !navigator.onLine)
   await assert.rejects(page.evaluate(url => globalThis.fetch(url), new URL('/android-offline-probe-' + Date.now(), site).href))
@@ -142,20 +168,34 @@ try {
   await device.screenshot({ path: folder + '/offline.png' })
   evidence.steps.push('A fresh Chrome tab launched offline and recovered the same build and draft')
   if (installation) {
-    const [installed] = await Promise.all([
-      context.waitForEvent('page', { timeout: 30_000 }),
-      launchInstalled(installation),
-    ])
+    const oldPid = await shell('pidof ' + chromePackage)
+    assert.match(oldPid, /^\d+$/)
+    await shell('am force-stop ' + chromePackage)
+    assert.equal(await shell('pidof ' + chromePackage), '', 'Chrome stayed running after force-stop')
+    evidence.steps.push('Chrome process was absent before the offline launcher action')
+    debugPort = adb('forward', 'tcp:0', 'localabstract:chrome_devtools_remote')
+    assert.match(debugPort, /^\d+$/)
+    const endpoint = 'http://127.0.0.1:' + debugPort
+    await launchInstalled(installation)
+    await waitForChrome(endpoint)
+    const newPid = await shell('pidof ' + chromePackage)
+    assert.match(newPid, /^\d+$/)
+    assert.notEqual(newPid, oldPid)
+    evidence.chromeProcess = { before: oldPid, after: newPid }
+    restartedBrowser = await chromium.connectOverCDP(endpoint, { timeout: 15_000 })
+    const [restartedContext] = restartedBrowser.contexts()
+    assert(restartedContext, 'The restarted browser did not expose its existing context')
+    const installed = await findStandalone(restartedContext)
     await installed.waitForFunction(build => document.querySelector('footer')?.textContent.includes(build), expectedBuild)
-    evidence.launcherDisplay = await installed.evaluate(() => matchMedia('(display-mode: standalone)').matches ? 'standalone' : 'browser')
+    evidence.launcherDisplay = 'standalone'
+    await installed.waitForFunction(() => !navigator.onLine)
     assert(await installed.evaluate(() => Boolean(navigator.serviceWorker.controller)))
     await assert.rejects(installed.evaluate(url => globalThis.fetch(url), new URL('/android-installed-probe-' + Date.now(), site).href))
     await installed.getByRole('button', { name: 'Continue creating' }).click()
     await installed.locator('.studio-composer-toggle').click()
     await installed.waitForFunction(value => document.querySelector('.creation-prompt textarea')?.value === value, draft)
     await device.screenshot({ path: folder + '/installed-offline.png' })
-    evidence.steps.push('Android launcher opened the workspace and recovered the draft offline')
-    assert.equal(evidence.launcherDisplay, 'standalone', 'Android launcher opened the site in browser mode')
+    evidence.steps.push('Android launcher started a new Chrome process and recovered the workspace offline in standalone mode')
   }
   evidence.result = 'PASS'
 } catch (error) {
@@ -166,7 +206,9 @@ try {
 } finally {
   await writeFile(folder + '/result.json', JSON.stringify(evidence, null, 2))
   console.log(JSON.stringify(evidence, null, 2))
+  await restartedBrowser?.close().catch(() => {})
   await shell('cmd connectivity airplane-mode disable').catch(() => {})
   await context?.close().catch(() => {})
   await device.close()
+  if (debugPort && /^\d+$/.test(debugPort)) adb('forward', '--remove', 'tcp:' + debugPort)
 }

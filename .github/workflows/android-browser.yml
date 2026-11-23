@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       verify_install:
-        description: Also install from Chrome and open the Android launcher entry offline
+        description: Also install from Chrome and cold-start from the Android launcher offline
         type: boolean
         default: false
 permissions:
