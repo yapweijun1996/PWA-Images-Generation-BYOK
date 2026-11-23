@@ -57,6 +57,7 @@ export function PwaControls() {
     void container.register(base + 'sw.js', { scope: base, updateViaCache: 'none' }).then(reg => {
       if (!active) return
       registration = reg
+      if (location.pathname.startsWith(base) && ![base, base + 'index.html'].includes(location.pathname)) checkForUpdate()
       reg.addEventListener('updatefound', watch)
       watch()
     }).catch(() => {})
