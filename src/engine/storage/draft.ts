@@ -47,7 +47,7 @@ export function patchProject(projectId: string, patch: ProjectPatch | ((current:
     const delta = typeof patch === 'function' ? patch(current) : patch
     // Only copy mutable project metadata. Draft and identity stay under their own writers.
     const next = { ...current }
-    if (delta.name !== undefined) next.name = delta.name
+    if (delta.name !== undefined) { next.name = delta.name; next.defaultName = false }
     if (delta.studioId !== undefined) next.studioId = delta.studioId
     if ('referenceLocks' in delta) next.referenceLocks = delta.referenceLocks
     if ('board' in delta) next.board = delta.board

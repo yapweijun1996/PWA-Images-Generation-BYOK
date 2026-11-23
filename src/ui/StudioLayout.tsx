@@ -18,6 +18,7 @@ type StudioLayoutProps = {
   onTabChange: (tab: StudioTab) => void
   navigation: ReactNode
   keySettings: ReactNode
+  feedback?: ReactNode
   home: ReactNode
   canvas: ReactNode
   composer: ReactNode
@@ -38,7 +39,7 @@ const tabs = [
 ] as const
 
 /** Layout owns presentation only; the caller owns all content and persisted state. */
-export function StudioLayout({ productName, locale, onLocaleChange, theme, onThemeChange, activeTab, onTabChange, navigation, keySettings, home, canvas, composer, inspector, library }: StudioLayoutProps) {
+export function StudioLayout({ productName, locale, onLocaleChange, theme, onThemeChange, activeTab, onTabChange, navigation, keySettings, feedback, home, canvas, composer, inspector, library }: StudioLayoutProps) {
   const t = labels[locale]
   const [drawer, setDrawer] = useState<'navigation' | 'inspector' | null>(null)
   const [composerOpen, setComposerOpen] = useState(false)
@@ -118,6 +119,7 @@ export function StudioLayout({ productName, locale, onLocaleChange, theme, onThe
             <div className="studio-key-settings">{keySettings}<DeviceStorage locale={locale} /></div></div>
         </aside>
         <main className="studio-main">
+          {feedback}
           <div className="studio-home-region">{activeTab === 'home' && home}</div>
           <div className="studio-canvas-region">{canvas}</div>
           <div className="studio-library-region">{library}</div>

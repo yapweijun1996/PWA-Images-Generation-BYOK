@@ -27,3 +27,5 @@
 .canvas-preview.zoom-2 img { flex:none;max-width:none;max-height:none }
 .artboard details img,.studio-composer li img {max-width:12rem;max-height:9rem}
 .artboard [aria-label] button img {display:inline-block;width:2.5rem;height:2.5rem;object-fit:cover;vertical-align:middle;margin-inline-end:.4rem}
+.workspace-alert { align-items: center; background: var(--studio-surface); border: 1px solid var(--studio-accent); border-radius: 8px; color: var(--studio-text); display: flex; flex: none; gap: 12px; justify-content: space-between; margin: 8px 12px; padding: 8px 12px; }
+.workspace-alert button { background: var(--studio-raised); border: 1px solid var(--studio-border); border-radius: 6px; color: var(--studio-text); cursor: pointer; min-height: 44px; padding: 6px 10px; }

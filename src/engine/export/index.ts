@@ -98,7 +98,7 @@ async function unpack(file: Blob) {
 }
 
 function remap(data: Backup) {
-  const project = { ...data.project, id: crypto.randomUUID() }
+  const project = { ...data.project, id: crypto.randomUUID(), defaultName: data.project.defaultName ?? (data.project.id === 'first-project' && data.project.name === 'Untitled project') }
   const assetIds = new Map(data.assets.map(a => [a.id, crypto.randomUUID()]))
   if (project.board) project.board = { ...project.board, panels: project.board.panels.map(p => ({ ...p, assetId: assetIds.get(p.assetId)! })) }
   if (project.referenceLocks) project.referenceLocks = {
@@ -131,7 +131,13 @@ function remap(data: Backup) {
 }
 
 export async function importProjectBackup(file: Blob) {
-  const { data, blobs } = await unpack(file)
+  const { data, blobs } = await unpack(file).catch(error => {
+    // ZIP, JSON and schema libraries may include untrusted archive contents in diagnostics.
+    if (error instanceof SyntaxError || error?.name === 'ZodError' || typeof error?.code === 'number') {
+      throw new Error('Invalid project backup. Choose a ZIP exported by the studio.', { cause: error })
+    }
+    throw error
+  })
   const { project, assets, versions } = remap(data)
   const { db } = await openStorage()
   try {

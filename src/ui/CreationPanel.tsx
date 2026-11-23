@@ -1,4 +1,5 @@
 import type { PreparedEdit } from '@engine/editing'
+import { qualityLabel } from './workspaceLocale'
 import { PromptEnhancer } from './PromptEnhancer'
 import { useEffect, useRef, useState } from 'react'
 import type { ModelCapabilities } from '@engine/types'
@@ -44,8 +45,8 @@ export function useCreation(studio: StudioState, projectId: string, t: Text, loc
   }
   const inspector = <section>
     <label>{t('Model','模型')}<select disabled={!draft} value={modelId} onChange={e => change({modelId:e.target.value})}>{models.map(m => <option key={m.id} value={m.id}>{m.label}</option>)}</select></label>
-    <label>{t('Image size','图片尺寸')}<select disabled={!draft} value={size} onChange={e => change({size:e.target.value})}>{model?.sizes.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}</select></label>
-    <label>{t('Quality','画质')}<select disabled={!draft} value={quality} onChange={e => change({quality:e.target.value})}>{model?.qualityLevels.map(q => <option key={q}>{q}</option>)}</select></label>
+    <label>{t('Image size','图片尺寸')}<select disabled={!draft} value={size} onChange={e => change({size:e.target.value})}>{model?.sizes.map(s => <option key={s.id} value={s.id}>{s.id === 'auto' ? t('Auto','自动') : s.label}</option>)}</select></label>
+    <label>{t('Quality','画质')}<select disabled={!draft} value={quality} onChange={e => change({quality:e.target.value})}>{model?.qualityLevels.map(q => <option key={q} value={q}>{qualityLabel(q,locale)}</option>)}</select></label>
     {estimate && <output>{t('Estimated image output','预计图片输出费用')} · {estimate.currency} {(estimate.amountPerImage * count).toFixed(5)} {t('(excludes input)','（不含输入费用）')}</output>}
     <p>{t('Usage is billed to your OpenAI account.','费用由你的 OpenAI 账户支付。')}</p>
   </section>
@@ -57,7 +58,7 @@ export function useCreation(studio: StudioState, projectId: string, t: Text, loc
       const files = Array.from(e.target.files ?? [])
       e.target.value = ''
       if (!files.length || importing.current) return
-      if (files.length + references.length > (model?.maxReferenceImages ?? 0)) { studio.setError(t('Too many references.','参考图过多。')); return }
+      if (files.length + references.length > (model?.maxReferenceImages ?? 0)) { studio.setError('Too many references.'); return }
       setBusy(true)
       const release = registerUpdateGuard('draft')
       importing.current = (async () => {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { openStorage } from '@engine/storage'
 import type { Project } from '@engine/types'
+import { feedback, type Locale } from './workspaceLocale'
 import { AssetImage } from './AssetImage'
 
 export interface BoardPanel { assetId: string; caption: string }
@@ -8,7 +9,7 @@ export interface BoardState { panels: BoardPanel[]; reviewed: boolean }
 type BoardProject = Project & { board?: BoardState }
 
 export function StudioBoard({ project, selected, locale, onChange }: {
-  project: BoardProject; selected?: string; locale: string; onChange: () => void
+  project: BoardProject; selected?: string; locale: Locale; onChange: () => void
 }) {
   const t = (en: string, zh: string) => locale === 'en' ? en : zh
   const [message, setMessage] = useState('')
@@ -24,8 +25,7 @@ export function StudioBoard({ project, selected, locale, onChange }: {
         const stored = current.board ?? { panels: [], reviewed: false }
         if (JSON.stringify(stored) !== JSON.stringify(board)) {
           onChange()
-          throw new Error(t('The board changed in another tab. Review its current panels and try again.',
-            '另一标签页已修改分镜。请查看最新画格后重试。'))
+          throw new Error('The board changed in another tab. Review its current panels and try again.')
         }
         await tx.store.put({ ...current, updatedAt: new Date().toISOString(), board: update(stored) } as BoardProject)
         await tx.done
@@ -68,11 +68,11 @@ export function StudioBoard({ project, selected, locale, onChange }: {
   return <details><summary>{t('Storyboard & annotations','分镜与注释')}</summary>
     <label>{t('Dialogue or annotation','对白或注释')}<textarea value={caption} maxLength={100} onChange={e=>setCaption(e.target.value)} /></label>
     <button disabled={!selected || board.panels.length>=12} onClick={()=>{if(selected) void change(b=>({...b,reviewed:false,panels:[...b.panels,{assetId:selected,caption}]}))}}>{t('Add selected image','添加选中图片')}</button>
-    <ol>{board.panels.map((panel,i)=><li key={i}><AssetImage id={panel.assetId} alt={t('Panel','画格')+' '+(i+1)} />
+    <ol>{board.panels.map((panel,i)=><li key={i}><AssetImage locale={locale} id={panel.assetId} alt={t('Panel','画格')+' '+(i+1)} />
       <label>{t('Panel text','画格文字')}<input key={panel.caption} defaultValue={panel.caption} maxLength={100} onBlur={e=>{const text=e.target.value;if(text!==panel.caption)void change(b=>({...b,reviewed:false,panels:b.panels.map((p,n)=>n===i?{...p,caption:text}:p)}))}} /></label>
       <button disabled={!i} onClick={()=>void change(b=>{const panels=[...b.panels];[panels[i-1],panels[i]]=[panels[i],panels[i-1]];return {panels,reviewed:false}})}>{t('Move earlier','前移')}</button>
       <button onClick={()=>void change(b=>({reviewed:false,panels:b.panels.filter((_,n)=>n!==i)}))}>{t('Remove panel','移除画格')}</button></li>)}</ol>
     <label><input type="checkbox" checked={board.reviewed} onChange={e=>{const reviewed=e.target.checked;void change(b=>({...b,reviewed}))}} />{t('I reviewed the captions, accuracy and image continuity','我已审核文字、准确性和画面连续性')}</label>
-    <button disabled={!board.panels.length || !board.reviewed} onClick={()=>void exportBoard()}>{t('Export reviewed board','导出已审核的分镜')}</button><p role="status">{message}</p>
+    <button disabled={!board.panels.length || !board.reviewed} onClick={()=>void exportBoard()}>{t('Export reviewed board','导出已审核的分镜')}</button><p role="status">{feedback(message,locale)}</p>
   </details>
 }

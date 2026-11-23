@@ -1,4 +1,5 @@
 import { ArrowRight, BookOpen, BriefcaseBusiness, Building2, Clapperboard, Download, FolderOpen, GraduationCap, Maximize, PanelsTopLeft, Trash2, ZoomIn } from 'lucide-react'
+import { feedback, jobLabel, projectLabel, sourceLabel } from './workspaceLocale'
 import { ImageEditTools } from './ImageEditTools'
 import { StudioBoard } from './StudioBoard'
 import './workspace.css'
@@ -88,7 +89,7 @@ function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab,
   const home = <section className="studio-home">
     <h2>{t('Recent projects','最近项目')}</h2>
     {recentProjects.length ? <ul>{recentProjects.map(p => <li key={p.id}>
-      <button type="button" onClick={() => perform(() => leave(p.id))}><FolderOpen size={19} aria-hidden="true"/><span>{p.name}</span><ArrowRight size={16} aria-hidden="true"/></button>
+      <button type="button" onClick={() => perform(() => leave(p.id))}><FolderOpen size={19} aria-hidden="true"/><span>{projectLabel(p,locale)}</span><ArrowRight size={16} aria-hidden="true"/></button>
     </li>)}</ul> : <p>{t('Choose a studio, add your OpenAI key in navigation, then describe your first image.', '选择工作室，在导航中添加 OpenAI 密钥，然后描述你的第一张图片。')}</p>}
     <button className="home-continue" type="button" onClick={() => setTab('create')}>{t('Continue creating','继续创作')}<ArrowRight size={18} aria-hidden="true"/></button>
     <h2>{t('Studios','工作室')}</h2><nav aria-label={t('Choose a studio','选择工作室')}>{studioLinks}</nav>
@@ -98,32 +99,31 @@ function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab,
   const [zoom,setZoom] = useState(1)
   const needsReview = Boolean(version?.provenance.referenceAssetIds.length && selectedAsset && !studio.project?.reviewedAssetIds?.includes(selectedAsset))
   const canvas = <section className="artboard">
-    <h2>{studio.project?.name || t('Canvas','画布')}</h2>
-    {selectedAsset ? <><div className={'canvas-preview zoom-'+zoom}><AssetImage id={selectedAsset} alt={t('Selected project image','选中的项目图片')} />
-      {compareId && compareId !== selectedAsset && <AssetImage id={compareId} alt={t('Comparison image','对照图片')} />}</div>
+    <h2>{studio.project ? projectLabel(studio.project,locale) : t('Canvas','画布')}</h2>
+    {selectedAsset ? <><div className={'canvas-preview zoom-'+zoom}><AssetImage locale={locale} id={selectedAsset} alt={t('Selected project image','选中的项目图片')} />
+      {compareId && compareId !== selectedAsset && <AssetImage locale={locale} id={compareId} alt={t('Comparison image','对照图片')} />}</div>
       <div className="image-actions" role="group" aria-label={t('Image tools','图像工具')}>
         <button onClick={() => setZoom(1)}><Maximize size={17} aria-hidden="true"/>{t('Fit','适应画布')}</button>
         <button onClick={() => setZoom(zoom === 1 ? 2 : 1)} aria-pressed={zoom === 2}><ZoomIn size={17} aria-hidden="true"/>{t('Zoom','放大')}</button>
         <button disabled={needsReview} aria-label={t('Download image','下载图片')} onClick={() => perform(() => downloadImage(selectedAsset))}><Download size={17} aria-hidden="true"/>{t('Export','导出')}</button>
         <button aria-label={t('Move to trash','移至回收站')} onClick={() => perform(()=>trash(selectedAsset))}><Trash2 size={17} aria-hidden="true"/>{t('Delete','删除')}</button>
       </div><div>
-      <label>{t('Compare with','对照图片')}<select value={compareId} onChange={e=>setCompareId(e.target.value)}><option value="">{t('None','无')}</option>{visibleAssets.filter(a=>a.id!==selectedAsset).map((a,i)=><option key={a.id} value={a.id}>{i+1} · {a.source}</option>)}</select></label></div>
-      {needsReview && <section><h3>{t('Review against references','对照参考图审核')}</h3>{version!.provenance.referenceAssetIds.map(id=><AssetImage key={id} id={id} alt={t('Source reference','原始参考图')}/>)}
+      <label>{t('Compare with','对照图片')}<select value={compareId} onChange={e=>setCompareId(e.target.value)}><option value="">{t('None','无')}</option>{visibleAssets.filter(a=>a.id!==selectedAsset).map((a,i)=><option key={a.id} value={a.id}>{i+1} · {sourceLabel(a.source,locale)}</option>)}</select></label></div>
+      {needsReview && <section><h3>{t('Review against references','对照参考图审核')}</h3>{version!.provenance.referenceAssetIds.map(id=><AssetImage locale={locale} key={id} id={id} alt={t('Source reference','原始参考图')}/>)}
       <ul>{activeStudio.reviewChecks.map(check=><li key={check.id}>{check.label}</li>)}</ul>
       <button onClick={()=>perform(async()=>{ await patchProject(projectId, current => ({reviewedAssetIds:[...new Set([...(current.reviewedAssetIds || []),selectedAsset])]})); studio.refresh() })}>{t('Accept after review','审核并接受')}</button></section>}
       </>
       : <p>{t('Your image will appear here.','生成的图片将显示在这里。')}</p>}
-    {studio.error && <p role="alert">{studio.error}</p>}
-    {studio.jobs.slice(0,3).map(job => <p key={job.id} role="status">{job.status} {job.message}</p>)}
+    {studio.jobs.slice(0,3).map(job => <p key={job.id} role="status">{jobLabel(job.status,locale)} {feedback(job.message ?? '',locale)}</p>)}
     {visibleVersions.length > 0 && <div aria-label={t('Version history','版本历史')}>{visibleVersions.map((v,i) =>
-      <button key={v.id} title={v.provenance.prompt} onClick={() => selectAsset(v.assetId)}><AssetImage id={v.assetId} alt="" />V{visibleVersions.length-i}</button>)}</div>}
+      <button key={v.id} title={v.provenance.prompt} onClick={() => selectAsset(v.assetId)}><AssetImage locale={locale} id={v.assetId} alt="" />V{visibleVersions.length-i}</button>)}</div>}
   </section>
   const composer = <><label>{t('Workflow stage','工作阶段')}<select disabled={!creation.draft} value={stage.id} onChange={e => creation.changeDraft({stageId:e.target.value})}>
     {activeStudio.stages.map(s => <option value={s.id} key={s.id}>{s.label}</option>)}</select></label>
     {activeStudio.templates.filter(template => template.stageId === stage.id).map(template => <button type="button" key={template.id} onClick={() => creation.setPrompt(template.prompt)}>{template.label}</button>)}
     {creation.composer}<details><summary>{t('Edit, lock references or batch','编辑、锁定参考图或批量生成')}</summary><ImageEditTools assetCount={studio.assets.length} projectId={projectId} selectedAssetId={selectedAsset} locale={locale} onPrepared={creation.prepareEdit} /></details>{studio.project && <StudioBoard project={studio.project} selected={needsReview ? undefined : selectedAsset} locale={locale} onChange={studio.refresh} />}</>
-  const library = tab === 'assets' ? <section><h2>{t('Assets','素材')}</h2>{visibleAssets.map(asset => <button key={asset.id} onClick={() => {selectAsset(asset.id);setTab('create')}}><AssetImage id={asset.id} alt={asset.source} /></button>)}{trashed.size>0 && <details><summary>{t('Trash','回收站')} ({trashed.size})</summary>{[...trashed].map((id,i)=><button key={id} onClick={()=>perform(()=>trash(id,true))}>{t('Restore image','恢复图片')} {i+1}</button>)}</details>}</section>
-    : <section><h2>{t('Projects','项目')}</h2>{projects.map(p => <button key={p.id} onClick={() => perform(async () => { await leave(p.id);setTab('create') })}>{p.name}</button>)}
+  const library = tab === 'assets' ? <section><h2>{t('Assets','素材')}</h2>{visibleAssets.map(asset => <button key={asset.id} onClick={() => {selectAsset(asset.id);setTab('create')}}><AssetImage locale={locale} id={asset.id} alt={sourceLabel(asset.source,locale)} /></button>)}{trashed.size>0 && <details><summary>{t('Trash','回收站')} ({trashed.size})</summary>{[...trashed].map((id,i)=><button key={id} onClick={()=>perform(()=>trash(id,true))}>{t('Restore image','恢复图片')} {i+1}</button>)}</details>}</section>
+    : <section><h2>{t('Projects','项目')}</h2>{projects.map(p => <button key={p.id} onClick={() => perform(async () => { await leave(p.id);setTab('create') })}>{projectLabel(p,locale)}</button>)}
     <form onSubmit={e => {e.preventDefault();perform(async () => {
       if (!name.trim()) return
       const now = new Date().toISOString()
@@ -135,9 +135,11 @@ function ProjectWorkspace({ productName, buildId, projectId, switchProject, tab,
     })}}><label>{t('Project name','项目名称')}<input required value={name} onChange={e => setName(e.target.value)} /></label><button>{t('New project','新建项目')}</button>
     <button type="button" disabled={!name.trim()} onClick={()=>perform(async()=>{await patchProject(projectId,{name:name.trim()});studio.refresh();setName('')})}>{t('Rename current project','重命名当前项目')}</button></form>
     <button onClick={() => perform(async () => { await creation.flushDraft(); await downloadProjectBackup(projectId) })}>{t('Back up project','备份项目')}</button>
-    <label>{t('Restore backup','恢复备份')}<input type="file" accept=".zip" onChange={e => { const file=e.target.files?.[0]; if(file) perform(async () => { await creation.flushDraft();switchProject((await importProjectBackup(file)).id) }) }} /></label></section>
+    <label>{t('Restore backup','恢复备份')}<input type="file" accept=".zip" onChange={e => { const file=e.target.files?.[0]; e.target.value=''; if(file) perform(async () => { await creation.flushDraft();switchProject((await importProjectBackup(file)).id) }) }} /></label></section>
   return <><StudioLayout productName={productName} locale={locale} onLocaleChange={value => {localStorage.setItem('ui-language',value);setLocale(value)}} theme={theme}
     onThemeChange={value => {localStorage.setItem('ui-theme',value);setTheme(value)}} activeTab={tab} onTabChange={setTab}
+    feedback={studio.error && <div className="workspace-alert" role="alert"><span>{feedback(studio.error,locale)}</span>
+      <button type="button" onClick={()=>studio.setError('')}>{t('Dismiss','关闭')}</button></div>}
     home={home} canvas={canvas} composer={composer} inspector={creation.inspector} navigation={navigation} keySettings={<KeySettings locale={locale} />} library={library} />
-    <footer>Build {buildId}</footer></>
+    <footer>{t('Build','构建版本')} {buildId}</footer></>
 }

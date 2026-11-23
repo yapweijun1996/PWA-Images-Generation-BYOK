@@ -39,7 +39,7 @@ export function useStudio(projectId: string) {
         let entry = await tx.store.get(projectId)
         if (!entry) {
           const now = new Date().toISOString()
-          entry = { id: projectId, name: 'Untitled project', studioId: 'manga', createdAt: now, updatedAt: now }
+          entry = { id: projectId, name: 'Untitled project', defaultName: true, studioId: 'manga', createdAt: now, updatedAt: now }
           await tx.store.add(entry)
         }
         await tx.done
