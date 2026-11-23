@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
-import { updateBlocker, useUpdateBlocker } from './guards'
+import { requestSafeActivation, updateBlocker, useUpdateBlocker } from './guards'
 
 function subscribeLanguage(notify: () => void) {
   const observer = new MutationObserver(notify)
@@ -13,6 +13,7 @@ export function PwaControls() {
   const [waiting, setWaiting] = useState<ServiceWorker | null>(null)
   const [applying, setApplying] = useState(false)
   const requested = useRef<ServiceWorker | null>(null)
+  const [otherTab, setOtherTab] = useState(false)
   const blocker = useUpdateBlocker()
 
   useEffect(() => {
@@ -73,11 +74,19 @@ export function PwaControls() {
     if (!waiting || requested.current || updateBlocker()) return
     requested.current = waiting
     setApplying(true)
-    waiting.postMessage({ type: 'SKIP_WAITING' })
+    setOtherTab(false)
+    void requestSafeActivation(() => waiting.postMessage({ type: 'SKIP_WAITING' })).then(sent => {
+      if (!sent) {
+        requested.current = null
+        setOtherTab(true)
+        setApplying(false)
+      }
+    }).catch(() => { requested.current = null; setApplying(false); setOtherTab(true) })
   }
   return <aside aria-label={t('Application update', '应用更新')}>
     <p role="status">{blocker === 'draft' ? t('Save or discard your draft before updating.', '更新前请先保存或放弃草稿。')
       : blocker === 'job' ? t('An update is ready. Wait for your generation to finish.', '新版本已就绪，请等待生成完成。')
+      : otherTab ? t('Finish or save work in other tabs, then try again.', '请先完成或保存其他标签页的工作，再重试。')
       : applying ? t('Updating…', '正在更新…') : t('An update is ready.', '新版本已就绪。')}</p>
     <button type="button" disabled={Boolean(blocker) || applying} onClick={apply}>{t('Update and reload', '更新并重新加载')}</button>
   </aside>
