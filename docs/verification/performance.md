@@ -90,7 +90,7 @@ Chrome 158.0.8127.37 repeated the standard 4× CPU and throttled network profile
 
 Both drawers kept and restored keyboard focus and hid background content from the Chrome accessibility tree at 390 and 768 px. The build label was visible above mobile navigation. Axe-core 4.14.1 found no violations in the initial workspace at 390 and 1440 px in both themes. Color contrast remained flagged for manual review. The metrics describe a lab run with the retained release. Field P75 remains `INSUFFICIENT_DATA`.
 
-### Current public release artifact
+### Compact toolbar release artifact
 
 The exact [published `7aaefff` artifact](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45266948803) matched all 13 public files. Chrome 158.0.8127.37 repeated the six-load throttled lab on Vite preview under the same app subpath. The entry script SHA-256 was `c58ddd310b8848786de6525aa7f8f2b76c5ab7493723b98f6ae11c3414794977`.
 
@@ -100,6 +100,17 @@ The exact [published `7aaefff` artifact](https://github.com/yapweijun1996/PWA-Im
 | 1440 × 900 | 1,364–1,432 | 0.0004 | 72–80 |
 
 The six views fit without horizontal overflow. The keyboard suite confirmed focus restoration for four drawer and viewport combinations. Axe-core 4.14.1 found no automatic violations in the four initial-workspace theme and viewport combinations and flagged color contrast for manual review. Field P75 remains `INSUFFICIENT_DATA`.
+
+### Current public release artifact
+
+Chrome 158.0.8127.37 repeated the lab with the exact [published `83a4e07` artifact](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45271666647). The retained files matched all 13 public files. The entry script SHA-256 was `0b732ea8a26fe496cd5c64555902c15fef14571bc282003c85fd47da5e08cb8f`.
+
+| Viewport | LCP range (ms) | CLS range | Longest interaction-event duration range (ms) |
+| --- | ---: | ---: | ---: |
+| 390 × 844 | 1,576–1,656 | 0 | 136 |
+| 1440 × 900 | 1,456–1,672 | 0.0004 | 80–120 |
+
+No sampled view overflowed. Both drawers kept and restored focus at 390 and 768 px. Field P75 remains `INSUFFICIENT_DATA`.
 
 ## Populated asset library
 

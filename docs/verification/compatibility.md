@@ -28,6 +28,8 @@ In the compact-toolbar trial, native iPad Safari displayed `7aaefff` and opened 
 
 The iPhone job in the same trial built WebDriverAgent. The session request timed out while probing the driver port, with zero application requests recorded. The compact-toolbar selector remains unverified on the simulator. [iPhone job](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45267231119/job/138017248484).
 
+The focused iPad rerun exercises the revised action-cell selector against the published `83a4e07` artifact. [iPad actions-row trial](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45271979199).
+
 ## Firefox 159.0 (Playwright build)
 
 - The installed Firefox Nightly 160.0a1 showed a first-run Terms of Use screen; it was not accepted. The following tests instead used Playwright's separate Firefox 159.0 build and an isolated automation session, not the installed Nightly profile or a stable Firefox release.
