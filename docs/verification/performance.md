@@ -77,6 +77,19 @@ An initial loopback server delivered the `c03b99f` entry script uncompressed at 
 
 Both gzip runs fit the viewport and passed the lab checks. The `c03b99f` entry script SHA-256 is `2476bcee5076e416b3f72d0c435401103cc8b938c1c44c34fb8473a49ee27df3`. The measured interaction events cover a short lab journey. Field P75 remains `INSUFFICIENT_DATA`. [Artifact for `c03b99f`](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45250691263).
 
+### Current public release artifact
+
+On November 24 Singapore time, the exact [published `6d70d15` artifact](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45256773772) matched the 13 public files byte for byte. Vite served those files on loopback under the same app subpath. The lab server and Pages each served the entry script with gzip. The script transferred in 133,319 bytes on loopback and 134,434 bytes from Pages, with uncompressed SHA-256 `3d6c396efb4341843100131b416e64e66deb6219d4426274e46106da18717744`.
+
+Chrome 158.0.8127.37 repeated the standard 4× CPU and throttled network profile across three fresh contexts per viewport. All six displayed build `v0.1.0 · 2026-11-23T20:12:01.911Z`, met the sampled numeric budgets and fit without horizontal overflow.
+
+| Viewport | LCP range (ms) | CLS range | Longest interaction-event duration range (ms) |
+| --- | ---: | ---: | ---: |
+| 390 × 844 | 1,400–1,460 | 0 | 80–96 |
+| 1440 × 900 | 1,376–1,416 | 0.0004 | 72–80 |
+
+Both drawers kept and restored keyboard focus and hid background content from the Chrome accessibility tree at 390 and 768 px. The build label was visible above mobile navigation. Axe-core 4.14.1 found no violations in the initial workspace at 390 and 1440 px in both themes. Color contrast remained flagged for manual review. The metrics describe a lab run with the retained release. Field P75 remains `INSUFFICIENT_DATA`.
+
 ## Populated asset library
 
 On November 24 Singapore time, a mobile-width Chrome 158.0.8127.37 fixture seeded one project with 48 assets and 48 versions in IndexedDB. The synthetic PNGs measured 2048 × 1536, with about 3.9 MB per original. Half the asset records omitted recorded dimensions. Two distinct PNG payloads made it possible to verify the selected export independently of the initial selection. The test ran at 390 × 844 with a fresh browser profile for each build. It counted requests to the local blob store and the payload sizes of active object URLs 500 ms after each sampled state.
