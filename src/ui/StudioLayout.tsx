@@ -1,3 +1,4 @@
+import { InstallHelp } from './InstallHelp'
 import { DeviceStorage } from './DeviceStorage'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { FolderOpen, Home, Image, Menu, Moon, PanelRight, Sparkles, Sun, X } from 'lucide-react'
@@ -88,6 +89,7 @@ export function StudioLayout({ productName, locale, onLocaleChange, theme, onThe
         <button className="studio-icon-button studio-drawer-trigger" type="button" aria-label={t.menu} aria-expanded={drawer === 'navigation'} onClick={(event) => openDrawer('navigation', event.currentTarget)}><Menu aria-hidden="true" size={19} /></button>
         <div className="studio-brand"><span className="studio-brand-mark"><Sparkles aria-hidden="true" size={18} /></span><h1>{productName}</h1><span className="studio-byok">BYOK</span></div>
         <div className="studio-header-actions">
+          <InstallHelp locale={locale} />
           <label className="studio-language"><span className="studio-visually-hidden">{t.language}</span><select value={locale} onChange={(event) => onLocaleChange(event.target.value as StudioLocale)}><option value="en">EN</option><option value="zh-CN">中文</option></select></label>
           <button className="studio-icon-button" type="button" aria-label={theme === 'dark' ? t.light : t.dark} onClick={() => onThemeChange(theme === 'dark' ? 'light' : 'dark')}>{theme === 'dark' ? <Sun aria-hidden="true" size={19} /> : <Moon aria-hidden="true" size={19} />}</button>
           <button className="studio-icon-button studio-drawer-trigger" type="button" aria-label={t.settings} aria-expanded={drawer === 'inspector'} onClick={(event) => openDrawer('inspector', event.currentTarget)}><PanelRight aria-hidden="true" size={19} /></button>
