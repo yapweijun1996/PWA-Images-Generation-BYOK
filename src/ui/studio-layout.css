@@ -61,6 +61,10 @@
 }
 @media (max-width: 767px) {
   .studio-header { gap: 4px; min-height: 56px; padding-left: max(8px, env(safe-area-inset-left)); padding-right: max(8px, env(safe-area-inset-right)); }
+  .studio-header { position: sticky; top: 0; transition: transform .18s ease; z-index: 11; }
+  .studio-header[data-scrolled='true']:not(:focus-within):not(:has(dialog[open])) { transform: translateY(-100%); }
+  .studio-layout .studio-back-to-top { background: var(--studio-surface); border: 1px solid var(--studio-border); bottom: calc(68px + env(safe-area-inset-bottom)); position: fixed; right: max(12px, env(safe-area-inset-right)); z-index: 10; }
+  .studio-layout:has(.studio-main :is(input, select, textarea):focus) .studio-back-to-top { display: none; }
   .studio-brand { gap: 7px; }
   .studio-brand h1 { font-size: .84rem; }
   .studio-byok { display: none; }
@@ -77,6 +81,9 @@
   .studio-layout[data-tab='home'] .studio-home-region { display: block; }
   .studio-layout[data-tab='assets'] .studio-canvas-region, .studio-layout[data-tab='projects'] .studio-canvas-region, .studio-layout[data-tab='assets'] .studio-composer, .studio-layout[data-tab='projects'] .studio-composer { display: none; }
   .studio-layout[data-tab='assets'] .studio-library-region, .studio-layout[data-tab='projects'] .studio-library-region { display: block; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .studio-header { transition: none; }
 }
 
 .studio-sidebar-content nav, .studio-library-nav { display: grid; gap: 4px; }

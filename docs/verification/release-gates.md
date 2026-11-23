@@ -48,7 +48,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | INS-05 | Standalone launch | PASS (macOS Chrome) | The subsequent installed standalone-window check supersedes the earlier tab-only result. See the public upgrade observation below. |
 | INS-06 | iOS manual installation guidance | NOT_RUN | Walk through Add to Home Screen on a physical iPhone. |
 | INS-07 | Unsupported install prompt fallback | PASS (Playwright Firefox 159 and WebKit 27.2) | On the published candidate, Help displayed bookmark/browser instructions without an Install button. Closing Help returned to an editable prompt. |
-| INS-08 | Deep-link launch after installation | NOT_RUN | Launch installed app from a supported deep link. |
+| INS-08 | Deep-link launch after installation | PASS (macOS Chrome CDP) | In build `2026-11-23T15:15:45.577Z`, the installed window opened `index.html?source=install-acceptance` offline. An unknown scope path displayed the recovery screen and returned to the workspace, also offline. |
 | SW-01 | Fresh install and first-load behavior | PASS (historical local) | Chrome registered and activated the shell worker at the app subpath (E1). |
 | SW-02 | Build A to B update discovery | PASS (historical local) | Two distinct preview builds triggered discovery and installation (E2). |
 | SW-03 | Mismatched build identity rejected | PASS (local Chrome, two builds) | [Build-bound integrity and recovery observations](shell-integrity.md). |
@@ -72,10 +72,10 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | MOB-01 | Notch and Dynamic Island clearance | NOT_RUN | Inspect notched real iPhone layouts in both orientations. |
 | MOB-02 | Home indicator clearance | NOT_RUN | Inspect actions above home indicator in standalone mode. |
 | MOB-03 | Keyboard viewport resize | NOT_RUN | Exercise iOS keyboard and keyboard dismissal with composer visible. |
-| MOB-04 | No unintended input focus zoom | NOT_RUN | Focus all editable fields on physical iOS and check zoom. |
+| MOB-04 | No unintended input focus zoom | PARTIAL | Composer and selected controls measured at least 16 CSS px in mobile WebKit emulation. Physical iOS focus and zoom outstanding. |
 | MOB-05 | Portrait and landscape layout | NOT_RUN | Compare portrait and landscape tablet and phone layouts. |
-| MOB-06 | Smart top bar scroll direction | NOT_RUN | Exercise scrolling in real long-view contexts; document exceptions if unnecessary. |
-| MOB-07 | Scroll-to-top accessibility | NOT_RUN | Test keyboard and screen-reader access to return-to-top in long content. |
+| MOB-06 | Smart top bar scroll direction | PASS (Chrome/WebKit viewport tests) | Long library hides the mobile header on downward scroll and reveals it on upward scroll. [Results](keyboard-and-controls.md). |
+| MOB-07 | Scroll-to-top accessibility | PARTIAL | Keyboard activation scrolls to top, focuses the header and proceeds to navigation. Screen-reader verification outstanding. [Results](keyboard-and-controls.md). |
 | MOB-08 | Light/dark system chrome | NOT_RUN | Inspect light/dark system chrome and transitions on physical devices. |
 | A11Y-01 | Keyboard-only navigation | PASS (bounded desktop Chrome journeys) | Keyboard-only validation, project creation and generation failure exercised. [Evidence](keyboard-and-controls.md). |
 | A11Y-02 | Visible focus indicator | PARTIAL | 48 focus visits per theme, with visible focus and contrast measured in desktop Chrome. Review on remaining platforms. [Evidence](keyboard-and-controls.md). |

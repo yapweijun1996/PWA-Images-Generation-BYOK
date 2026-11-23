@@ -13,3 +13,9 @@ Chrome 158.0.8127.37 on macOS, isolated profiles, Playwright with keyboard input
 | QA-05 | A project name containing literal bold tags and an ampersand remained ordinary text in its heading, with zero nested bold elements before and after reload. In the production page a benign fetch to a different loopback port was blocked, with an observed securitypolicyviolation event for connect-src. These checks cover the project-name rendering path and connection policy only. |
 
 VoiceOver, physical-device touch behavior, subjective legibility, and comprehensive WCAG conformance require separate evidence.
+
+## Mobile composer and long project library
+
+In macOS Chrome 158 and Playwright WebKit 27.2, the production-preview build `2026-11-23T15:19:00.669Z` reported at least 16 CSS px for the prompt, workflow selector, language selector and key field at tested phone widths (320, 390 and 430 px). The equivalent public WebKit baseline reported 13.12 px for the prompt and two selectors. The tested viewports had no horizontal document overflow.
+
+At 390 × 844, a disposable project library with 115 synthetic records made the main document scroll. At one viewport down, the header hid on downward scrolling and returned on upward scrolling. Reduced motion was enabled. Keyboard activation of Back to top returned the document to zero, focused the header and allowed the navigation button to receive the next focus. Chrome reached the return control by reverse tabbing from Home. WebKit used explicit focus before keyboard activation. This does not establish the absence of Safari focus zoom on a physical iPhone or screen-reader announcements.

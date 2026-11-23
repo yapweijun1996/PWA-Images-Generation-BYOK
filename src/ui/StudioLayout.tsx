@@ -1,7 +1,7 @@
 import { InstallHelp } from './InstallHelp'
 import { DeviceStorage } from './DeviceStorage'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { FolderOpen, Home, Image, Menu, Moon, PanelRight, Sparkles, Sun, X } from 'lucide-react'
+import { ArrowUp, FolderOpen, Home, Image, Menu, Moon, PanelRight, Sparkles, Sun, X } from 'lucide-react'
 import './studio-layout.css'
 
 export type StudioLocale = 'en' | 'zh-CN'
@@ -27,8 +27,8 @@ type StudioLayoutProps = {
 }
 
 const labels = {
-  en: { home: 'Home', create: 'Create', assets: 'Assets', projects: 'Projects', menu: 'Open navigation', close: 'Close', settings: 'Generation settings', compose: 'Prompt', language: 'Language', light: 'Switch to light theme', dark: 'Switch to dark theme' },
-  'zh-CN': { home: '首页', create: '创作', assets: '素材', projects: '项目', menu: '打开导航', close: '关闭', settings: '生成设置', compose: '提示词', language: '语言', light: '切换浅色主题', dark: '切换深色主题' },
+  en: { home: 'Home', create: 'Create', assets: 'Assets', projects: 'Projects', menu: 'Open navigation', close: 'Close', settings: 'Generation settings', compose: 'Prompt', language: 'Language', light: 'Switch to light theme', dark: 'Switch to dark theme', top: 'Back to top' },
+  'zh-CN': { home: '首页', create: '创作', assets: '素材', projects: '项目', menu: '打开导航', close: '关闭', settings: '生成设置', compose: '提示词', language: '语言', light: '切换浅色主题', dark: '切换深色主题', top: '返回顶部' },
 } satisfies Record<StudioLocale, Record<string, string>>
 
 const tabs = [
@@ -43,6 +43,9 @@ export function StudioLayout({ productName, locale, onLocaleChange, theme, onThe
   const t = labels[locale]
   const [drawer, setDrawer] = useState<'navigation' | 'inspector' | null>(null)
   const [composerOpen, setComposerOpen] = useState(false)
+  const [headerHidden, setHeaderHidden] = useState(false)
+  const [showBackToTop, setShowBackToTop] = useState(false)
+  const headerRef = useRef<HTMLElement>(null)
   const drawerClose = useRef<HTMLButtonElement>(null)
   const sidebarRef = useRef<HTMLElement>(null)
   const inspectorRef = useRef<HTMLElement>(null)
@@ -91,6 +94,27 @@ export function StudioLayout({ productName, locale, onLocaleChange, theme, onThe
     return () => desktop.removeEventListener('change', adapt)
   }, [activeTab, onTabChange])
 
+  useEffect(() => {
+    const mobile = window.matchMedia('(max-width: 767px)')
+    let reference = Math.max(0, window.scrollY)
+    function update() {
+      const top = Math.max(0, window.scrollY)
+      const distance = top - reference
+      setShowBackToTop(mobile.matches && top >= window.innerHeight)
+      if (!mobile.matches || top < 64 || Math.abs(distance) >= 24) {
+        setHeaderHidden(mobile.matches && top >= 64 && distance > 0)
+        reference = top
+      }
+    }
+    update()
+    window.addEventListener('scroll', update, { passive: true })
+    mobile.addEventListener('change', update)
+    return () => {
+      window.removeEventListener('scroll', update)
+      mobile.removeEventListener('change', update)
+    }
+  }, [])
+
   const changeTab = (tab: StudioTab) => {
     setDrawer(null)
     onTabChange(tab)
@@ -98,7 +122,7 @@ export function StudioLayout({ productName, locale, onLocaleChange, theme, onThe
 
   return (
     <div className="studio-layout" data-theme={theme} data-tab={activeTab}>
-      <header className="studio-header">
+      <header ref={headerRef} tabIndex={-1} className="studio-header" data-scrolled={headerHidden && !drawer}>
         <button className="studio-icon-button studio-drawer-trigger" type="button" aria-label={t.menu} aria-expanded={drawer === 'navigation'} onClick={(event) => openDrawer('navigation', event.currentTarget)}><Menu aria-hidden="true" size={19} /></button>
         <div className="studio-brand"><span className="studio-brand-mark"><Sparkles aria-hidden="true" size={18} /></span><h1 aria-label={productName}><span className="studio-brand-full">{productName}</span><span className="studio-brand-short" aria-hidden="true">Studio</span><span className="studio-brand-tiny" aria-hidden="true">PWA</span></h1><span className="studio-byok">BYOK</span></div>
         <div className="studio-header-actions">
@@ -133,6 +157,10 @@ export function StudioLayout({ productName, locale, onLocaleChange, theme, onThe
           <div className="studio-inspector-content">{inspector}</div>
         </aside>
       </div>
+      {showBackToTop && !drawer && <button type="button" className="studio-back-to-top studio-icon-button" aria-label={t.top} onClick={() => {
+        headerRef.current?.focus({ preventScroll: true })
+        window.scrollTo(0, 0)
+      }}><ArrowUp size={19} aria-hidden="true" /></button>}
       <nav className="studio-mobile-nav" aria-label={t.menu}>{tabs.map(({ id, Icon }) => <button key={id} type="button" aria-current={activeTab === id ? 'page' : undefined} onClick={() => changeTab(id)}><Icon size={19} aria-hidden="true" /><span>{t[id]}</span></button>)}</nav>
     </div>
   )

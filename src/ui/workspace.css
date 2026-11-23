@@ -51,3 +51,7 @@
 @media (max-width: 767px) {
   .studio-layout .creation-submit { scroll-margin-bottom: calc(76px + env(safe-area-inset-bottom)); }
 }
+
+@media (max-width: 767px), (pointer: coarse) {
+  .studio-layout :is(input:not([type=checkbox]), textarea, select) { font-size: max(1rem, 16px); }
+}
