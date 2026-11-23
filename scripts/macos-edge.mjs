@@ -1,7 +1,7 @@
 /* global URL, document, navigator, matchMedia, console */
 // This harness only changes preferences in a disposable hosted macOS runner.
 import assert from 'node:assert/strict'
-import { execFileSync, spawn } from 'node:child_process'
+import { execFileSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { mkdir, mkdtemp, writeFile } from 'node:fs/promises'
 import { homedir, release, tmpdir } from 'node:os'
@@ -92,9 +92,15 @@ try {
   const plistPath = path.join(shim, 'Contents', 'Info.plist')
   const appId = execFileSync('/usr/libexec/PlistBuddy',['-c','Print:CrAppModeShortcutID',plistPath],{encoding:'utf8'}).trim()
   assert.match(appId,/^[a-p]{32}$/)
-  const opened = context.waitForEvent('page',{timeout:30000})
-  spawn(edge,['--user-data-dir='+profile,'--profile-directory=Default','--app-id='+appId],{stdio:'ignore'})
-  page = await opened
+  const launcher = await context.newCDPSession(page)
+  const [{ targetId }, installed] = await Promise.all([
+    launcher.send('PWA.launch', { manifestId: site }),
+    context.waitForEvent('page', { timeout: 30000 }),
+  ])
+  page = installed
+  const inspector = await context.newCDPSession(page)
+  const { targetInfo } = await inspector.send('Target.getTargetInfo')
+  assert.equal(targetInfo.targetId, targetId)
   await page.waitForFunction(value => document.querySelector('.creation-prompt textarea')?.value === value, draft)
   assert((await page.locator('footer').innerText()).includes(expected))
   assert(await page.evaluate(() => matchMedia('(display-mode: standalone)').matches && Boolean(navigator.serviceWorker.controller)))
