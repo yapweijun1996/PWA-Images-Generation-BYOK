@@ -27,6 +27,24 @@ function appShim() {
   return execFileSync('/usr/bin/find', [apps, '-name', '*Images Studio*.app', '-type', 'd', '-print', '-quit'], { encoding:'utf8' }).trim()
 }
 
+async function findPage(context, targetId) {
+  const checked = new Set()
+  for (let attempt = 0; attempt < 60; attempt++) {
+    for (const candidate of context.pages()) {
+      if (candidate.isClosed() || checked.has(candidate)) continue
+      checked.add(candidate)
+      const inspector = await context.newCDPSession(candidate)
+      try {
+        const { targetInfo } = await inspector.send('Target.getTargetInfo')
+        if (targetInfo.targetId === targetId) return candidate
+      } finally {
+        await inspector.detach()
+      }
+    }
+    await delay(500)
+  }
+}
+
 let context, page, policyWritten = false
 try {
   assert(existsSync(edge), 'Preinstalled Edge executable is unavailable')
@@ -75,7 +93,7 @@ try {
     shim = appShim()
     if (!shim) await delay(1000)
   }
-  if (shim) evidence.steps.push('macOS app shim appeared after managed installation')
+  if (shim) evidence.steps.push('macOS app shim appeared after installation')
   await context.close()
   context = await launch(true)
   const probe = await context.newPage()
@@ -93,14 +111,14 @@ try {
   const appId = execFileSync('/usr/libexec/PlistBuddy',['-c','Print:CrAppModeShortcutID',plistPath],{encoding:'utf8'}).trim()
   assert.match(appId,/^[a-p]{32}$/)
   const launcher = await context.newCDPSession(page)
-  const [{ targetId }, installed] = await Promise.all([
-    launcher.send('PWA.launch', { manifestId: site }),
-    context.waitForEvent('page', { timeout: 30000 }),
-  ])
+  const { targetId } = await launcher.send('PWA.launch', { manifestId: site })
+  const installed = await findPage(context, targetId)
+  if (!installed) {
+    const { targetInfos } = await launcher.send('Target.getTargets')
+    evidence.launchTarget = targetInfos.find(target => target.targetId === targetId)
+  }
+  assert(installed && installed !== page, 'Edge did not expose the installed window as a separate page')
   page = installed
-  const inspector = await context.newCDPSession(page)
-  const { targetInfo } = await inspector.send('Target.getTargetInfo')
-  assert.equal(targetInfo.targetId, targetId)
   await page.waitForFunction(value => document.querySelector('.creation-prompt textarea')?.value === value, draft)
   assert((await page.locator('footer').innerText()).includes(expected))
   assert(await page.evaluate(() => matchMedia('(display-mode: standalone)').matches && Boolean(navigator.serviceWorker.controller)))
