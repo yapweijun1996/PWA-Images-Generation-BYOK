@@ -70,7 +70,7 @@ Rules:
 | Studios | Six modular studio workflow configurations on top of shared services |
 | Shared services | Prompt Builder, Reference Asset Manager, Model/Provider Adapter, Job Queue, Generation History, Image Editor, Export |
 | Local storage | IndexedDB for metadata; OPFS for image files where supported; backup, import, and quota handling |
-| API key | Session-only handling preferred; never in exports, logs, telemetry, or service-worker caches |
+| API key | Stored on this device by default, with an explicit "do not remember" option and a visible Forget Key action (owner-decided 2026-11-23). Never in exports, logs, telemetry, or service-worker caches |
 | Provider calls | Direct from the browser only where CORS and provider policy allow; otherwise an optional proxy that the user configures and controls |
 | Provider capabilities | Discovered per provider (resolution, reference editing, masks, cost), never assumed |
 | Offline | View and edit projects offline; remote generation needs a connection |
@@ -175,7 +175,9 @@ The full UI/UX Design System V1 draft is in [UIUX.md](UIUX.md). This is a layout
 
 ## 6. Data and Security Design
 
-- The API key is handled session-only by preference, stored in the browser only if the user chooses, and sent only to the chosen provider.
+- The API key is stored on the user's device by default and the user can opt out of remembering it. It is sent only to the chosen provider.
+- Because a stored key is readable by any script running on the page, the app keeps a strict Content Security Policy (meta tag), uses no third-party scripts, and shows a clear warning about on-device key storage.
+- Backup and restore: the user exports a backup file by hand and imports it later. The backup never contains the API key.
 - The API key and authenticated responses are never put into a shared cache or into exported files.
 - Pending generation jobs are durable, so a reload does not lose them. A job is not reported as done until the provider returns a result.
 - Do not blindly retry a request that may already have been billed.

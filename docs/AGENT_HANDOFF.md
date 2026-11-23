@@ -24,7 +24,7 @@ If these disagree, the order of trust is: the code and passing tests, then expli
 | Backend | None. No accounts, no server sync, no hosted proxy |
 | Storage | IndexedDB for metadata, OPFS for image files where supported |
 | First provider | OpenAI |
-| First studio (Phase 2) | Manga & Comics |
+| Studio order (Phase 2 onward) | Manga & Comics, Commercial Artwork, Interior Design, UI/UX Design, Movie & Cinematic, then Education |
 | PWA profile | `STATIC_OFFLINE` under `pwa:product-standard` v1.1.0 |
 | Install and browser targets | iPhone Safari Home Screen, Android Chrome, desktop Chrome and Edge. Desktop Safari and Firefox are ordinary web pages with no install guarantee |
 | License | Apache-2.0 |
@@ -103,7 +103,8 @@ Use the IDs from `docs/TASK.md`. Update the status there as you go, with evidenc
 
 ### T-103 BYOK settings
 - [ ] User can enter, replace, and remove a key.
-- [ ] Session-only is the default; persisting is an explicit user choice with a warning.
+- [ ] The key is stored on this device by default (owner decision). Provide a "do not remember" option, a visible Forget Key action, and a clear warning.
+- [ ] Strict CSP via meta tag, no third-party scripts (a stored key is readable by any script on the page).
 - [ ] The key never appears in exports, logs, history, or any cache.
 - Evidence: test that searches exports, logs, and cache contents for the key string and finds none. OFF-08, QA-06.
 
@@ -112,6 +113,8 @@ Use the IDs from `docs/TASK.md`. Update the status there as you go, with evidenc
 - [ ] If direct calls are blocked, stop and ask the owner about the user-controlled proxy. Do not build a hosted proxy.
 - [ ] Adapter interface finalized and documented.
 - [ ] One real image is generated end to end with a real key. A mock does not satisfy this.
+- [ ] The real key comes from `OPENAI_API_KEY` in a local, git-ignored `.env` that the owner fills in. Read it only in dev and test scripts (never use a `VITE_` prefix, so it is never bundled). Never print it, commit it, or copy it into docs or logs. If it is empty, mark the real run `NOT RUN` and ask the owner.
+- [ ] If browser-direct calls are blocked by CORS, stop and report the result to the owner. Do not choose a proxy design yourself.
 - Evidence: recorded real run (date, model, result); no key in the record.
 
 ### T-105 Model selector
@@ -140,12 +143,13 @@ Use the IDs from `docs/TASK.md`. Update the status there as you go, with evidenc
 
 ### T-110 Export
 - [ ] Download an image at its real size and format.
-- [ ] Project backup export and import keep data intact; the key is never included.
+- [ ] Project backup is a manual export file plus import from it (F-15). Data stays intact; the key is never included.
 - [ ] 4K is offered only if the selected model supports it.
 
 ### T-111 Main layout
 - [ ] Built as real HTML/CSS following Visual Anchor V1 and the T-114 decisions (no top studio strip, no avatar, no Complexity).
-- [ ] Desktop three panels; tablet drawers; mobile bottom tabs (Studio, Create, Assets, Settings).
+- [ ] Desktop three panels; tablet drawers; mobile bottom tabs (Home, Create, Assets, Projects) per the mobile anchor decisions in `docs/UIUX.md` 6a.
+- [ ] All UI strings go through an i18n layer; English and Simplified Chinese are switchable (NF-12).
 - [ ] Keyboard navigation, visible focus, reduced motion, light and dark themes.
 - [ ] Taste gate passed with real screenshots at 390x844, 768x1024, 1440x900.
 
@@ -167,7 +171,6 @@ Use the IDs from `docs/TASK.md`. Update the status there as you go, with evidenc
 
 - Whether a second provider (Gemini) joins Phase 1.
 - Whether the user-controlled proxy is built in Phase 1 (decided by the CORS result in T-104).
-- Order of studios after Manga.
 
 ## 8. Definition of Done for a Task
 

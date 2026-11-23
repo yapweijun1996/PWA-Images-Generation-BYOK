@@ -133,7 +133,41 @@ The Canvas uses **non-destructive editing**. Regenerating creates a new version 
 | Tablet, 768–1279px | Canvas plus drawers |
 | Mobile, below 768px | Canvas plus bottom tabs |
 
-Mobile has four bottom tabs: **Studio, Create, Assets, Settings**. The Prompt Composer opens as a bottom sheet so it does not permanently take Canvas space.
+Mobile has four bottom tabs: **Home, Create, Assets, Projects** (see 6a). Settings open as a panel from the Create screen. The Prompt Composer opens as a bottom sheet so it does not permanently take Canvas space.
+
+### 6a. Mobile Visual Anchor V1
+
+![Mobile Visual Anchor V1: Home, Create, Settings](ui/anchors/anchor-v1-mobile.webp)
+
+File: `docs/ui/anchors/anchor-v1-mobile.webp`. Owner-selected on 2026-11-23 as the **mobile anchor**, the companion of the desktop anchor. The same rules apply: it is a generated mockup that shows direction, not an implementation, and its text and numbers (model name, resolution, counts) are placeholders. The real mobile UI must be judged from real screenshots at 390x844 (and 430x932) on a real phone-size viewport.
+
+**Three screens shown**
+
+| Screen | Content |
+|--------|---------|
+| Home: Studio Selection | Header with product name, BYOK badge, settings. A hero banner. Six studio cards in a 2x3 grid. Bottom navigation. |
+| Create: Canvas and Generation (main) | Header with a studio switcher dropdown, project folder, and menu. Large canvas with an image counter (1/4). Version thumbnails with an add button. Tool row: Fit, Adjust, Layers, Edit, Export, Delete. Composer with mode tabs (Text Prompt, Image to Image, Inpaint), prompt box with character count, chips (Prompt, Reference, Style), and a full-width Generate button. |
+| Settings: Model and Parameters | A sheet with Provider (BYOK), Model, Aspect Ratio, Resolution, Quality, Reference Images, Style, Advanced Settings, and an Apply button. |
+
+**Bottom navigation (anchor):** Home (studio selection, quick entry), Create (canvas, prompt, generate), Assets (image library, references, version management), Projects (project management, import/export, backup).
+
+**Mobile user flow:** 1 Select Studio (Home) → 2 Create and Generate (Canvas) → 3 Review and Edit (Tools) → 4 Manage Assets (Library) → 5 Project and Export (Projects).
+
+**Responsive anchor:** Mobile up to 767px (bottom navigation plus drawer), Tablet 768–1279px (two columns or drawer), Desktop 1280px and above (three-panel workspace). This matches section 6.
+
+**Owner decisions on the mobile anchor (2026-11-23)**
+
+| # | Item | Decision |
+|---|------|----------|
+| 1 | Bottom tabs | **Home, Create, Assets, Projects.** Settings are a panel inside the Create screen. Projects holds project management, import/export, and backup. |
+| 2 | Studio cards on Home | **Icon plus text**, the same rule as desktop. No picture cards. |
+| 3 | Home opening | **Recent projects plus Continue creating.** A short onboarding hint appears only when there are no projects. No promotional banner. |
+| 4 | UI language | **English and Simplified Chinese, switchable.** All UI strings go through an i18n layer from the start. |
+| 5 | Inpaint tab and Layers tool | Follow desktop decision 7: **disabled with an explanation** before Phase 3. |
+
+**Mobile tool row (owner-decided 2026-11-23):** before Phase 3 the row shows only **Fit, Export, and Delete**. Adjust, Edit, and Layers come back with the Phase 3 editing tools.
+
+**Still open (mobile):** Provider and Model appear together in the Settings sheet on mobile. This is acceptable because mobile has no left panel, but confirm when T-111 starts.
 
 ## 7. Design Tokens
 

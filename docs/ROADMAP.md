@@ -26,7 +26,7 @@ Exit gate:
 Goal: six studios, each with its own templates and workflow, on the shared engine.
 
 Depends on: Phase 1.
-First studio: **Manga & Comics** (owner-decided 2026-11-23). The other five follow in an order still to be decided.
+Studio order (owner-decided 2026-11-23): **Manga & Comics** first, then **Commercial Artwork**, **Interior Design**, **UI/UX Design**, **Movie & Cinematic**. **Education** comes last.
 
 ## Phase 3 — Advanced
 
