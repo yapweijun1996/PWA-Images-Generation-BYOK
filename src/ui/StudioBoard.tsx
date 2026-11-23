@@ -38,26 +38,43 @@ export function StudioBoard({ project, selected, locale, onChange }: {
     try {
       const canvas = document.createElement('canvas')
       const cols = Math.min(2,board.panels.length)
-      canvas.width = cols*640
-      canvas.height = Math.ceil(board.panels.length/cols)*560
       const ctx = canvas.getContext('2d')
       if (!ctx) throw new Error('Canvas unavailable')
-      ctx.fillStyle = '#fff';ctx.fillRect(0,0,canvas.width,canvas.height)
-      for (const [i,panel] of board.panels.entries()) {
-        const bitmap = await createImageBitmap(await store.readAsset(panel.assetId))
-        const x = i%cols*640, y = Math.floor(i/cols)*560
-        const scale = Math.min(608/bitmap.width,420/bitmap.height)
-        ctx.drawImage(bitmap,x+(640-bitmap.width*scale)/2,y+12,bitmap.width*scale,bitmap.height*scale)
-        bitmap.close()
-        ctx.font='22px sans-serif';ctx.fillStyle='#171720'
-        let line='', row=0
+      const font = '22px sans-serif'
+      ctx.font = font
+      const captions = board.panels.map(panel => {
+        const lines: string[] = []
+        let line = ''
         for (const char of panel.caption) {
-          if (ctx.measureText(line+char).width > 606 || char === '\n') {
-            ctx.fillText(line,x+16,y+464+row++*26);line=''
+          if (char === '\n' || ctx.measureText(line + char).width > 606) {
+            lines.push(line)
+            line = ''
           }
-          if (char!=='\n') line+=char
+          if (char !== '\n') line += char
         }
-        ctx.fillText(line,x+16,y+464+row*26)
+        return [...lines, line]
+      })
+      const rowOffsets: number[] = []
+      let height = 0
+      for (let start = 0; start < captions.length; start += cols) {
+        rowOffsets.push(height)
+        const lines = Math.max(...captions.slice(start, start + cols).map(text => text.length))
+        height += Math.max(560, 464 + (lines - 1) * 26 + 24)
+      }
+      canvas.width = cols * 640
+      canvas.height = height
+      ctx.fillStyle = '#fff'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      ctx.font = font
+      for (const [i, panel] of board.panels.entries()) {
+        const bitmap = await createImageBitmap(await store.readAsset(panel.assetId))
+        const x = i % cols * 640
+        const y = rowOffsets[Math.floor(i / cols)]
+        const scale = Math.min(608 / bitmap.width, 420 / bitmap.height)
+        ctx.drawImage(bitmap, x + (640 - bitmap.width * scale) / 2, y + 12, bitmap.width * scale, bitmap.height * scale)
+        bitmap.close()
+        ctx.fillStyle = '#171720'
+        captions[i].forEach((line, row) => ctx.fillText(line, x + 16, y + 464 + row * 26))
       }
       const blob = await new Promise<Blob>((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Export failed'))))
       const url=URL.createObjectURL(blob),link=document.createElement('a')
@@ -69,7 +86,7 @@ export function StudioBoard({ project, selected, locale, onChange }: {
     <label>{t('Dialogue or annotation','对白或注释')}<textarea value={caption} maxLength={100} onChange={e=>setCaption(e.target.value)} /></label>
     <button disabled={!selected || board.panels.length>=12} onClick={()=>{if(selected) void change(b=>({...b,reviewed:false,panels:[...b.panels,{assetId:selected,caption}]}))}}>{t('Add selected image','添加选中图片')}</button>
     <ol>{board.panels.map((panel,i)=><li key={i}><AssetImage locale={locale} id={panel.assetId} alt={t('Panel','画格')+' '+(i+1)} />
-      <label>{t('Panel text','画格文字')}<input key={panel.caption} defaultValue={panel.caption} maxLength={100} onBlur={e=>{const text=e.target.value;if(text!==panel.caption)void change(b=>({...b,reviewed:false,panels:b.panels.map((p,n)=>n===i?{...p,caption:text}:p)}))}} /></label>
+      <label>{t('Panel text','画格文字')}<textarea key={panel.caption} defaultValue={panel.caption} maxLength={100} onBlur={e=>{const text=e.target.value;if(text!==panel.caption)void change(b=>({...b,reviewed:false,panels:b.panels.map((p,n)=>n===i?{...p,caption:text}:p)}))}} /></label>
       <button disabled={!i} onClick={()=>void change(b=>{const panels=[...b.panels];[panels[i-1],panels[i]]=[panels[i],panels[i-1]];return {panels,reviewed:false}})}>{t('Move earlier','前移')}</button>
       <button onClick={()=>void change(b=>({reviewed:false,panels:b.panels.filter((_,n)=>n!==i)}))}>{t('Remove panel','移除画格')}</button></li>)}</ol>
     <label><input type="checkbox" checked={board.reviewed} onChange={e=>{const reviewed=e.target.checked;void change(b=>({...b,reviewed}))}} />{t('I reviewed the captions, accuracy and image continuity','我已审核文字、准确性和画面连续性')}</label>

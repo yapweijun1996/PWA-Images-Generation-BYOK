@@ -27,3 +27,7 @@ A subsequent **real provider verification** used the corrected production build 
 ## Public native UHD generation
 
 On 2026-11-23, an isolated macOS Chrome session loaded the public GitHub Pages release built from `318ff9d`. The tester entered a temporary credential, selected 3840 × 2160 at low quality and explicitly submitted one generation. The provider returned HTTP 200. Chrome decoded the image at 3840 × 2160, reopened it after an offline reload and downloaded an 8,609,201-byte PNG whose IHDR width and height matched the selected dimensions.
+
+## Multi-line board captions
+
+Chrome on macOS imported a local image through the composer, added it to a board with a six-line caption, approved the board and exported a 640 × 618 PNG. Reopening the workspace retained all six caption lines. Board rows expand for the tallest caption in each row, while short captions retain the standard 560-pixel row.
