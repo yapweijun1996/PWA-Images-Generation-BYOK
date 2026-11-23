@@ -39,3 +39,9 @@ The text-contrast scan covered 36 Chrome viewport, theme and UI-state combinatio
 ## Build label at the bottom of phone screens
 
 Geometry and hit testing confirmed that the fixed bottom navigation covered the build label even at the maximum scroll position on Home and Create. The mobile navigation clearance now follows the footer. In Chrome 158 and WebKit 27.2 on corrected local build `2026-11-23T16:28:12.570Z`, the label was reachable at 320, 390 and 430 CSS px on both views. The complete text ended about four CSS pixels above the fixed navigation at a height of 844 px. The label also remained reachable at 768 and 1440 px on Create.
+
+## Published browser results
+
+[Pages run 45216625714](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45216625714) published the drawer fix in `0618424` (build `2026-11-23T16:27:28.267Z`). Chrome and WebKit verified the drawer behavior from the public URL. [Pages run 45217151933](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45217151933) published the additional footer fix in `d05d51f` (build `2026-11-23T16:30:20.736Z`). It passed 40 drawer assertions and all 16 build-label placements. The repeated contrast scan had zero automatic violations out of 36 sampled states. The manual flags on this build were the decorative select gradients and disclosure glyph.
+
+On the public `d05d51f` URL, a worker-controlled 390 × 844 Chrome tab recovered the same build and saved draft after an offline reload. A separate loopback replay of the retained `d05d51f` and `0618424` artifacts verified the modal and update boundary again with an actual waiting worker. The live transition was missed because the deployment completed before the browser opened the older build.

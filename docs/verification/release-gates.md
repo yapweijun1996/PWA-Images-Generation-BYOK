@@ -1,6 +1,6 @@
 # Production release gates
 
-**Decision: HOLD.** This assessment uses the STATIC_OFFLINE profile of KB-MCP `pwa:product-standard` v1.1.0 (registry body revision `80aad1538f3ecdddd7512de64cde4b8047196fb3637c075a87aab381bf314874`) and its service-worker install-integrity companion. Assessment date: 2026-11-24 Singapore time. Current hosted build: `db3c6ed`. This matrix records the scope of each observation. Historical local passes do not establish release-candidate or live acceptance.
+**Decision: HOLD.** This assessment uses the STATIC_OFFLINE profile of KB-MCP `pwa:product-standard` v1.1.0 (registry body revision `80aad1538f3ecdddd7512de64cde4b8047196fb3637c075a87aab381bf314874`) and its service-worker install-integrity companion. Assessment date: 2026-11-24 Singapore time. Current hosted build: `d05d51f`. This matrix records the scope of each observation. Historical local passes do not establish release-candidate or live acceptance.
 
 | Gate | Decision | Outstanding evidence |
 |---|---|---|
@@ -10,6 +10,12 @@
 | G4 Evidence | HOLD | A release artifact is published. Remaining gaps include per-case build evidence and the full target matrix. The live rollback and restore-forward drill passed. |
 
 ## Current public release
+
+[Pages run 45217151933](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45217151933) published `d05d51f`, displayed as `v0.1.0 · 2026-11-23T16:30:20.736Z`. All 37 tests, lint, type checking and the production build passed. An independent comparison matched all 11 public files to the retained artifact. Worker SHA-256: `968c42d64f9e25d1034524652ac32bac85b49f6ef27900d82beab687260040da`. The retained artifact expires on 2027-02-21 at 16:29:49 UTC. A scan of 135 tracked files and all 11 published files found no copy of the configured developer key.
+
+The release isolates the background when a phone or tablet drawer is open, including connection and update controls. It makes the build label readable above the fixed phone navigation. Live Chrome recovered the saved draft and build on an offline reload. [Browser and state evidence](keyboard-and-controls.md).
+
+## November 24 generation and review release
 
 [Pages run 45212692403](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45212692403) published `db3c6ed`, displayed as `v0.1.0 · 2026-11-23T16:06:51.928Z`. All 37 tests, lint, type checking and the production build passed. An independent comparison matched all 11 published files to the retained release artifact. Worker SHA-256: `f7a1a697333f3c65d70f7d040f37aa74fc7ee6d2c1d694c128be9cfe97599f7f`. The artifact expires on 2027-02-21 at 16:06:23 UTC. A scan of the tracked repository and all public files found no copy of the configured developer key. The npm advisory audit on November 24 Singapore time reported zero known vulnerabilities.
 
@@ -103,11 +109,11 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | MOB-08 | Light/dark system chrome | PARTIAL | Browser theme metadata and native control scheme followed the selected app theme in Chrome and WebKit. Physical system chrome remains open. |
 | A11Y-01 | Keyboard-only navigation | PASS (bounded desktop Chrome journeys) | Keyboard-only validation, project creation and generation failure exercised. [Evidence](keyboard-and-controls.md). |
 | A11Y-02 | Visible focus indicator | PARTIAL | 48 focus visits per theme, with visible focus and contrast measured in desktop Chrome. Review on remaining platforms. [Evidence](keyboard-and-controls.md). |
-| A11Y-03 | Screen-reader landmarks and names | PARTIAL | Chrome accessibility trees at 390 and 1440 px expose named navigation, inspector and Help dialogs, a required prompt, named settings and a polite status region. VoiceOver and TalkBack remain open. |
-| A11Y-04 | Contrast requirements | PARTIAL | Focus contrast exceeded 6.5:1 in both themes on sampled controls. Full state coverage remains open. [Evidence](keyboard-and-controls.md). |
+| A11Y-03 | Screen-reader landmarks and names | PARTIAL | Chrome accessibility trees expose named navigation, inspector and Help dialogs, a required prompt, named settings and a polite status region. With a workspace drawer open, Chrome exposes the named dialog and excludes the inert background. VoiceOver and TalkBack remain open. [Evidence](keyboard-and-controls.md). |
+| A11Y-04 | Contrast requirements | PARTIAL | Focus contrast exceeded 6.5:1 on sampled controls in both themes. Chrome checked 36 viewport, theme and UI-state combinations with no automated axe violations. Manual and wider coverage remain open. [Evidence](keyboard-and-controls.md). |
 | A11Y-05 | Touch target spacing | PARTIAL | Measured desktop Chrome viewports and corrected undersized disclosures, header buttons and key controls. Physical touch acceptance remains open. [Evidence](keyboard-and-controls.md). |
 | A11Y-06 | Reduced-motion preference | PASS (Chrome preference emulation) | Reduced-motion behavior verified in Chrome. [Evidence](keyboard-and-controls.md). |
-| A11Y-07 | Modal focus trapping and restoration | PASS (Chromium drawers) | Four drawer cases verified keyboard containment, Escape and focus restoration. See performance.md. |
+| A11Y-07 | Modal focus trapping and restoration | PASS (Chrome and WebKit drawers) | Both drawers at 390 and 768 px kept keyboard focus inside, blocked direct background focus and restored focus on Escape or backdrop click. Chrome also verified the accessibility tree. [Evidence](keyboard-and-controls.md). |
 | A11Y-08 | Accessible update status announcements | PARTIAL | Chrome exposed a polite atomic status node before discovery. The same node changed on discovery and draft blocking. Spoken announcements with VoiceOver and TalkBack remain open. [Update status evidence](update-guards.md). |
 | QA-01 | LCP target | LAB PASS; FIELD INSUFFICIENT_DATA | Six fresh navigations measured LCP 1260–1368 ms in the bounded lab. See performance.md. |
 | QA-02 | INP target | LAB ONLY; FIELD INSUFFICIENT_DATA | Worst observed interaction event duration was 120 ms. The bounded sample does not establish field INP P75. |
