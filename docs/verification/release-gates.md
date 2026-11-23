@@ -41,7 +41,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | INS-04 | 192/512 icons and maskable rendering | NOT_RUN | Inspect installed icon crop and safe zone on each install target. |
 | INS-05 | Standalone launch | PASS (macOS Chrome) | The subsequent installed standalone-window check supersedes the earlier tab-only result. See the public upgrade observation below. |
 | INS-06 | iOS manual installation guidance | NOT_RUN | Walk through Add to Home Screen on a physical iPhone. |
-| INS-07 | Unsupported install prompt fallback | NOT_RUN | Exercise ordinary web fallback in Firefox and Safari. |
+| INS-07 | Unsupported install prompt fallback | PASS (Playwright Firefox 159 and WebKit 27.2) | On the published candidate, Help displayed bookmark/browser instructions without an Install button. Closing Help returned to an editable prompt. |
 | INS-08 | Deep-link launch after installation | NOT_RUN | Launch installed app from a supported deep link. |
 | SW-01 | Fresh install and first-load behavior | PASS (historical local) | Chrome registered and activated the shell worker at the app subpath (E1). |
 | SW-02 | Build A to B update discovery | PASS (historical local) | Two distinct preview builds triggered discovery and installation (E2). |
@@ -86,7 +86,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | QA-05 | CSP and XSS regression | PASS (bounded desktop Chrome checks) | Project markup displayed as literal text. CSP blocked an off-origin request. [Evidence](keyboard-and-controls.md). |
 | QA-06 | No sensitive cache leakage | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
 | QA-07 | Dependency security review | PASS (2026-11-23 npm advisory snapshot) | Clean Node 24 install and full npm audit reported zero known vulnerabilities after overriding Workbox’s build-only glob dependency to 14.0.6. Lint, tests and production worker generation passed. |
-| QA-08 | Recoverable runtime errors | NOT_RUN | Observe recovery paths for invalid credentials, network errors, quota and damaged restores. |
+| QA-08 | Recoverable runtime errors | PASS (bounded fixtures) | On the public candidate, Chrome displayed an intercepted HTTP 401, restored the prompt on reload and issued no duplicate request. Network/quota fixtures and malformed-ZIP feedback were also exercised. |
 | REL-01 | Clean production deployment | PASS (first live release) | Workflow 45192152435, live HTTPS entry, nine matching artifact files. |
 | REL-02 | Old-to-new build upgrade | PASS (live Chrome) | Installed A stayed on A until explicit activation, then displayed B after one navigation. |
 | REL-03 | Interrupted update recovery | PARTIAL | Broken candidate download retained the old shell and recovered to a subsequent healthy build after explicit activation. Interruption during activation remains open. |
