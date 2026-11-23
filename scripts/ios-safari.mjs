@@ -161,9 +161,10 @@ try {
     platformName:'iOS', 'appium:platformVersion':'26.2', 'appium:automationName':'XCUITest', 'appium:udid':SIMULATOR_UDID,
     'appium:deviceName':DEVICE_NAME, 'appium:bundleId':safari, 'appium:language':'en', 'appium:locale':'en_US',
     'appium:noReset':true, 'appium:isHeadless':true, 'appium:newCommandTimeout':120,
-    'appium:usePrebuiltWDA':true, 'appium:derivedDataPath':WDA_BUILD,
-    'appium:wdaLaunchTimeout':125_000, 'appium:wdaStartupRetries':1, 'appium:showXcodeLog':true,
-  }}}, 260_000)
+    'appium:usePreinstalledWDA':true,
+    'appium:prebuiltWDAPath':join(WDA_BUILD, 'Build', 'Products', 'Debug-iphonesimulator', 'WebDriverAgentRunner-Runner.app'),
+    'appium:wdaLaunchTimeout':125_000, 'appium:wdaStartupRetries':1,
+  }}}, 360_000)
   session = started.sessionId
   report.platformVersion = started.capabilities.platformVersion
   step('Connected WebDriverAgent to the booted simulator')

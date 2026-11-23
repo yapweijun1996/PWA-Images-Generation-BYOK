@@ -1,7 +1,7 @@
 name: Verify iOS Safari Home Screen
 on:
   push:
-    branches: ['codex/ios-safari-check']
+    branches: ['codex/iphone-safari-check']
   workflow_dispatch:
     inputs:
       release_run:
@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        device: [iPad (A16)]
+        device: [iPhone 17]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
