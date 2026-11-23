@@ -4,10 +4,10 @@
 
 | Gate | Decision | Outstanding evidence |
 |---|---|---|
-| G1 Safety | HOLD | Build-integrity rejection, cross-tab update safety, recovery and security checks remain open. |
+| G1 Safety | HOLD | Build-integrity rejection and cross-tab activation have passed bounded Chrome checks. Review remaining offline failure, security and device cases below. |
 | G2 Compatibility | HOLD | Physical iOS Home Screen, VoiceOver, Android and remaining supported browsers need execution. |
-| G3 Performance | HOLD | Lab baselines and launch policy for absent field data are outstanding. Field P75 is INSUFFICIENT_DATA. Targets are LCP ≤2.5 s, INP ≤200 ms and CLS ≤0.1. |
-| G4 Evidence | HOLD | A release artifact is published. Remaining gaps include per-case build SHA/digest, live rollback drill or complete target matrix. |
+| G3 Performance | HOLD | Six local cold navigations met the lab thresholds. Real-user percentile coverage is outstanding. Field P75 is INSUFFICIENT_DATA. Targets are LCP ≤2.5 s, INP ≤200 ms and CLS ≤0.1. |
+| G4 Evidence | HOLD | A release artifact is published. Remaining gaps include per-case build evidence and the full target matrix. The live rollback and restore-forward drill passed. |
 
 ## Evidence used
 
@@ -30,7 +30,7 @@
 
 ## Catalog
 
-All 60 cases below are relevant to the declared product or require an explicit justified exception. NOT_RUN means the full assertion lacks a recorded execution in its stated environment. Component tests, static inspection and partial runtime observations appear in the evidence column. FAIL for INS-05 describes the measured local result.
+All 60 cases below are relevant to the declared product or require an explicit justified exception. NOT_RUN means the full assertion lacks a recorded execution in its stated environment. Component tests, static inspection and partial runtime observations appear in the evidence column. The initial standalone mismatch and subsequent successful installed launches are both recorded.
 
 | Test ID | Assertion | Result | Evidence or remaining acceptance check |
 |---|---|---|---|
@@ -47,10 +47,10 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | SW-03 | Mismatched build identity rejected | PASS (local Chrome, two builds) | [Build-bound integrity and recovery observations](shell-integrity.md). |
 | SW-04 | CDN stale asset rejection | PASS (local Chrome, two builds) | [Build-bound integrity and recovery observations](shell-integrity.md). |
 | SW-05 | Update prompt visible | PASS (historical local) | Waiting worker displayed an actionable prompt in real Chrome (E2). |
-| SW-06 | Unsaved draft blocks activation | NOT_RUN | Component/guard tests cover blocked clicks; run a real dirty editor through update. |
-| SW-07 | Multiple tabs coordinate activation | NOT_RUN | Keep one tab busy while requesting activation in another tab. |
-| SW-08 | Duplicate Update click prevented | NOT_RUN | Unit test covers duplicate clicks; exercise repeated input in a real browser. |
-| SW-09 | Activation loader and controllerchange | NOT_RUN | One controller transition/reload observed; loader visibility and announcement outstanding. |
+| SW-06 | Unsaved draft blocks activation | PASS (two-tab Chrome) | [Actual drafts, double click and update navigation](update-guards.md). |
+| SW-07 | Multiple tabs coordinate activation | PASS (two-tab Chrome) | [Actual drafts, double click and update navigation](update-guards.md). |
+| SW-08 | Duplicate Update click prevented | PASS (two-tab Chrome) | [Actual drafts, double click and update navigation](update-guards.md). |
+| SW-09 | Activation loader and controllerchange | PASS (two-tab Chrome) | [Actual drafts, double click and update navigation](update-guards.md). |
 | SW-10 | Offline update failure preserves old build | PASS (local Chrome, two builds) | [Build-bound integrity and recovery observations](shell-integrity.md). |
 | SW-11 | Rollback from invalid build | NOT_RUN | Simulate a corrupt build and restore known-good bytes. |
 | SW-12 | Unknown-route recovery | PASS (local Chrome, two builds) | [Build-bound integrity and recovery observations](shell-integrity.md). |
@@ -84,7 +84,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | QA-04 | Responsive layout without overflow | PARTIAL | No horizontal overflow on tested fresh shells at 390/768/1440. See performance.md. |
 | QA-05 | CSP and XSS regression | NOT_RUN | CSP present in production output; execute defensive rendering and CSP checks on release candidate. |
 | QA-06 | No sensitive cache leakage | NOT_RUN | Fixture credential absent from inspected E3 caches and E4 backup; full release cache audit pending. |
-| QA-07 | Dependency security review | NOT_RUN | Review locked production and build dependencies and document dispositions. |
+| QA-07 | Dependency security review | PASS (2026-11-23 npm advisory snapshot) | Clean Node 24 install and full npm audit reported zero known vulnerabilities after overriding Workbox’s build-only glob dependency to 14.0.6. Lint, tests and production worker generation passed. |
 | QA-08 | Recoverable runtime errors | NOT_RUN | Observe recovery paths for invalid credentials, network errors, quota and damaged restores. |
 | REL-01 | Clean production deployment | PASS (first live release) | Workflow 45192152435, live HTTPS entry, nine matching artifact files. |
 | REL-02 | Old-to-new build upgrade | PASS (live Chrome) | Installed A stayed on A until explicit activation, then displayed B after one navigation. |
