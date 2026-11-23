@@ -36,3 +36,9 @@ After terminating each browser, the harness blocked its profile network and veri
 ## Windows stable Firefox
 
 [Hosted run 45198772781](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45198772781) verified the runner's preinstalled release-channel Firefox 160.0 on Windows Server 2025 with a fresh profile and a local production build from source `4d1e124`. A normal browser tab persisted the project draft in IndexedDB. An online navigation established worker control. After closing the local HTTP server and confirming the TCP connection was refused, reloading replaced the document and recovered the same build and draft. This tests ordinary browser use with the app origin offline.
+
+## Android Chrome on an emulator
+
+[GitHub Actions run 45205464785](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45205464785), 2026-11-23T15:29:07Z, runner Ubuntu 24.04, Android 15 Play Store emulator (`sdk_gphone64_x86_64`), Chrome 124.0.6367.219. The run loaded the public build `2026-11-23T15:25:32.252Z` from `bc9f60d`. The actual Android keyboard reduced the visual viewport while leaving the active prompt and Generate visible. Dismissing the keyboard and rotating the emulator preserved the prompt without horizontal overflow. After switching on airplane mode and disabling browser network traffic, an uncached same-origin probe failed. A fresh, worker-controlled browser tab then recovered the build and draft and showed the offline message.
+
+The `android-browser` artifact contains the result and three screenshots. SHA-256 values are `6c353bfc06bf564f18d201997edeb2c87bcd1e77e48abec9816121dc60d8654a` (keyboard), `7554e72f6ab4831b563af3053d6a6057692027cb324f6a17330d9b2cb2816414` (landscape) and `6265d0742879d71bd53f13918b9823bf262f22fa7178a74727d6a3c91d13f406` (offline). The emulator result covers the browser tab. Chrome installation, launcher cold start, modern physical hardware and TalkBack remain separate checks.
