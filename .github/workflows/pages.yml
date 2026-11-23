@@ -32,11 +32,15 @@ jobs:
           node-version: '24'
       - if: inputs.restore_run == ''
         name: Verify and build
+        env:
+          RELEASE_SOURCE_REVISION: ${{ github.sha }}
         run: |
+          test "$(git rev-parse HEAD)" = "$RELEASE_SOURCE_REVISION"
           npm ci
           npm test
           npm run lint
           npm run build
+          jq -e --arg revision "$RELEASE_SOURCE_REVISION" '.sourceRevision == $revision' dist/build-info.json
 
       - if: inputs.restore_run != ''
         name: Verify rollback source
@@ -102,9 +106,13 @@ jobs:
           path: published-site
           digest-mismatch: error
       - name: Compare public site with release artifact
+        env:
+          RESTORE_RUN: ${{ inputs.restore_run }}
         run: |
+          revision=()
+          if [[ -z "$RESTORE_RUN" ]]; then revision+=("$GITHUB_SHA"); fi
           for attempt in 1 2 3 4 5 6; do
-            if node scripts/verify-pages.mjs published-site; then exit 0; fi
+            if node scripts/verify-pages.mjs published-site "${revision[@]}"; then exit 0; fi
             if [[ "$attempt" != 6 ]]; then sleep 10; fi
           done
           echo "::error::The public site did not match the published artifact. Inspect the failed file and the retained rollback build."

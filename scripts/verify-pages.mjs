@@ -1,13 +1,22 @@
 /* global URL, fetch, AbortSignal, console */
 import process from "node:process"
 // Usage: gh run download RUN_ID -n site-files -D /tmp/site-files
-//        node scripts/verify-pages.mjs /tmp/site-files
+//        node scripts/verify-pages.mjs /tmp/site-files [EXPECTED_SOURCE_REVISION]
 import { createHash } from 'node:crypto'
 import { readdir, readFile } from 'node:fs/promises'
 import { resolve, relative, sep } from 'node:path'
 
 if (!process.argv[2]) throw new Error('Pass the downloaded site-files artifact directory.')
 const root = resolve(process.argv[2])
+const expectedRevision = process.argv[3]
+if (expectedRevision !== undefined) {
+  if (!/^[a-f0-9]{40}$/.test(expectedRevision)) throw new Error('Pass a full lowercase Git commit SHA.')
+  const { buildId, sourceRevision } = JSON.parse(await readFile(resolve(root, 'build-info.json'), 'utf8'))
+  if (typeof buildId !== 'string' || !buildId.trim() || sourceRevision !== expectedRevision) {
+    throw new Error('The artifact does not identify the expected source revision.')
+  }
+  console.log('Verified release identity:', buildId, sourceRevision)
+}
 const base = new URL('https://yapweijun1996.github.io/PWA-Images-Generation-BYOK/')
 const digest = bytes => createHash('sha256').update(bytes).digest('hex')
 async function verify(path) {

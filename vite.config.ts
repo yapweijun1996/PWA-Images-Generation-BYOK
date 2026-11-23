@@ -12,6 +12,10 @@ const lightBackground = '#f7f8fb'
 
 export default defineConfig(({ command }) => {
   const buildId = `v${packageJson.version} · ${command === 'build' ? new Date().toISOString() : 'development'}`
+  const sourceRevision = process.env.RELEASE_SOURCE_REVISION
+  if (command === 'build' && sourceRevision !== undefined && !/^[a-f0-9]{40}$/.test(sourceRevision)) {
+    throw new Error('RELEASE_SOURCE_REVISION must be a full lowercase Git commit SHA.')
+  }
   return {
     base,
     resolve: { tsconfigPaths: true },
@@ -47,7 +51,7 @@ export default defineConfig(({ command }) => {
         },
         apply: 'build',
         generateBundle() {
-          this.emitFile({ type: 'asset', fileName: 'build-info.json', source: JSON.stringify({ buildId }) })
+          this.emitFile({ type: 'asset', fileName: 'build-info.json', source: JSON.stringify({ buildId, sourceRevision }) })
         },
       },
       VitePWA({

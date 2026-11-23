@@ -117,9 +117,10 @@ try {
   context = await device.launchBrowser({ viewport: null, hasTouch: true, timeout: 60000 })
   const page = await context.newPage()
   await page.goto(site)
-  const expectedBuild = (await (await globalThis.fetch(new URL('build-info.json', site))).json()).buildId
+  const { buildId: expectedBuild, sourceRevision } = await (await globalThis.fetch(new URL('build-info.json', site))).json()
   await page.waitForFunction(build => document.querySelector('footer')?.textContent.includes(build), expectedBuild)
   evidence.build = expectedBuild
+  evidence.sourceRevision = sourceRevision
   await page.evaluate(() => navigator.serviceWorker.ready.then(() => true))
   await page.reload()
   await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller))

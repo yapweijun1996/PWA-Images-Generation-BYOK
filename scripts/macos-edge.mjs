@@ -53,7 +53,7 @@ try {
     executablePath: edge, headless: false, viewport: { width:1440, height:900 },
     args: offline ? [...args, '--proxy-server=http://127.0.0.1:1', '--proxy-bypass-list=<-loopback>', '--disable-quic'] : args,
   })
-  const expected = (await (await globalThis.fetch(new URL('build-info.json',site))).json()).buildId
+  const { buildId: expected, sourceRevision } = await (await globalThis.fetch(new URL('build-info.json',site))).json()
   context = await launch(false)
   evidence.version = context.browser().version()
   page = await context.newPage()
@@ -68,6 +68,7 @@ try {
   await concurrent.waitForFunction(value => document.querySelector('.creation-prompt textarea')?.value === value, draft)
   await concurrent.close()
   evidence.build = expected
+  evidence.sourceRevision = sourceRevision
   evidence.steps.push('Public release opened in Edge and an independent tab recovered the stored draft')
   if (!appShim()) {
     const session = await context.newCDPSession(page)

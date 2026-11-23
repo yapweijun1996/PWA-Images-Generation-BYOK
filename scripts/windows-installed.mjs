@@ -59,7 +59,8 @@ async function stop() {
 }
 
 try {
-  const expected = (await (await globalThis.fetch(new URL('build-info.json',site))).json()).buildId
+  const { buildId: expected, sourceRevision } = await (await globalThis.fetch(new URL('build-info.json',site))).json()
+  evidence.sourceRevision = sourceRevision
   const context = await start(false)
   evidence.browser = browser.version()
   page = await context.newPage()
