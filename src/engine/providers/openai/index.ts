@@ -40,6 +40,7 @@ export function createOpenAIAdapter(getKey: () => string | null): ProviderAdapte
       const key = getKey()?.trim()
       if (!key) throw new ImageRequestError('Enter your OpenAI API key in Settings.', 'failed')
       const { path, body } = prepare(request)
+      if (navigator.onLine === false) throw new ImageRequestError('You are offline. Reconnect before generating.', 'failed')
       signal.throwIfAborted()
       try {
         const response = await fetch('https://api.openai.com/v1/images/' + path, {

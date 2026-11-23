@@ -17,6 +17,11 @@ export function useStudio(projectId: string) {
   const [error, setError] = useState('')
   const [revision, setRevision] = useState(0)
   const refresh = useCallback(() => setRevision(value => value + 1), [])
+  useEffect(() => {
+    const check = () => { if (document.visibilityState === 'visible') refresh() }
+    document.addEventListener('visibilitychange', check)
+    return () => document.removeEventListener('visibilitychange', check)
+  }, [refresh])
   const run = useCallback(async (id: string) => {
     const release = registerUpdateGuard('job')
     try {
