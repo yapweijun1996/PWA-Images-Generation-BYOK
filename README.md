@@ -125,6 +125,17 @@ Build general image generation first, then add the specialized studios step by s
 | 3 | Advanced | Image editing, Character Lock, Style Lock, batch generation |
 | 4 | Production | Cost control, offline project management, backup and restore, responsive polish |
 
+## Documentation
+
+All documents are in **Planning** status.
+
+| Document | Purpose |
+|----------|---------|
+| [docs/DESIGN.md](docs/DESIGN.md) | Architecture, applied standards, UI layout, data and security design |
+| [docs/SPEC.md](docs/SPEC.md) | Requirements, studios, non-functional requirements, acceptance criteria |
+| [docs/ROADMAP.md](docs/ROADMAP.md) | Four phases, dependencies, risks |
+| [docs/TASK.md](docs/TASK.md) | Executable task list and next task |
+
 ## License
 
 Not yet specified.
