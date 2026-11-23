@@ -133,7 +133,7 @@ The Canvas uses **non-destructive editing**. Regenerating creates a new version 
 | Tablet, 768–1279px | Canvas plus drawers |
 | Mobile, below 768px | Canvas plus bottom tabs |
 
-Mobile has four bottom tabs: **Studio, Create, Assets, Settings**. The Prompt Composer opens as a bottom sheet so it does not permanently take Canvas space.
+Mobile has four bottom tabs: **Home, Create, Assets, Projects** (see 6a). Settings open as a panel from the Create screen. The Prompt Composer opens as a bottom sheet so it does not permanently take Canvas space.
 
 ### 6a. Mobile Visual Anchor V1
 
@@ -155,17 +155,19 @@ File: `docs/ui/anchors/anchor-v1-mobile.webp`. Owner-selected on 2026-11-23 as t
 
 **Responsive anchor:** Mobile up to 767px (bottom navigation plus drawer), Tablet 768–1279px (two columns or drawer), Desktop 1280px and above (three-panel workspace). This matches section 6.
 
-**Differences from earlier text spec and desktop decisions (to resolve with the owner)**
+**Owner decisions on the mobile anchor (2026-11-23)**
 
-| Item | Note |
-|------|------|
-| Bottom tabs | The anchor uses Home, Create, Assets, Projects. The earlier text spec said Studio, Create, Assets, Settings. In the anchor, Settings is a sheet opened from the Create screen. |
-| Studio cards with thumbnails on Home | Desktop decision 8 says icons plus text, no thumbnails. The mobile Home uses picture cards. Needs one rule for both. |
-| Hero banner with marketing text | "Create Amazing Images with Your Own API Key" is promotional. Decide whether a workspace app should open on a banner or on recent projects. |
-| Inpaint tab and Layers tool | Phase 3 features. Before Phase 3 they must be disabled with an explanation. |
-| Adjust and Edit tools | Not defined in the spec. Need a definition or removal. |
-| Chinese labels in the anchor | The anchor mixes English and Chinese captions. UI languages are not decided. |
-| Provider and Model in the Settings sheet | Consistent with the desktop split (Provider in the left panel, Model in the inspector) only if mobile groups them in one sheet. Confirm. |
+| # | Item | Decision |
+|---|------|----------|
+| 1 | Bottom tabs | **Home, Create, Assets, Projects.** Settings are a panel inside the Create screen. Projects holds project management, import/export, and backup. |
+| 2 | Studio cards on Home | **Icon plus text**, the same rule as desktop. No picture cards. |
+| 3 | Home opening | **Recent projects plus Continue creating.** A short onboarding hint appears only when there are no projects. No promotional banner. |
+| 4 | UI language | **English and Simplified Chinese, switchable.** All UI strings go through an i18n layer from the start. |
+| 5 | Inpaint tab and Layers tool | Follow desktop decision 7: **disabled with an explanation** before Phase 3. |
+
+**Still open (mobile)**
+- "Adjust" and "Edit" tools are not defined in the spec. They need a definition or removal.
+- Provider and Model appear together in the Settings sheet on mobile. This is acceptable because mobile has no left panel, but confirm when T-111 starts.
 
 ## 7. Design Tokens
 

@@ -145,7 +145,8 @@ Use the IDs from `docs/TASK.md`. Update the status there as you go, with evidenc
 
 ### T-111 Main layout
 - [ ] Built as real HTML/CSS following Visual Anchor V1 and the T-114 decisions (no top studio strip, no avatar, no Complexity).
-- [ ] Desktop three panels; tablet drawers; mobile bottom tabs (Studio, Create, Assets, Settings).
+- [ ] Desktop three panels; tablet drawers; mobile bottom tabs (Home, Create, Assets, Projects) per the mobile anchor decisions in `docs/UIUX.md` 6a.
+- [ ] All UI strings go through an i18n layer; English and Simplified Chinese are switchable (NF-12).
 - [ ] Keyboard navigation, visible focus, reduced motion, light and dark themes.
 - [ ] Taste gate passed with real screenshots at 390x844, 768x1024, 1440x900.
 

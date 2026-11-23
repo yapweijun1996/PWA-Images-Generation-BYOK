@@ -77,6 +77,7 @@ Source: `pwa:product-standard` v1.1.0, profile `STATIC_OFFLINE`.
 | NF-08 | Core Web Vitals target at field P75: LCP <= 2.5s, INP <= 200ms, CLS <= 0.1. |
 | NF-09 | Responsive: no horizontal overflow; usable at 390x844, 768x1024, and 1440x900. |
 | NF-11 | The product MUST be a PWA, deployed to GitHub Pages by a GitHub Actions workflow. All paths work under the repository sub-path. |
+| NF-12 | UI languages: English and Simplified Chinese, switchable by the user. All UI strings go through an i18n layer from the start. | 
 | NF-10 | Storage quota errors and cache eviction are recoverable, with a clear message to the user. |
 
 ## 5. Acceptance Criteria
