@@ -114,8 +114,20 @@ async function findStandalone(context) {
 }
 
 async function setRotation(rotation) {
-  await shell('cmd window user-rotation lock ' + rotation)
-  assert.equal(await shell('cmd window user-rotation'), 'lock ' + rotation)
+  const expected = 'lock ' + rotation
+  await shell('cmd window user-rotation ' + expected)
+  // Window Manager can acknowledge the command before reporting the new lock.
+  const deadline = Date.now() + 15_000
+  let observed = await shell('cmd window user-rotation')
+  let reads = 1
+  while (observed !== expected && Date.now() < deadline) {
+    await delay(500)
+    observed = await shell('cmd window user-rotation')
+    reads++
+  }
+  evidence.rotationLocks ??= []
+  evidence.rotationLocks.push({ expected, observed, reads })
+  assert.equal(observed, expected, 'Android did not report the requested rotation lock')
 }
 
 let context, restartedBrowser, debugPort, wroteChromeFlags = false
