@@ -1,4 +1,6 @@
 import type { ProviderAdapter } from '@engine/types'
+import { createOpenAIAdapter } from './openai'
 
-// T-104 populates the registry when the first adapter is verified.
-export const providers: readonly ProviderAdapter[] = []
+export function createProviders(getOpenAIKey: () => string | null): readonly ProviderAdapter[] {
+  return [createOpenAIAdapter(getOpenAIKey)]
+}

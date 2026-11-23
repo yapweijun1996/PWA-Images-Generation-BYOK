@@ -1,6 +1,6 @@
 # TASK
 
-> Status: **Planning.** All tasks are pending. Nothing is implemented, so there is no completion evidence yet.
+> Status: **In progress.** The rows below track implementation and acceptance evidence.
 
 Status values: `PENDING`, `IN_PROGRESS`, `DONE`, `BLOCKED`. A task becomes `DONE` only with evidence (code, tests, or recorded runtime result).
 
@@ -19,12 +19,12 @@ Status values: `PENDING`, `IN_PROGRESS`, `DONE`, `BLOCKED`. A task becomes `DONE
 |----|------|------------|------------------|--------|
 | T-101 | PWA shell: Vite + React + TypeScript project, manifest, icons, service worker | T-004 | Installs and opens offline; manifest check passes | PARTIAL. Code done and independently verified 2026-11-23: `tsc --noEmit`, `vitest` (2/2), `eslint`, and `npm run build` PASS; manifest and service worker paths all under the sub-path; no secrets found. **NOT RUN:** browser install and offline cold start (INS-05, OFF-01). Do these before marking DONE. |
 | T-102 | Update flow: visible user-controlled prompt | T-101 | Test SW-05, SW-06, SW-08 specs executed | PENDING |
-| T-103 | BYOK settings: enter, store, remove key | T-101 | Key stays in browser; not in cache or export | PENDING |
-| T-104 | Provider adapter interface + first adapter | T-001 | One image is generated end to end with a real key | PENDING |
+| T-103 | BYOK settings: enter, store, remove key | T-101 | Key stays in browser; not in cache or export | Implemented. Remember, replace, temporary use and forget tested. Production Chrome cache checks passed. Verify archive exclusion with T-110. |
+| T-104 | Provider adapter interface + first adapter | T-001 | One image is generated end to end with a real key | DONE. Chrome made a browser-direct low-quality request using the production adapter and decoded a 1024 × 1024 PNG (2026-11-23). See DESIGN.md. |
 | T-105 | Model selector | T-104 | Options reflect model capabilities | PENDING |
 | T-106 | Text-to-Image flow with generation queue | T-104 | Job survives reload; failure shows a recoverable error | PENDING |
 | T-107 | Reference images and Image-to-Image | T-106 | Reference image changes the result | PENDING |
-| T-108 | Local storage: IndexedDB schema and migration | T-101 | OFF-06 spec executed | PENDING |
+| T-108 | Local storage: IndexedDB schema and migration | T-101 | OFF-06 spec executed | Engine verified. Schema migration retained existing image data. Chrome OPFS write, reopen, read and missing-file recovery passed. Quota handling tested with a simulated error; workspace recovery UX pending. |
 | T-109 | Version history | T-108 | Each generation is kept with prompt, params, model | PENDING |
 | T-110 | Export | T-109 | Image downloads; 4K only if the model supports it | PENDING |
 | T-114 | Resolve the anchor-vs-spec differences listed in UIUX.md section 1a | - | Owner decided all items on 2026-11-23; written into UIUX.md | DONE |

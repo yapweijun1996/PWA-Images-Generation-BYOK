@@ -189,3 +189,9 @@ The full UI/UX Design System V1 draft is in [UIUX.md](UIUX.md). This is a layout
 - Exact record layout within IndexedDB and OPFS.
 - Whether a user-controlled proxy is offered in Phase 1 or later.
 - How a character or style lock is represented (reference images, a text profile, or both).
+
+### OpenAI direct connection evidence (2026-11-23)
+
+An isolated Chrome session on a loopback origin invoked the OpenAI adapter with a device-side key. A single low-quality text request to the generations endpoint using `gpt-image-2.6-sunburst` returned a PNG that Chrome decoded at 1024 × 1024 (1,405,421 bytes). This establishes browser CORS access and the adapter round trip for that model. The workspace generation flow, reference edits, and the deployed origin need their own checks. The adapter sends an explicit request once and reports a lost or unreadable response as uncertain.
+
+Model and endpoint reference: [OpenAI Image generation guide](https://developers.openai.com/api/docs/guides/image-generation).
