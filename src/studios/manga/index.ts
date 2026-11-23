@@ -1,12 +1,4 @@
-interface MangaStudioConfig {
-  id: 'manga'
-  name: string
-  workflows: readonly string[]
-}
+import { getStudio } from '../index'
 
-// Phase 2 owns the manga workflows.
-export const mangaStudio: MangaStudioConfig = {
-  id: 'manga',
-  name: 'Manga & Comics',
-  workflows: [],
-}
+const manga = getStudio('manga')
+export const mangaStudio = { id: manga.id, name: manga.name, workflows: manga.stages.map(stage => stage.label) }
