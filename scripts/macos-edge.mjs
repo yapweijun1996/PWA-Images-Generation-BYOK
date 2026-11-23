@@ -127,8 +127,17 @@ try {
   await page?.screenshot({path:out+'/failure.png',timeout:3000}).catch(()=>{})
   process.exitCode = 1
 } finally {
+  await context?.close().catch(()=>{})
+  if (policyWritten) {
+    try {
+      if (existsSync(preferences)) execFileSync('sudo', ['/bin/rm', preferences])
+      assert(!existsSync(preferences), 'Temporary Edge preferences still exist')
+      evidence.preferencesRemoved = true
+    } catch (error) {
+      evidence.cleanupError = String(error)
+      process.exitCode = 1
+    }
+  }
   await writeFile(out + '/result.json',JSON.stringify(evidence,null,2))
   console.log(JSON.stringify(evidence,null,2))
-  await context?.close().catch(()=>{})
-  if (policyWritten && existsSync(preferences)) execFileSync('sudo', ['/usr/bin/unlink', preferences])
 }
