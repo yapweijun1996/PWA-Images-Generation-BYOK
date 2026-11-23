@@ -55,13 +55,13 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | SW-11 | Rollback from invalid build | NOT_RUN | Simulate a corrupt build and restore known-good bytes. |
 | SW-12 | Unknown-route recovery | PASS (local Chrome, two builds) | [Build-bound integrity and recovery observations](shell-integrity.md). |
 | OFF-01 | Offline shell loads | PASS (live Chrome) | After an explicit installed-client update, offline refresh retained build B in standalone mode. |
-| OFF-02 | Offline network error detected | NOT_RUN | Disconnect during a real provider request and inspect error/retained inputs. |
-| OFF-03 | Offline server transaction not falsely committed | NOT_RUN | Confirm a lost provider response is never shown as a successful job. |
-| OFF-04 | Durable pending operation recovery | NOT_RUN | Restart browser mid-operation; prove pending work survives and is never billed twice. |
-| OFF-05 | Storage quota exceeded | NOT_RUN | Trigger quota exhaustion and verify user recovery without losing prior versions. |
-| OFF-06 | IndexedDB migration | NOT_RUN | Migrate prior populated schema in a real browser and compare metadata and blobs. |
-| OFF-07 | Cache eviction recovery | NOT_RUN | Evict assets/cache and verify warnings plus backup-based recovery. |
-| OFF-08 | Sensitive responses excluded from cache | NOT_RUN | E3 audited cache for a BYOK marker; inspect all caches after authenticated image/edit calls. |
+| OFF-02 | Offline network error detected | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
+| OFF-03 | Offline server transaction not falsely committed | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
+| OFF-04 | Durable pending operation recovery | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
+| OFF-05 | Storage quota exceeded | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
+| OFF-06 | IndexedDB migration | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
+| OFF-07 | Cache eviction recovery | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
+| OFF-08 | Sensitive responses excluded from cache | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
 | MOB-01 | Notch and Dynamic Island clearance | NOT_RUN | Inspect notched real iPhone layouts in both orientations. |
 | MOB-02 | Home indicator clearance | NOT_RUN | Inspect actions above home indicator in standalone mode. |
 | MOB-03 | Keyboard viewport resize | NOT_RUN | Exercise iOS keyboard and keyboard dismissal with composer visible. |
@@ -83,7 +83,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | QA-03 | CLS target | LAB PASS; FIELD INSUFFICIENT_DATA | Observed CLS 0.0003–0.0004 in six fresh navigations. See performance.md. |
 | QA-04 | Responsive layout without overflow | PARTIAL | No horizontal overflow on tested fresh shells at 390/768/1440. See performance.md. |
 | QA-05 | CSP and XSS regression | NOT_RUN | CSP present in production output; execute defensive rendering and CSP checks on release candidate. |
-| QA-06 | No sensitive cache leakage | NOT_RUN | Fixture credential absent from inspected E3 caches and E4 backup; full release cache audit pending. |
+| QA-06 | No sensitive cache leakage | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
 | QA-07 | Dependency security review | PASS (2026-11-23 npm advisory snapshot) | Clean Node 24 install and full npm audit reported zero known vulnerabilities after overriding Workbox’s build-only glob dependency to 14.0.6. Lint, tests and production worker generation passed. |
 | QA-08 | Recoverable runtime errors | NOT_RUN | Observe recovery paths for invalid credentials, network errors, quota and damaged restores. |
 | REL-01 | Clean production deployment | PASS (first live release) | Workflow 45192152435, live HTTPS entry, nine matching artifact files. |
