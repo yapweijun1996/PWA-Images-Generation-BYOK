@@ -1,3 +1,5 @@
+/* global URL, fetch, AbortSignal, console */
+import process from "node:process"
 // Usage: gh run download RUN_ID -n site-files -D /tmp/site-files
 //        node scripts/verify-pages.mjs /tmp/site-files
 import { createHash } from 'node:crypto'

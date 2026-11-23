@@ -44,16 +44,16 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | INS-08 | Deep-link launch after installation | NOT_RUN | Launch installed app from a supported deep link. |
 | SW-01 | Fresh install and first-load behavior | PASS (historical local) | Chrome registered and activated the shell worker at the app subpath (E1). |
 | SW-02 | Build A to B update discovery | PASS (historical local) | Two distinct preview builds triggered discovery and installation (E2). |
-| SW-03 | Mismatched build identity rejected | NOT_RUN | Serve mismatched HTML/worker build identity and prove candidate rejection. |
-| SW-04 | CDN stale asset rejection | NOT_RUN | Serve stale assets under new CDN release metadata; verify previous cache survives. |
+| SW-03 | Mismatched build identity rejected | PASS (local Chrome, two builds) | [Build-bound integrity and recovery observations](shell-integrity.md). |
+| SW-04 | CDN stale asset rejection | PASS (local Chrome, two builds) | [Build-bound integrity and recovery observations](shell-integrity.md). |
 | SW-05 | Update prompt visible | PASS (historical local) | Waiting worker displayed an actionable prompt in real Chrome (E2). |
 | SW-06 | Unsaved draft blocks activation | NOT_RUN | Component/guard tests cover blocked clicks; run a real dirty editor through update. |
 | SW-07 | Multiple tabs coordinate activation | NOT_RUN | Keep one tab busy while requesting activation in another tab. |
 | SW-08 | Duplicate Update click prevented | NOT_RUN | Unit test covers duplicate clicks; exercise repeated input in a real browser. |
 | SW-09 | Activation loader and controllerchange | NOT_RUN | One controller transition/reload observed; loader visibility and announcement outstanding. |
-| SW-10 | Offline update failure preserves old build | NOT_RUN | Interrupt installing B offline while A remains usable. |
+| SW-10 | Offline update failure preserves old build | PASS (local Chrome, two builds) | [Build-bound integrity and recovery observations](shell-integrity.md). |
 | SW-11 | Rollback from invalid build | NOT_RUN | Simulate a corrupt build and restore known-good bytes. |
-| SW-12 | Unknown-route recovery | NOT_RUN | Navigate to unknown path online/offline and recover. |
+| SW-12 | Unknown-route recovery | PASS (local Chrome, two builds) | [Build-bound integrity and recovery observations](shell-integrity.md). |
 | OFF-01 | Offline shell loads | NOT_RUN | Local Chrome tab rendered cached shell after server shutdown; standalone result incomplete (E1). |
 | OFF-02 | Offline network error detected | NOT_RUN | Disconnect during a real provider request and inspect error/retained inputs. |
 | OFF-03 | Offline server transaction not falsely committed | NOT_RUN | Confirm a lost provider response is never shown as a successful job. |
