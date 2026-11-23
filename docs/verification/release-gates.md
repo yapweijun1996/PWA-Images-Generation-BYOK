@@ -1,15 +1,23 @@
 # Production release gates
 
-**Decision: HOLD.** This assessment uses the STATIC_OFFLINE profile of KB-MCP `pwa:product-standard` v1.1.0 (registry body revision `80aad1538f3ecdddd7512de64cde4b8047196fb3637c075a87aab381bf314874`) and its service-worker install-integrity companion. Assessment date: 2026-11-24 Singapore time. Current hosted build: `8d5a29a`. This matrix records the scope of each observation. Historical local passes do not establish release-candidate or live acceptance.
+**Decision: HOLD.** This assessment uses the STATIC_OFFLINE profile of KB-MCP `pwa:product-standard` v1.1.0 (registry body revision `80aad1538f3ecdddd7512de64cde4b8047196fb3637c075a87aab381bf314874`) and its service-worker install-integrity companion. Assessment date: 2026-11-24 Singapore time. Current hosted build: `b4123c2`. This matrix records the scope of each observation. Historical local passes do not establish release-candidate or live acceptance.
 
 | Gate | Decision | Outstanding evidence |
 |---|---|---|
-| G1 Safety | HOLD | `8d5a29a` preserved a pending storyboard caption through a delayed commit and an explicit update in Chrome and WebKit. `8d319a6` recovered an interrupted four-image batch without resubmission. Remaining device and safety-matrix coverage are recorded below. |
+| G1 Safety | HOLD | `b4123c2` retained conflicting storyboard text during project navigation in Chrome and WebKit. `8d5a29a` preserved a caption through delayed commit and update. `8d319a6` recovered an interrupted four-image batch without resubmission. Device and safety-matrix coverage remain open. |
 | G2 Compatibility | HOLD | Android 16 emulator TalkBack captioned update discovery on `49388bd` and generation completion on `c03b99f`. Physical iPhone, iPad and Android, VoiceOver and remaining TalkBack journeys stay open. See the device matrix for browser coverage. |
-| G3 Performance | HOLD | Six cold navigations of the exact `8d5a29a` artifact met the lab thresholds. On November 24, CrUX Vis returned no data for the exact URL. Field P75 is INSUFFICIENT_DATA. Targets are LCP ≤2.5 s, INP ≤200 ms and CLS ≤0.1. [Measurements](performance.md#current-public-release-artifact). |
+| G3 Performance | HOLD | Six cold navigations of the exact `b4123c2` artifact measured 1,372–1,436 ms LCP, interaction events up to 104 ms and CLS up to 0.0004. On November 24, CrUX Vis returned no data for the exact URL. Field P75 is INSUFFICIENT_DATA. Targets are LCP ≤2.5 s, INP ≤200 ms and CLS ≤0.1. [Measurements](performance.md#current-public-release-artifact). |
 | G4 Evidence | HOLD | The published artifact includes its verified source commit. Remaining gaps include per-case evidence across the full target matrix. The live rollback and restore-forward drill passed. |
 
 ## Current public release
+
+[Pages run 45287904252](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45287904252) published `b4123c216d1a6efc7b9dffeaed87ea39f9bce93e` as `v0.1.0 · 2026-11-23T23:20:50.010Z`. CI passed 45 tests, lint, type checking and the production build. The workflow and independent comparison matched all 13 public files to the retained artifact. The developer credential was absent from the 143 tracked and 13 release files inspected. The worker SHA-256 is `5967287d22ecbd256e3270e4a0cd4f6c49326ca76a053b4522d7cc4273d82f47`. The rollback artifact expires at 23:20:15 UTC on February 21, 2027.
+
+Chrome and WebKit retained conflicting storyboard text when the tester tried to switch projects. When a new panel caption was pending, creating a project and restoring a ZIP left the caption intact. The normal actions succeeded after the tester resolved or cleared the draft. [Project navigation evidence](update-guards.md#storyboard-drafts-during-project-navigation).
+
+Managed Chrome and Edge on Windows Server reopened the installed standalone app offline. Stable Firefox 160 restored its draft after the exact artifact's loopback origin stopped. A launcher shortcut started a fresh Chrome process on the Android 15 emulator and restored the draft in standalone mode offline. [Windows installed run](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45288137935), [Firefox run](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45288138690), [Android run](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45288138199).
+
+## November 24 storyboard update release
 
 [Pages run 45281471335](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45281471335) published `8d5a29a6c771610d7e29183c024734a0393e8616` as `v0.1.0 · 2026-11-23T22:38:00.624Z`. CI passed 44 tests, lint, type checking and the production build. The workflow and independent comparison matched all 13 public files to the retained artifact. The developer credential was absent from 143 tracked files and all 13 published files. The worker SHA-256 is `2de937a02703e2ba2ea4d951fe54fa751045aa5bf8811fb2a737fffec08cab92`. The rollback artifact expires at 22:37:37 UTC on February 21, 2027.
 
@@ -223,9 +231,9 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | A11Y-06 | Reduced-motion preference | PASS (Chrome preference emulation) | Reduced-motion behavior verified in Chrome. [Evidence](keyboard-and-controls.md). |
 | A11Y-07 | Modal focus trapping and restoration | PASS (Chrome and WebKit drawers) | Both drawers at 390 and 768 px kept keyboard focus inside, blocked direct background focus and restored focus on Escape or backdrop click. Chrome also verified the accessibility tree. [Evidence](keyboard-and-controls.md). |
 | A11Y-08 | Accessible update status announcements | PARTIAL | Android TalkBack missed the earlier waiting-build message and captioned the `49388bd` artifact's instruction during actual worker discovery in loopback. Spoken VoiceOver and full TalkBack coverage remain open. [Update status evidence](update-guards.md#android-talkback-speech-feedback). |
-| QA-01 | LCP target | LAB PASS; FIELD INSUFFICIENT_DATA | Six fresh loads of the `8d5a29a` artifact measured 1,372–1,428 ms LCP. [Lab conditions](performance.md#current-public-release-artifact). |
-| QA-02 | INP target | LAB ONLY; FIELD INSUFFICIENT_DATA | The longest observed interaction event in the `8d5a29a` sample was 88 ms. Field P75 remains unavailable. [Measurements](performance.md#current-public-release-artifact). |
-| QA-03 | CLS target | LAB PASS; FIELD INSUFFICIENT_DATA | Observed CLS was 0–0.0004 in six fresh navigations of `8d5a29a`. [Measurements](performance.md#current-public-release-artifact). |
+| QA-01 | LCP target | LAB PASS; FIELD INSUFFICIENT_DATA | Six fresh loads of the `b4123c2` artifact measured 1,372–1,436 ms LCP. [Lab conditions](performance.md#current-public-release-artifact). |
+| QA-02 | INP target | LAB ONLY; FIELD INSUFFICIENT_DATA | The longest observed interaction event in the `b4123c2` sample was 104 ms. Field P75 remains unavailable. [Measurements](performance.md#current-public-release-artifact). |
+| QA-03 | CLS target | LAB PASS; FIELD INSUFFICIENT_DATA | Observed CLS was 0–0.0004 in six fresh navigations of `b4123c2`. [Measurements](performance.md#current-public-release-artifact). |
 | QA-04 | Responsive layout without overflow | PARTIAL | No horizontal overflow on tested fresh shells at 390/768/1440 or at the end of the 48-image library in public WebKit at 1440 px. [Scope](performance.md). |
 | QA-05 | CSP and XSS regression | PASS (bounded desktop Chrome checks) | Project markup displayed as literal text. CSP blocked an off-origin request. [Evidence](keyboard-and-controls.md). |
 | QA-06 | No sensitive cache leakage | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |

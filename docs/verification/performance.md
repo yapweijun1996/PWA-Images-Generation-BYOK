@@ -112,7 +112,7 @@ Chrome 158.0.8127.37 repeated the lab with the exact [published `83a4e07` artifa
 
 No sampled view overflowed. Both drawers kept and restored focus at 390 and 768 px. Field P75 remains `INSUFFICIENT_DATA`.
 
-### Current public release artifact
+### Storyboard update release
 
 Chrome 158.0.8127.37 repeated the six-load lab with the exact [published `8d5a29a` artifact](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45281471335). All 13 files matched the deployed site. The entry script SHA-256 was `b301b5947e5249104bb7f7bac9a07c88635a4bcf2c63d15601ab302a4f80a1c1`.
 
@@ -122,6 +122,17 @@ Chrome 158.0.8127.37 repeated the six-load lab with the exact [published `8d5a29
 | 1440 × 900 | 1,392–1,404 | 0.0004 | 64–72 |
 
 No sampled view overflowed. The four drawer and viewport combinations held and restored keyboard focus. Field P75 remains `INSUFFICIENT_DATA`.
+
+### Current public release artifact
+
+Chrome 158.0.8127.37 repeated the six-load lab with the exact [published `b4123c2` artifact](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45287904252). All 13 files matched the public site. Both the loopback server and Pages served the entry script with gzip. Its uncompressed SHA-256 was `2a663777aee5d585ca78323a717a4dcb7c32d446952381d658089a856d155e1a`.
+
+| Viewport | LCP range (ms) | CLS range | Longest interaction-event duration range (ms) |
+| --- | ---: | ---: | ---: |
+| 390 × 844 | 1,392–1,436 | 0 | 80–104 |
+| 1440 × 900 | 1,372–1,432 | 0.0004 | 72 |
+
+No sampled view overflowed. Both drawers trapped and restored keyboard focus at 390 and 768 px. Field P75 remains `INSUFFICIENT_DATA`.
 
 ## Populated asset library
 
