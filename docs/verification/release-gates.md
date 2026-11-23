@@ -1,15 +1,21 @@
 # Production release gates
 
-**Decision: HOLD.** This assessment uses the STATIC_OFFLINE profile of KB-MCP `pwa:product-standard` v1.1.0 (registry body revision `80aad1538f3ecdddd7512de64cde4b8047196fb3637c075a87aab381bf314874`) and its service-worker install-integrity companion. Assessment date: 2026-11-24 Singapore time. Current hosted build: `c03b99f`. This matrix records the scope of each observation. Historical local passes do not establish release-candidate or live acceptance.
+**Decision: HOLD.** This assessment uses the STATIC_OFFLINE profile of KB-MCP `pwa:product-standard` v1.1.0 (registry body revision `80aad1538f3ecdddd7512de64cde4b8047196fb3637c075a87aab381bf314874`) and its service-worker install-integrity companion. Assessment date: 2026-11-24 Singapore time. Current hosted build: `6d70d15`. This matrix records the scope of each observation. Historical local passes do not establish release-candidate or live acceptance.
 
 | Gate | Decision | Outstanding evidence |
 |---|---|---|
 | G1 Safety | HOLD | `8d319a6` recovered an interrupted four-image batch in two existing public Chrome tabs without resubmission. Earlier builds passed the queue notification, passive-tab ZIP restore and corrupt update fixtures. Remaining device and safety-matrix coverage are recorded below. |
 | G2 Compatibility | HOLD | Android 16 emulator TalkBack captioned update discovery on `49388bd` and generation completion on `c03b99f`. Physical iPhone, iPad and Android, VoiceOver and remaining TalkBack journeys stay open. See the device matrix for browser coverage. |
-| G3 Performance | HOLD | Six cold navigations of the current artifact met the lab thresholds with gzip enabled. On November 24, CrUX Vis returned no data for the exact URL. Field P75 is INSUFFICIENT_DATA. Targets are LCP ≤2.5 s, INP ≤200 ms and CLS ≤0.1. [Measurements](performance.md#transport-check-for-the-generation-announcement-release). |
+| G3 Performance | HOLD | Six cold navigations of `c03b99f` met the lab thresholds with gzip enabled. On November 24, CrUX Vis returned no data for the exact URL. Field P75 is INSUFFICIENT_DATA. Targets are LCP ≤2.5 s, INP ≤200 ms and CLS ≤0.1. [Measurements](performance.md#transport-check-for-the-generation-announcement-release). |
 | G4 Evidence | HOLD | The published artifact includes its verified source commit. Remaining gaps include per-case evidence across the full target matrix. The live rollback and restore-forward drill passed. |
 
 ## Current public release
+
+[Pages run 45256773772](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45256773772) published `6d70d15e6d7299464b3580d551d789a45b6aebfc`, displayed as `v0.1.0 · 2026-11-23T20:12:01.911Z`. The workflow and independent comparison matched the full source revision and all 13 published files to the retained artifact. CI passed 42 tests, lint, type checking and the production build. The configured developer credential was absent from 142 tracked files and all 13 published files. The worker SHA-256 is `370a96384db4a86bcf2e00532b3d1c27ecd211c3fcbb166b301b77c58a25fb24`. The rollback artifact expires at 20:11:33 UTC on February 21, 2027.
+
+The Help dialog now describes the Safari share action on both iPhone and iPad, including the page menu and expanded actions. Live WebKit previewed the exact build under iPhone and iPad emulation at 393 and 810 CSS px. English on the phone and Chinese on the tablet both fit without horizontal overflow and opened with focus on Close. This check exercises the app's installation instructions. [Apple iPhone guide](https://support.apple.com/en-az/guide/iphone/iphea86e5236/26/ios/26), [Apple iPad guide](https://support.apple.com/en-mt/guide/ipad/ipad8f1f7a29/27/ipados/27).
+
+## November 24 generation announcement release
 
 [Pages run 45250691263](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45250691263) published `c03b99fa5502040a553c3569ea7ded4fb021d202`, displayed as `v0.1.0 · 2026-11-23T19:36:53.094Z`. CI and an independent check matched the full source revision and 13 files to the public release. The worker SHA-256 is `053ce758a3437836c1d51dc31ec53312982a3ee91168b9f29e15f1f8c6015ad0`. The rollback artifact expires at 19:36:27 UTC on February 21, 2027. CI passed 42 tests, lint, type checking and the production build. The configured developer credential was absent from all 141 tracked files and 13 released files.
 
