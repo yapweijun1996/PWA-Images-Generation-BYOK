@@ -5,7 +5,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { setTimeout as delay } from 'node:timers/promises'
 import process from 'node:process'
 
-const { _android, chromium } = await import(process.env.PLAYWRIGHT_MODULE)
+const { _android, chromium, errors } = await import(process.env.PLAYWRIGHT_MODULE)
 const site = 'https://yapweijun1996.github.io/PWA-Images-Generation-BYOK/'
 const folder = 'android-evidence'
 await mkdir(folder, { recursive: true })
@@ -43,10 +43,16 @@ async function installedPackages() {
 async function installFromChrome(page) {
   const baseline = await installedPackages()
   await page.getByRole('button', { name: 'Help and installation' }).tap()
-  const install = page.getByRole('button', { name: 'Install app', exact: true })
-  if (await install.isVisible()) await install.tap()
+  const help = page.getByRole('dialog', { name: 'Help and installation' })
+  const install = help.getByRole('button', { name: 'Install app', exact: true })
+  const hasOffer = await install.waitFor({ state: 'visible', timeout: 4_000 }).then(() => true, error => {
+    if (!(error instanceof errors.TimeoutError)) throw error
+    return false
+  })
+  if (hasOffer) await install.tap()
   else {
-    await page.keyboard.press('Escape')
+    await help.getByRole('button', { name: 'Close', exact: true }).tap()
+    await help.waitFor({ state: 'hidden' })
     await tapNativeLabel('More options')
     await tapNativeLabel('Install app|Install web app|Add to Home screen')
   }
