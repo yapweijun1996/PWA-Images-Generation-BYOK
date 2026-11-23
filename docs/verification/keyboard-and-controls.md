@@ -14,6 +14,12 @@ Chrome 158.0.8127.37 on macOS, isolated profiles, Playwright with keyboard input
 
 VoiceOver, physical-device touch behavior, subjective legibility, and comprehensive WCAG conformance require separate evidence.
 
+## Help and installation dialog on the current release
+
+On November 24 Singapore time, Chrome 158.0.8127.37 inspected live source revision `6d70d15e6d7299464b3580d551d789a45b6aebfc` at 390 and 1440 CSS px in both themes. Each Help dialog exposed its name and the Add to Home Screen instructions, opened with focus on Close, and hid the workspace landmark from the Chrome accessibility tree. Forward and reverse Tab did not focus workspace content. Escape closed the dialog and restored focus to Help in all four combinations.
+
+Axe-core 4.14.1 reported zero WCAG 2, 2.1 or 2.2 A/AA violations and zero incomplete checks for the open dialog in those four combinations. This checks the updated instructions in desktop Chrome at two widths. Physical touch and spoken VoiceOver are tracked in the [physical-device acceptance record](physical-device.md).
+
 ## Generation status across workspace views
 
 On November 24 Singapore time, a disposable Android 16 ARM64 emulator ran Chrome 133.0.6943.137 and TalkBack 16.0.0.738667889 with **Display speech output** enabled. A separate polite status message produced a TalkBack caption as a positive control. The public `8d319a6` build generated an image from one intercepted response while the tester switched to Assets. The canvas and its status were hidden. Input focus stayed on Assets, and none of the 18 caption frames over 11.9 seconds contained the completion. Returning to Create showed `Completed`.
