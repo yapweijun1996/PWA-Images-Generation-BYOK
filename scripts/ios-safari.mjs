@@ -104,7 +104,8 @@ async function screenshot(name) {
   await writeFile(join(folder, name + '.png'), Buffer.from(data, 'base64'))
 }
 async function workspace() {
-  await waitFor('studio workspace', async () => await named('Continue creating') || await named('Your image will appear here.'))
+  const labels = '{"Continue creating","Your image will appear here."}'
+  await waitFor('studio workspace', () => find('name IN ' + labels + ' OR label IN ' + labels), 120_000)
 }
 async function createView() {
   const start = await named('Continue creating', 'Button')
@@ -162,7 +163,7 @@ try {
         await named('More Actions') || await named('View More')
       if (more) { await tap(more); expanded = true }
     }
-  })
+  }, 90_000)
   await tap(add)
   const webApp = await waitFor('Open as Web App', () => named('Open as Web App', 'Switch'))
   if (await element(webApp, 'GET', '/attribute/value') !== '1') await tap(webApp)
