@@ -17,6 +17,8 @@ Help points users to the share actions row when expanding More or View More. Web
 
 Hosted Android 15 Chrome verified the keyboard, rotation, native install prompt and offline launcher cold start on `83a4e07`. The launcher shortcut opened a new Chrome process in standalone mode and recovered the saved draft. [Android run 45272348092](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45272348092).
 
+Chrome, Playwright WebKit and Playwright Firefox replayed the exact transition from `7aaefff` to `83a4e07`. An unsaved field blocked activation across tabs. After activation the passive tab restored a ZIP, downloaded the original image offline and reloaded only when requested. [Two-tab acceptance](update-guards.md#two-tab-update-to-the-share-actions-release).
+
 ## November 24 compact toolbar release
 
 [Pages run 45266948803](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45266948803) published `7aaefff0fd39ef035b4ebad641b50212af8e1618`, displayed as `v0.1.0 · 2026-11-23T21:11:07.042Z`. CI passed 42 tests, lint, type checking and the production build. The workflow and independent comparison matched all 13 public files to the retained artifact. The developer credential was absent from 142 tracked files and all 13 published files. The worker SHA-256 is `92443fd2c63214aa69676ad83d9cb68e1c393713205b059d2b6593256f962dce`. The rollback artifact expires at 21:10:36 UTC on February 21, 2027.
