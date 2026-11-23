@@ -6,7 +6,7 @@ permissions:
 jobs:
   edge:
     if: github.ref == 'refs/heads/main'
-    runs-on: macos-15
+    runs-on: macos-15-intel
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -17,6 +17,8 @@ jobs:
           node-version: '24'
       - name: Install browser automation client
         run: npm install --prefix "$RUNNER_TEMP/installed-app-driver" --ignore-scripts --no-audit --no-fund playwright-core@1.56.1
+      - name: Prepare managed preferences on the disposable runner
+        run: sudo install -d '/Library/Managed Preferences'
       - name: Install and reopen the deployed studio in Edge
         env:
           PLAYWRIGHT_MODULE: ${{ runner.temp }}/installed-app-driver/node_modules/playwright-core/index.mjs
