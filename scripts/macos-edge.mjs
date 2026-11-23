@@ -27,20 +27,10 @@ function appShim() {
   return execFileSync('/usr/bin/find', [apps, '-name', '*Images Studio*.app', '-type', 'd', '-print', '-quit'], { encoding:'utf8' }).trim()
 }
 
-async function findPage(context, targetId) {
-  const checked = new Set()
+async function findLaunchedPage(context, url) {
   for (let attempt = 0; attempt < 60; attempt++) {
-    for (const candidate of context.pages()) {
-      if (candidate.isClosed() || checked.has(candidate)) continue
-      checked.add(candidate)
-      const inspector = await context.newCDPSession(candidate)
-      try {
-        const { targetInfo } = await inspector.send('Target.getTargetInfo')
-        if (targetInfo.targetId === targetId) return candidate
-      } finally {
-        await inspector.detach()
-      }
-    }
+    const candidate = context.pages().find(openPage => openPage.url() === url)
+    if (candidate) return candidate
     await delay(500)
   }
 }
@@ -110,15 +100,21 @@ try {
   const plistPath = path.join(shim, 'Contents', 'Info.plist')
   const appId = execFileSync('/usr/libexec/PlistBuddy',['-c','Print:CrAppModeShortcutID',plistPath],{encoding:'utf8'}).trim()
   assert.match(appId,/^[a-p]{32}$/)
-  const launcher = await context.newCDPSession(page)
-  const { targetId } = await launcher.send('PWA.launch', { manifestId: site })
-  const installed = await findPage(context, targetId)
-  if (!installed) {
-    const { targetInfos } = await launcher.send('Target.getTargets')
-    evidence.launchTarget = targetInfos.find(target => target.targetId === targetId)
-  }
+  const ordinarySession = await context.newCDPSession(page)
+  const ordinaryWindow = await ordinarySession.send('Browser.getWindowForTarget')
+  const launcher = await context.browser().newBrowserCDPSession()
+  const launchUrl = new URL('?source=macos-edge-install', site).href
+  // A launch target can identify the tab container above the page target.
+  const { targetId } = await launcher.send('PWA.launch', { manifestId: site, url: launchUrl })
+  const installed = await findLaunchedPage(context, launchUrl)
+  const { targetInfos } = await launcher.send('Target.getTargets', { filter: [{}] })
+  evidence.launchTargetType = targetInfos.find(target => target.targetId === targetId)?.type ?? 'unavailable'
   assert(installed && installed !== page, 'Edge did not expose the installed window as a separate page')
   page = installed
+  const installedSession = await context.newCDPSession(page)
+  const installedWindow = await installedSession.send('Browser.getWindowForTarget')
+  assert.notEqual(installedWindow.windowId, ordinaryWindow.windowId, 'The app opened in the ordinary browser window')
+  assert.equal(page.url(), launchUrl)
   await page.waitForFunction(value => document.querySelector('.creation-prompt textarea')?.value === value, draft)
   assert((await page.locator('footer').innerText()).includes(expected))
   assert(await page.evaluate(() => matchMedia('(display-mode: standalone)').matches && Boolean(navigator.serviceWorker.controller)))
