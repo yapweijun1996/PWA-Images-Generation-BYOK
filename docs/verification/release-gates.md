@@ -38,7 +38,7 @@ The deployed change makes stalled service-worker activation retryable, keeps mob
 | Edge on macOS | NOT_RUN | Installed and ordinary browser flows |
 | Chrome on physical Android | NOT_RUN | Browser and installed app including rotation, keyboard and offline restart |
 | Safari on physical iPhone | NOT_RUN | Browser, Home Screen, VoiceOver, safe areas, keyboard and interrupted update |
-| iPadOS Safari | NOT_RUN | Responsive editing, keyboard and orientation |
+| iPadOS Safari | PARTIAL (WebKit tablet viewport only) | At 768 × 1024 and 1024 × 768 the hosted workspace retained its draft and enabled Generate without horizontal overflow. Physical iPad, keyboard and orientation events remain open. |
 | Desktop Safari and Firefox | PARTIAL | Desktop Safari and Playwright Firefox ordinary/offline checks passed within [recorded limits](compatibility.md); [Windows release Firefox 160 ordinary offline reload also passed](compatibility.md) |
 
 ## Catalog
@@ -79,7 +79,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | MOB-02 | Home indicator clearance | NOT_RUN | Inspect actions above home indicator in standalone mode. |
 | MOB-03 | Keyboard viewport resize | NOT_RUN | Exercise iOS keyboard and keyboard dismissal with composer visible. |
 | MOB-04 | No unintended input focus zoom | PARTIAL | Composer and selected controls measured at least 16 CSS px in mobile WebKit emulation. Physical iOS focus and zoom outstanding. |
-| MOB-05 | Portrait and landscape layout | NOT_RUN | Compare portrait and landscape tablet and phone layouts. |
+| MOB-05 | Portrait and landscape layout | PARTIAL | In WebKit on the public build, a tablet viewport changed from 768 × 1024 to 1024 × 768 and back without losing the draft or overflowing. On Android 15 emulator, system rotation also retained the draft without horizontal overflow. Physical-device checks remain open. |
 | MOB-06 | Smart top bar scroll direction | PASS (Chrome/WebKit viewport tests) | Long library hides the mobile header on downward scroll and reveals it on upward scroll. [Results](keyboard-and-controls.md). |
 | MOB-07 | Scroll-to-top accessibility | PARTIAL | Keyboard activation scrolls to top, focuses the header and proceeds to navigation. Screen-reader verification outstanding. [Results](keyboard-and-controls.md). |
 | MOB-08 | Light/dark system chrome | PARTIAL | Browser theme metadata and native control scheme followed the selected app theme in Chrome and WebKit. Physical system chrome remains open. |
