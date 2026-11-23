@@ -83,13 +83,47 @@ Local Asset Storage      (IndexedDB · OPFS · Export / Import)
 | Cost Estimator | Estimate API cost before generating |
 | Project Library | Organize images, references, and works |
 
+## UI/UX Layout
+
+```text
++--------------------------------------------------------------+
+| Images Studio                                  [History][Tune]|
++----------------+-----------------------------+---------------+
+| Create         |                             | Settings      |
+|  Manga         |        Image Canvas         |  Model        |
+|  Education     |        (Preview / Edit)     |  Resolution   |
+|  Movie         |                             |  Quality      |
+|  Commercial    |                             |  References   |
+|  UI/UX         |                             |  Generate     |
+|  Interior      |                             |               |
++----------------+-----------------------------+---------------+
+| Generation History · Variations · Assets                      |
++--------------------------------------------------------------+
+```
+
+- **Desktop:** three columns (studio list, canvas, settings).
+- **Mobile:** the canvas is the main view; other panels open as a drawer or tabs.
+
+## Reference Consistency
+
+Reference Consistency is a shared capability across all six studios, not a feature of one studio. Examples:
+
+- **Interior Design** should preserve the original positions of doors and windows.
+- **Commercial Artwork** should keep the product's appearance.
+- **Manga & Comics** should keep characters consistent.
+
+AI generation cannot guarantee exact preservation. When a result cannot be guaranteed to match the reference, the app should offer **manual review** before the result is accepted.
+
 ## Roadmap
 
-1. Detail requirements for each of the six studios
-2. Scaffold the PWA (manifest, service worker, app shell)
-3. Build the shared engine: provider adapters, generation queue, local asset storage
-4. Implement BYOK key handling
-5. Build the core features, then each studio's workflows on top
+Build general image generation first, then add the specialized studios step by step.
+
+| Phase | Name | Scope |
+|-------|------|-------|
+| 1 | Core | BYOK, model selection, prompt, reference images, generation, history, export |
+| 2 | Studios | Six creation modes, each with its own templates |
+| 3 | Advanced | Image editing, Character Lock, Style Lock, batch generation |
+| 4 | Production | Cost control, offline project management, backup and restore, responsive polish |
 
 ## License
 
