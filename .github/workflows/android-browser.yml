@@ -1,0 +1,46 @@
+name: Verify Android Chrome on an emulator
+on: workflow_dispatch
+permissions:
+  contents: read
+
+jobs:
+  android:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '24'
+      - name: Enable hardware acceleration for the disposable runner
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          test -r /dev/kvm && test -w /dev/kvm
+      - name: Install Android browser automation client
+        run: npm install --prefix "$RUNNER_TEMP/android-driver" --ignore-scripts --no-audit --no-fund playwright-core@1.56.1
+      - name: Exercise Android Chrome
+        uses: ReactiveCircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
+        env:
+          PLAYWRIGHT_MODULE: ${{ runner.temp }}/android-driver/node_modules/playwright-core/index.mjs
+        with:
+          api-level: 35
+          arch: x86_64
+          target: google_apis_playstore
+          profile: pixel_6
+          disable-animations: true
+          enable-hw-keyboard: false
+          emulator-options: -no-window -gpu swiftshader -no-snapshot -noaudio -no-boot-anim -camera-back none
+          script: node scripts/android-browser.mjs
+      - name: Retain screenshots and report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: android-browser
+          path: android-evidence/
+          if-no-files-found: warn
+          retention-days: 14
