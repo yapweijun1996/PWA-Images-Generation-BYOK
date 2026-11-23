@@ -8,7 +8,7 @@ Priority labels: **MUST** = required for the phase, **SHOULD** = intended, **MAY
 
 | ID | Feature | Requirement | Phase |
 |----|---------|-------------|-------|
-| F-01 | BYOK | User enters their own API key. Session-only handling is preferred. It never leaves the browser except to the chosen provider (directly, or through a proxy the user controls). | 1 |
+| F-01 | BYOK | User enters their own API key. Stored on the device by default, with a "do not remember" option, a visible Forget Key action, and a clear warning. It never leaves the browser except to the chosen provider (directly, or through a proxy the user controls). | 1 |
 | F-02 | Model Selector | User picks a provider and model. Options reflect that model's capabilities. | 1 |
 | F-03 | Text-to-Image | Generate an image from a text prompt. | 1 |
 | F-04 | Image-to-Image | Generate from one or more reference images. | 1 |
@@ -22,6 +22,7 @@ Priority labels: **MUST** = required for the phase, **SHOULD** = intended, **MAY
 | F-12 | Character Lock | Keep a character consistent across images. | 3 |
 | F-13 | Style Lock | Keep a brand or art style consistent. | 3 |
 | F-14 | Batch Generation | Generate several images in one run. | 3 |
+| F-15 | Project Backup | The user exports a backup file by hand and restores from it. The backup never contains the API key. | 1 |
 
 ## 2. Reference Consistency
 

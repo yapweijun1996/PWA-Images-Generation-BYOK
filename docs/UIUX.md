@@ -165,9 +165,9 @@ File: `docs/ui/anchors/anchor-v1-mobile.webp`. Owner-selected on 2026-11-23 as t
 | 4 | UI language | **English and Simplified Chinese, switchable.** All UI strings go through an i18n layer from the start. |
 | 5 | Inpaint tab and Layers tool | Follow desktop decision 7: **disabled with an explanation** before Phase 3. |
 
-**Still open (mobile)**
-- "Adjust" and "Edit" tools are not defined in the spec. They need a definition or removal.
-- Provider and Model appear together in the Settings sheet on mobile. This is acceptable because mobile has no left panel, but confirm when T-111 starts.
+**Mobile tool row (owner-decided 2026-11-23):** before Phase 3 the row shows only **Fit, Export, and Delete**. Adjust, Edit, and Layers come back with the Phase 3 editing tools.
+
+**Still open (mobile):** Provider and Model appear together in the Settings sheet on mobile. This is acceptable because mobile has no left panel, but confirm when T-111 starts.
 
 ## 7. Design Tokens
 

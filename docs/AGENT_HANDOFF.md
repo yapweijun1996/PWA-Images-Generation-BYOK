@@ -103,7 +103,8 @@ Use the IDs from `docs/TASK.md`. Update the status there as you go, with evidenc
 
 ### T-103 BYOK settings
 - [ ] User can enter, replace, and remove a key.
-- [ ] Session-only is the default; persisting is an explicit user choice with a warning.
+- [ ] The key is stored on this device by default (owner decision). Provide a "do not remember" option, a visible Forget Key action, and a clear warning.
+- [ ] Strict CSP via meta tag, no third-party scripts (a stored key is readable by any script on the page).
 - [ ] The key never appears in exports, logs, history, or any cache.
 - Evidence: test that searches exports, logs, and cache contents for the key string and finds none. OFF-08, QA-06.
 
@@ -140,7 +141,7 @@ Use the IDs from `docs/TASK.md`. Update the status there as you go, with evidenc
 
 ### T-110 Export
 - [ ] Download an image at its real size and format.
-- [ ] Project backup export and import keep data intact; the key is never included.
+- [ ] Project backup is a manual export file plus import from it (F-15). Data stays intact; the key is never included.
 - [ ] 4K is offered only if the selected model supports it.
 
 ### T-111 Main layout
