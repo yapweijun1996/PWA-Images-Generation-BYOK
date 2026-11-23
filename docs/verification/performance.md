@@ -64,7 +64,18 @@ An initial run of the exact `8d319a6` artifact overlapped other local browser ch
 | `e9c076f` | 1,384–1,524 | 0–0.0004 | 80–112 |
 | `8d319a6` | 1,348–1,404 | 0–0.0004 | 56–80 |
 
-Both serial samples fit the viewport and passed the lab checks. The newer entry script SHA-256 is `ad01a16d5b3e039a0c2b5d98a2069167cfaedc0e9c333fa81c408d0909fa509d`. Field P75 remains `INSUFFICIENT_DATA`. [Current artifact](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45245075066).
+Both serial samples fit the viewport and passed the lab checks. The newer entry script SHA-256 is `ad01a16d5b3e039a0c2b5d98a2069167cfaedc0e9c333fa81c408d0909fa509d`. Field P75 remains `INSUFFICIENT_DATA`. [Artifact for `8d319a6`](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45245075066).
+
+### Transport check for the generation announcement release
+
+An initial loopback server delivered the `c03b99f` entry script uncompressed at 416,958 bytes. Its six throttled loads measured LCP 3,108–3,180 ms. The public asset served gzip at 134,337 bytes. The same host repeated the standard six-load harness in Chrome 158.0.8127.37 for each retained release in sequence, with Vite preview and gzip on both ports.
+
+| Artifact | LCP range (ms) | CLS range | Longest interaction-event duration range (ms) |
+| --- | ---: | ---: | ---: |
+| `8d319a6` | 1,416–1,448 | 0–0.0004 | 80–120 |
+| `c03b99f` | 1,420–1,464 | 0–0.0004 | 88–160 |
+
+Both gzip runs fit the viewport and passed the lab checks. The `c03b99f` entry script SHA-256 is `2476bcee5076e416b3f72d0c435401103cc8b938c1c44c34fb8473a49ee27df3`. The measured interaction events cover a short lab journey. Field P75 remains `INSUFFICIENT_DATA`. [Artifact for `c03b99f`](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45250691263).
 
 ## Populated asset library
 

@@ -14,6 +14,14 @@ Chrome 158.0.8127.37 on macOS, isolated profiles, Playwright with keyboard input
 
 VoiceOver, physical-device touch behavior, subjective legibility, and comprehensive WCAG conformance require separate evidence.
 
+## Generation status across workspace views
+
+On November 24 Singapore time, a disposable Android 16 ARM64 emulator ran Chrome 133.0.6943.137 and TalkBack 16.0.0.738667889 with **Display speech output** enabled. A separate polite status message produced a TalkBack caption as a positive control. The public `8d319a6` build generated an image from one intercepted response while the tester switched to Assets. The canvas and its status were hidden. Input focus stayed on Assets, and none of the 18 caption frames over 11.9 seconds contained the completion. Returning to Create showed `Completed`.
+
+The first local candidate mounted a status region outside the canvas. TalkBack captioned its accessible name, “Generation updates,” during the completion window. The next candidate removed the region name and retained the full, atomic message in that region. TalkBack then captioned the start and the full completion with input focus still on Assets. A separate HTTP 401 fixture captioned the failure and response code while input focus stayed on Help, with zero new versions. Each fixture intercepted one generation request. [TalkBack settings](https://support.google.com/accessibility/android/answer/6006589?hl=en), [W3C status messages](https://www.w3.org/WAI/WCAG21/Techniques/aria/ARIA22).
+
+The same emulator explicitly activated the [published `c03b99f` worker](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45250691263) from `8d319a6` in one navigation. The worker controlled the new page. The English TalkBack caption showed the start with focus on Help and the full completion with focus on Assets. One intercepted response produced one new version and a decoded 16 × 16 PNG. The HTTP 401 and HTTP 500 fixtures captioned the response code and respectively reported failure and an unconfirmed result. Each observed one request, zero new versions and input focus on Help. These checks used intercepted responses and exercised Chrome as a browser tab on the emulator. [Completion caption](talkback-generation.png). Its cropped screenshot SHA-256 is `35c3b75b743a2a33b156ff8fe6bf1172d591ed81d83c08054d3dc5b9ec95842b`.
+
 ## Mobile composer and long project library
 
 In macOS Chrome 158 and Playwright WebKit 27.2, the production-preview build `2026-11-23T15:19:00.669Z` reported at least 16 CSS px for the prompt, workflow selector, language selector and key field at tested phone widths (320, 390 and 430 px). The equivalent public WebKit baseline reported 13.12 px for the prompt and two selectors. The tested viewports had no horizontal document overflow.
