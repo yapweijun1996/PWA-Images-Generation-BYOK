@@ -9,8 +9,8 @@ import { join } from 'node:path'
 import process from 'node:process'
 import { setTimeout as delay } from 'node:timers/promises'
 
-const { APPIUM_BIN, DEVICE_NAME, SIMULATOR_UDID, SITE_FILES } = process.env
-assert(APPIUM_BIN && DEVICE_NAME && SIMULATOR_UDID && SITE_FILES, 'Missing simulator or release inputs')
+const { APPIUM_BIN, DEVICE_NAME, SIMULATOR_UDID, SITE_FILES, WDA_BUILD } = process.env
+assert(APPIUM_BIN && DEVICE_NAME && SIMULATOR_UDID && SITE_FILES && WDA_BUILD, 'Missing simulator, driver, or release inputs')
 const folder = 'ios-evidence'
 const base = '/PWA-Images-Generation-BYOK/'
 const draft = 'Safari Home Screen offline acceptance draft'
@@ -48,7 +48,7 @@ await new Promise(resolve => site.listen(0, '127.0.0.1', resolve))
 const url = 'http://127.0.0.1:' + site.address().port + base
 const driverUrl = 'http://127.0.0.1:4723'
 const log = openSync(join(folder, 'appium.log'), 'w')
-const driver = spawn(APPIUM_BIN, ['--address', '127.0.0.1', '--port', '4723', '--log-level', 'info'], {
+const driver = spawn(APPIUM_BIN, ['--address', '127.0.0.1', '--port', '4723', '--log-level', 'info', '--log-timestamp'], {
   stdio: ['ignore', log, log],
 })
 closeSync(log)
@@ -133,6 +133,7 @@ try {
     platformName:'iOS', 'appium:platformVersion':'26.2', 'appium:automationName':'XCUITest', 'appium:udid':SIMULATOR_UDID,
     'appium:deviceName':DEVICE_NAME, 'appium:bundleId':safari, 'appium:language':'en', 'appium:locale':'en_US',
     'appium:noReset':true, 'appium:isHeadless':true, 'appium:newCommandTimeout':120,
+    'appium:usePrebuiltWDA':true, 'appium:derivedDataPath':WDA_BUILD,
     'appium:wdaLaunchTimeout':125_000, 'appium:wdaStartupRetries':1, 'appium:showXcodeLog':true,
   }}}, 260_000)
   session = started.sessionId

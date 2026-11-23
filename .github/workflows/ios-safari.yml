@@ -60,10 +60,26 @@ jobs:
           npm install --prefix "$RUNNER_TEMP/ios-driver" --no-audit --no-fund appium@3.9.1
           "$RUNNER_TEMP/ios-driver/node_modules/.bin/appium" driver install xcuitest@10.43.1
           xcrun simctl bootstatus "$udid" -b
+      - name: Build WebDriverAgent for the booted simulator
+        env:
+          APPIUM_HOME: ${{ runner.temp }}/ios-appium-home
+          WDA_BUILD: ${{ runner.temp }}/ios-wda
+        run: |
+          set -euo pipefail
+          project=$(find "$APPIUM_HOME/node_modules" -name WebDriverAgent.xcodeproj -type d -print -quit)
+          test -d "$project"
+          if ! xcodebuild -project "$project" -scheme WebDriverAgentRunner \
+            -destination "platform=iOS Simulator,id=$SIMULATOR_UDID" -derivedDataPath "$WDA_BUILD" \
+            -parallel-testing-enabled NO build-for-testing > ios-evidence/wda-build.log 2>&1; then
+            tail -50 ios-evidence/wda-build.log
+            exit 1
+          fi
+          test -d "$WDA_BUILD/Build/Products/Debug-iphonesimulator/WebDriverAgentRunner-Runner.app"
       - name: Install, save a draft, and relaunch from the Home Screen
         env:
           APPIUM_HOME: ${{ runner.temp }}/ios-appium-home
           APPIUM_BIN: ${{ runner.temp }}/ios-driver/node_modules/.bin/appium
+          WDA_BUILD: ${{ runner.temp }}/ios-wda
           SITE_FILES: ${{ runner.temp }}/ios-site
           DEVICE_NAME: ${{ matrix.device }}
         run: node scripts/ios-safari.mjs
