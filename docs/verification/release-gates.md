@@ -1,15 +1,21 @@
 # Production release gates
 
-**Decision: HOLD.** This assessment uses the STATIC_OFFLINE profile of KB-MCP `pwa:product-standard` v1.1.0 (registry body revision `80aad1538f3ecdddd7512de64cde4b8047196fb3637c075a87aab381bf314874`) and its service-worker install-integrity companion. Assessment date: 2026-11-24 Singapore time. Current hosted build: `7cbb891`. This matrix records the scope of each observation. Historical local passes do not establish release-candidate or live acceptance.
+**Decision: HOLD.** This assessment uses the STATIC_OFFLINE profile of KB-MCP `pwa:product-standard` v1.1.0 (registry body revision `80aad1538f3ecdddd7512de64cde4b8047196fb3637c075a87aab381bf314874`) and its service-worker install-integrity companion. Assessment date: 2026-11-24 Singapore time. Current hosted build: `95d5acd`. This matrix records the scope of each observation. Historical local passes do not establish release-candidate or live acceptance.
 
 | Gate | Decision | Outstanding evidence |
 |---|---|---|
 | G1 Safety | HOLD | Build-integrity rejection and cross-tab activation have passed bounded Chrome checks. Review remaining offline failure, security and device cases below. |
 | G2 Compatibility | HOLD | Physical iPhone, iPad and Android installation and offline checks, plus spoken VoiceOver and TalkBack verification, remain open. See the device matrix for browser coverage. |
-| G3 Performance | HOLD | Six local cold navigations met the lab thresholds. Real-user percentile coverage is outstanding. A public PageSpeed Insights query on November 23 returned HTTP 429 and provided no field records. Field P75 is INSUFFICIENT_DATA. Targets are LCP ≤2.5 s, INP ≤200 ms and CLS ≤0.1. |
+| G3 Performance | HOLD | Six local cold navigations met the lab thresholds and the public populated library verified deferred thumbnail reads. On November 24, CrUX Vis returned no data for the exact URL. Field P75 is INSUFFICIENT_DATA. Targets are LCP ≤2.5 s, INP ≤200 ms and CLS ≤0.1. [Measurements](performance.md). |
 | G4 Evidence | HOLD | The published artifact includes its verified source commit. Remaining gaps include per-case evidence across the full target matrix. The live rollback and restore-forward drill passed. |
 
 ## Current public release
+
+[Pages run 45224109099](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45224109099) published `95d5acd0464684bf2542e88db7457e60a01c0fa4`, displayed as `v0.1.0 · 2026-11-23T17:07:47.117Z`. The source revision and all 11 live files matched the retained artifact. The worker SHA-256 is `f8dc96ab7ebcc41d98e242f5c05afb8a7e38e2049aebbcc3d8bd57af811057a7`. The artifact expires at 17:07:16 UTC on February 21, 2027. The workflow passed 38 tests, lint, type checking and the build. A scan of 136 tracked files and all 11 public files found no copy of the developer credential. The npm advisory audit returned zero known vulnerabilities.
+
+The published release generates viewport-bound thumbnails for Assets and version history. A Chrome user flow with 48 seed assets and versions stayed intact across an explicit update, exact original export and an offline reload. The same mobile-width fixture measured a reduction from 383,241,808 to 4,633,789 active URL bytes at the first Assets view. WebKit separately verified the editor, selection, original export and offline browsing. [Populated library experiment](performance.md#populated-asset-library).
+
+## November 24 source-provenance release
 
 [Pages run 45219993424](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45219993424) published `7cbb891fd801be73c95a869cb7af507d77232e88`, displayed as `v0.1.0 · 2026-11-23T16:45:21.339Z`. The workflow checked out that SHA and recorded it as `sourceRevision` in `build-info.json`. All 37 tests, lint, type checking and the production build passed. The independent live verifier matched the full source revision and all 11 files. Worker SHA-256: `bd9930bcf0059d277e7931ffc9f7867a67e07f9d3f14f070c6f055f4ca4a0a39`. The retained artifact expires on 2027-02-21 at 16:45:04 UTC. A scan of 135 tracked files and all 11 published files found no copy of the developer credential.
 
@@ -131,7 +137,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | QA-01 | LCP target | LAB PASS; FIELD INSUFFICIENT_DATA | Six fresh navigations measured LCP 1260–1368 ms in the bounded lab. See performance.md. |
 | QA-02 | INP target | LAB ONLY; FIELD INSUFFICIENT_DATA | Worst observed interaction event duration was 120 ms. The bounded sample does not establish field INP P75. |
 | QA-03 | CLS target | LAB PASS; FIELD INSUFFICIENT_DATA | Observed CLS 0.0003–0.0004 in six fresh navigations. See performance.md. |
-| QA-04 | Responsive layout without overflow | PARTIAL | No horizontal overflow on tested fresh shells at 390/768/1440. See performance.md. |
+| QA-04 | Responsive layout without overflow | PARTIAL | No horizontal overflow on tested fresh shells at 390/768/1440 or at the end of the 48-image library in public WebKit at 1440 px. [Scope](performance.md). |
 | QA-05 | CSP and XSS regression | PASS (bounded desktop Chrome checks) | Project markup displayed as literal text. CSP blocked an off-origin request. [Evidence](keyboard-and-controls.md). |
 | QA-06 | No sensitive cache leakage | PASS (bounded local fixture) | [Chrome failure, storage, migration and cache observations](offline-recovery.md). |
 | QA-07 | Dependency security review | PASS (2026-11-23 npm advisory snapshot) | Clean Node 24 install and full npm audit reported zero known vulnerabilities after overriding Workbox’s build-only glob dependency to 14.0.6. Lint, tests and production worker generation passed. |

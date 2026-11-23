@@ -68,6 +68,8 @@ Chrome and WebKit 27.2 verified all 48 accessible asset buttons, the last tile a
 
 The empty-workspace Chromium lab reran on the same local candidate. Six cold navigations measured LCP from 1,388 to 1,560 ms, CLS up to 0.0004 and longest observed interaction-event duration from 80 to 112 ms. The candidate fit all sampled viewports and the drawer keyboard checks passed.
 
+[Pages run 45224109099](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45224109099) published the fix as `95d5acd`, build `2026-11-23T17:07:47.117Z`. Chrome used a populated project already stored under the old public worker, then applied one explicit update. The new build reproduced the four candidate read counts and byte totals above, exposed all 48 asset buttons, displayed version history, exported the selected original with matching SHA-256 and reopened the library offline. Public WebKit repeated the thumbnail, selection, editor, byte-exact export and offline checks and reached the final thumbnail at 1440 px without horizontal document overflow.
+
 ## Field measurements and launch policy
 
 Test the published workspace URL through [PageSpeed Insights](https://pagespeed.web.dev/) or the [CrUX API](https://developer.chrome.com/docs/crux/api). Record the URL, phone and desktop form factors, collection dates, and P75 LCP, INP and CLS when URL-level data is available. This repository shares its GitHub Pages origin with other paths. Origin-level measurements describe that combined traffic and belong in the release record as context.
