@@ -29,3 +29,41 @@ input, select, textarea {
   font: inherit;
   font-size: max(1rem, 16px);
 }
+
+.studio-layout details > summary {
+  cursor: pointer;
+  min-block-size: 44px;
+  padding-block: 12px;
+}
+
+.studio-layout label:has(> input[type="checkbox"]) {
+  align-items: center;
+  display: flex;
+  gap: 6px;
+  min-block-size: 44px;
+}
+
+.studio-header .studio-icon-button {
+  flex: 0 0 44px;
+}
+
+.studio-header .studio-language {
+  flex-shrink: 0;
+  min-inline-size: 3.5rem;
+}
+
+@media (max-width: 767px) {
+  .studio-header-actions {
+    flex-shrink: 0;
+  }
+
+  .studio-header .studio-byok {
+    display: none;
+  }
+}
+
+@media (max-width: 359px) {
+  .studio-header .studio-brand-mark {
+    display: none;
+  }
+}
