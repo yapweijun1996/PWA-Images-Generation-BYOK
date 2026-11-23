@@ -50,33 +50,35 @@ export function useCreation(studio: StudioState, projectId: string, t: Text, loc
     {estimate && <output>{t('Estimated image output','预计图片输出费用')} · {estimate.currency} {(estimate.amountPerImage * count).toFixed(5)} {t('(excludes input)','（不含输入费用）')}</output>}
     <p>{t('Usage is billed to your OpenAI account.','费用由你的 OpenAI 账户支付。')}</p>
   </section>
-  const composer = <form onSubmit={e => { e.preventDefault(); void submit() }}>
-    <label>{t('Prompt','提示词')}<textarea disabled={!draft} value={prompt} onChange={e => setPrompt(e.target.value)} required rows={3}
+  const composer = <form className="creation-form" onSubmit={e => { e.preventDefault(); void submit() }}>
+    <label className="creation-prompt">{t('Prompt','提示词')}<textarea disabled={!draft} value={prompt} onChange={e => setPrompt(e.target.value)} required rows={3}
       placeholder={t('Describe your image…','描述你想生成的图片…')} /></label>
-    <PromptEnhancer prompt={prompt} locale={locale} onApply={setPrompt} />
-    <label>{t('Add reference','添加参考图')}<input type="file" accept="image/png,image/jpeg,image/webp" multiple disabled={busy || !draft} onChange={e => {
-      const files = Array.from(e.target.files ?? [])
-      e.target.value = ''
-      if (!files.length || importing.current) return
-      if (files.length + references.length > (model?.maxReferenceImages ?? 0)) { studio.setError('Too many references.'); return }
-      setBusy(true)
-      const release = registerUpdateGuard('draft')
-      importing.current = (async () => {
-        const ids = [...references]
-        for (const file of files) {
-          const asset = await importReference(projectId,file)
-          ids.push(asset.id)
-          change({ edit: undefined, referenceAssetIds: [...ids] })
-        }
-      })().catch(error => studio.setError(error.message)).finally(() => {
-        release()
-        importing.current = null
-        setBusy(false)
-        studio.refresh()
-      })
-    }} /></label>
-    {references.map((id,index) => <button key={id} disabled={busy} type="button" onClick={() => change({ edit: undefined, referenceAssetIds: references.filter(item => item !== id) })}>{t('Remove reference','移除参考图')} {index + 1}</button>)}
-    <button type="submit" disabled={busy || !prompt.trim() || !model || !studio.project}>{busy ? t('Generating…','生成中…') : t('Generate image','生成图片')}{count > 1 && ' × '+count}</button>
+    <button className="creation-submit" type="submit" disabled={busy || !prompt.trim() || !model || !studio.project}>{busy ? t('Generating…','生成中…') : t('Generate image','生成图片')}{count > 1 && ' × '+count}</button>
+    <details className="creation-tools"><summary>{t('Prompt tools and references','提示词工具与参考图')}{references.length > 0 && ` (${references.length})`}</summary>
+      <PromptEnhancer prompt={prompt} locale={locale} onApply={setPrompt} />
+      <label>{t('Add reference','添加参考图')}<input type="file" accept="image/png,image/jpeg,image/webp" multiple disabled={busy || !draft} onChange={e => {
+        const files = Array.from(e.target.files ?? [])
+        e.target.value = ''
+        if (!files.length || importing.current) return
+        if (files.length + references.length > (model?.maxReferenceImages ?? 0)) { studio.setError('Too many references.'); return }
+        setBusy(true)
+        const release = registerUpdateGuard('draft')
+        importing.current = (async () => {
+          const ids = [...references]
+          for (const file of files) {
+            const asset = await importReference(projectId,file)
+            ids.push(asset.id)
+            change({ edit: undefined, referenceAssetIds: [...ids] })
+          }
+        })().catch(error => studio.setError(error.message)).finally(() => {
+          release()
+          importing.current = null
+          setBusy(false)
+          studio.refresh()
+        })
+      }} /></label>
+      {references.map((id,index) => <button key={id} disabled={busy} type="button" onClick={() => change({ edit: undefined, referenceAssetIds: references.filter(item => item !== id) })}>{t('Remove reference','移除参考图')} {index + 1}</button>)}
+    </details>
   </form>
   return {
     composer, inspector, setPrompt, draft, changeDraft: change, flushDraft,
