@@ -1,0 +1,182 @@
+# Coding Agent Handoff
+
+> Status: **Planning.** The repository has no application code. This file tells a coding agent how to start Phase 1 without re-discovering the project.
+> The module layout and interfaces below are a **proposal** for the agent to follow or improve. Where it improves on them, update the docs in the same change.
+
+## 1. Read First (in order)
+
+1. `README.md` — vision, studios, core features.
+2. `docs/DESIGN.md` — architecture, stack, deployment, PWA profile.
+3. `docs/SPEC.md` — requirements, MVP scope, non-functional requirements.
+4. `docs/UIUX.md` — design system and **Visual Anchor V1** (`docs/ui/anchors/anchor-v1-desktop.webp`).
+5. `docs/TASK.md` — the task list this handoff expands.
+6. `docs/ROADMAP.md` — phases and risks.
+
+If these disagree, the order of trust is: the code and passing tests, then explicit owner decisions (marked "owner-decided" in the docs), then the docs. Do not guess a decision the owner has not made. Record it as a question instead.
+
+## 2. Fixed Decisions (do not change without the owner)
+
+| Area | Decision |
+|------|----------|
+| Product | Browser-first, local-first, BYOK AI image creation PWA with six studios on one shared engine |
+| Stack | React + TypeScript + Vite |
+| Hosting | GitHub Pages, deployed by a GitHub Actions workflow, served under the sub-path `/PWA-Images-Generation-BYOK/` |
+| Backend | None. No accounts, no server sync, no hosted proxy |
+| Storage | IndexedDB for metadata, OPFS for image files where supported |
+| First provider | OpenAI |
+| First studio (Phase 2) | Manga & Comics |
+| PWA profile | `STATIC_OFFLINE` under `pwa:product-standard` v1.1.0 |
+| Install and browser targets | iPhone Safari Home Screen, Android Chrome, desktop Chrome and Edge. Desktop Safari and Firefox are ordinary web pages with no install guarantee |
+| License | Apache-2.0 |
+| UI direction | Canvas-first workspace, built toward Visual Anchor V1 |
+
+## 3. Rules of Engagement
+
+- **Minimal diff.** Do only what the current task needs.
+- **No fake results.** Do not present mock output as working behavior. Label any mock clearly and keep it out of the production path.
+- **Evidence before claims.** A task is `DONE` only with evidence: code, a passing test, or a recorded run. Say `NOT RUN` or `BLOCKED` when that is the truth.
+- **Secrets.** Never commit an API key. Never log one. Never put one in an export, a cache, or telemetry.
+- **No deploy, merge, or push** unless the owner says so for that action. Commit locally on a branch first.
+- **Possibly billed requests are never retried automatically.** A timeout is shown to the user as uncertain.
+- **UI taste gate.** Machine checks do not prove a UI is good. View real screenshots at 390x844, 768x1024, and 1440x900 before calling any screen done. Compare against the anchor. Fit and overflow metrics do not prove good composition.
+- **Do not copy** the mockup's pictures or its placeholder text (model name, prices) into the product.
+
+## 4. Proposed Module Layout
+
+```text
+src/
+  app/            App shell, routing, providers, theme, update prompt
+  engine/         Shared generation engine (no UI)
+    providers/      ProviderAdapter interface + one folder per provider
+    queue/          Generation queue and job state machine
+    history/        Versions and provenance
+    assets/         Asset library, reference manager
+    storage/        IndexedDB schema/migrations, OPFS access, backup/import
+    export/         Image and project export
+    secrets/        BYOK key handling
+    prompt/         Prompt builder, enhancement
+  studios/        One folder per studio; configuration and tools only
+    manga/  education/  movie/  commercial/  uiux/  interior/
+  ui/             Shared components (workspace, canvas, composer, inspector, nav)
+  pwa/            Manifest helpers, service worker, install guidance
+public/           Icons, static assets
+docs/             Project documents
+.github/workflows/  Pages deploy workflow
+```
+
+Dependency direction: `studios` and `ui` depend on `engine`. `engine` depends on nothing in `ui` or `studios`. `engine/providers/*` are the only code that talks to a provider API.
+
+## 5. Proposed Engine Contracts (sketch)
+
+These are sketches. Finalize the exact types in T-104 and write them into `docs/DESIGN.md`.
+
+```ts
+interface ProviderAdapter {
+  id: string;
+  getCapabilities(): Promise<ProviderCapabilities>; // models, sizes, quality, reference support, masks, cost
+  generate(req: GenerationRequest, signal: AbortSignal): Promise<GenerationResult>;
+}
+
+type JobStatus = 'queued' | 'running' | 'succeeded' | 'failed' | 'uncertain';
+// 'uncertain' = a timeout or lost response where the provider may have billed. Never auto-retried.
+```
+
+Capabilities come from the adapter, never from hardcoded assumptions in the UI. The UI disables unsupported options and explains why.
+
+## 6. Task Checklists (Phase 1)
+
+Use the IDs from `docs/TASK.md`. Update the status there as you go, with evidence.
+
+### T-101 PWA shell
+- [ ] Vite + React + TypeScript project created; `base` set to `/PWA-Images-Generation-BYOK/`.
+- [ ] Manifest with stable `id`, `start_url`, `scope`, 192/512 and maskable icons, all under the sub-path.
+- [ ] Service worker registered with scope under the sub-path.
+- [ ] `viewport-fit=cover`, safe-area insets, theme color for light and dark.
+- [ ] Builds with no errors; installable in a browser; opens offline after first load.
+- Evidence: build log, installability check, offline cold-start result. Test IDs INS-01 to INS-05, OFF-01.
+
+### T-102 Update flow
+- [ ] A new service worker waits and shows a visible, accessible update prompt.
+- [ ] Activation is blocked while a draft is dirty or a job is running.
+- [ ] Duplicate clicks are ignored; the page reloads once after activation.
+- Evidence: SW-05, SW-06, SW-08, SW-09, A11Y-08 executed.
+
+### T-103 BYOK settings
+- [ ] User can enter, replace, and remove a key.
+- [ ] Session-only is the default; persisting is an explicit user choice with a warning.
+- [ ] The key never appears in exports, logs, history, or any cache.
+- Evidence: test that searches exports, logs, and cache contents for the key string and finds none. OFF-08, QA-06.
+
+### T-104 Provider adapter + OpenAI
+- [ ] First verify browser-direct calls to the OpenAI image API work (CORS). Record the result in `DESIGN.md`.
+- [ ] If direct calls are blocked, stop and ask the owner about the user-controlled proxy. Do not build a hosted proxy.
+- [ ] Adapter interface finalized and documented.
+- [ ] One real image is generated end to end with a real key. A mock does not satisfy this.
+- Evidence: recorded real run (date, model, result); no key in the record.
+
+### T-105 Model selector
+- [ ] Options come from `getCapabilities()`.
+- [ ] Unsupported options are disabled with a plain explanation.
+
+### T-106 Text-to-Image and queue
+- [ ] Job state machine implemented, including `uncertain`.
+- [ ] Job survives a reload (durable).
+- [ ] On failure the prompt and references are kept.
+- [ ] No automatic retry of a possibly billed request.
+
+### T-107 References and Image-to-Image
+- [ ] Upload and manage reference images.
+- [ ] A reference measurably affects the request and is stored with the job.
+
+### T-108 Local storage
+- [ ] IndexedDB schema with versioned migrations; OPFS for files where supported, with a fallback.
+- [ ] Quota-exceeded and eviction are handled with a clear message.
+- Evidence: OFF-05, OFF-06, OFF-07.
+
+### T-109 Version history
+- [ ] Every generation and edit is a new version with prompt, model, settings, and time.
+- [ ] Regenerating never overwrites an earlier version (non-destructive).
+
+### T-110 Export
+- [ ] Download an image at its real size and format.
+- [ ] Project backup export and import keep data intact; the key is never included.
+- [ ] 4K is offered only if the selected model supports it.
+
+### T-111 Main layout
+- [ ] Built as real HTML/CSS following Visual Anchor V1, after T-114 decisions.
+- [ ] Desktop three panels; tablet drawers; mobile bottom tabs (Studio, Create, Assets, Settings).
+- [ ] Keyboard navigation, visible focus, reduced motion, light and dark themes.
+- [ ] Taste gate passed with real screenshots at 390x844, 768x1024, 1440x900.
+
+### T-113 GitHub Pages deploy
+- [ ] Actions workflow builds and publishes to Pages.
+- [ ] The installed app works from the Pages URL, including offline.
+- [ ] Previous build kept for rollback (REL-04).
+- Run only when the owner authorizes deployment.
+
+### T-114 Anchor differences
+- [ ] Ask the owner about each item in `docs/UIUX.md` section 1a and record the answers. Do not decide them yourself.
+
+### T-112 Phase 1 release check
+- [ ] Applicable P0 tests from the PWA standard executed, with evidence bound to build, environment, and timestamp.
+- [ ] Gates G1 to G4 reported. `NOT_RUN` and `BLOCKED` never count as `PASS`.
+- [ ] iOS claims backed by a real iPhone standalone check.
+
+## 7. Open Questions for the Owner
+
+- T-114 anchor differences (seven items in `docs/UIUX.md`).
+- Whether a second provider (Gemini) joins Phase 1.
+- Whether the user-controlled proxy is built in Phase 1 (decided by the CORS result in T-104).
+- Order of studios after Manga.
+
+## 8. Definition of Done for a Task
+
+1. The acceptance checks above are met.
+2. Evidence is recorded (test output, build log, or screenshot paths).
+3. `docs/TASK.md` is updated; any design change is written into the matching doc.
+4. No secret, mock, or placeholder is left in the production path.
+5. Work is committed locally on a branch. Push and deploy wait for the owner.
+
+## 9. Report Format When Finishing
+
+Current goal, what was achieved, files changed, verification (`PASS` / `FAIL` / `NOT RUN` / `BLOCKED` per check), what remains, the next task, and the final destination of the project.

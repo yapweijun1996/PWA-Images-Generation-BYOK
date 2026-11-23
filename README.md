@@ -136,6 +136,7 @@ All documents are in **Planning** status.
 | [docs/SPEC.md](docs/SPEC.md) | Requirements, studios, non-functional requirements, acceptance criteria |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Four phases, dependencies, risks |
 | [docs/TASK.md](docs/TASK.md) | Executable task list and next task |
+| [docs/AGENT_HANDOFF.md](docs/AGENT_HANDOFF.md) | Handoff for a coding agent: fixed decisions, module layout, per-task checklists |
 
 ## License
 
