@@ -15,7 +15,7 @@ const site = 'https://yapweijun1996.github.io/PWA-Images-Generation-BYOK/'
 const edge = '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge'
 const profile = await mkdtemp(path.join(tmpdir(), 'studio-edge-profile-'))
 const out = 'macos-edge-evidence'
-const domain = '/Library/Managed Preferences/com.microsoft.Edge'
+const preferences = '/Library/Managed Preferences/com.microsoft.Edge.plist'
 const policy = 'WebAppInstallForceList'
 const draft = 'macOS Edge offline installation check'
 const evidence = { site, os: release(), time: new Date().toISOString(), steps: [] }
@@ -31,10 +31,16 @@ let context, page, policyWritten = false
 try {
   assert(existsSync(edge), 'Preinstalled Edge executable is unavailable')
   assert(!appShim(), 'The hosted macOS user already has an Images Studio app')
-  const plist = '<dict><key>url</key><string>' + site + '</string><key>default_launch_container</key><string>window</string><key>create_desktop_shortcut</key><true/></dict>'
-  execFileSync('sudo', ['/usr/bin/defaults', 'write', domain, policy, '-array', plist])
+  assert(!existsSync(preferences), 'The hosted runner already has managed Edge preferences')
+  const plist = '<?xml version="1.0" encoding="UTF-8"?><plist version="1.0"><dict><key>' + policy + '</key><array>'
+    + '<dict><key>url</key><string>' + site + '</string><key>default_launch_container</key><string>window</string>'
+    + '<key>create_desktop_shortcut</key><true/></dict></array></dict></plist>'
+  const policySource = path.join(profile, 'managed-preferences.plist')
+  await writeFile(policySource, plist)
+  execFileSync('/usr/bin/plutil', ['-lint', policySource])
+  execFileSync('sudo', ['/usr/bin/install', '-m', '0644', policySource, preferences])
   policyWritten = true
-  const args = ['--disable-features=msEdgeFirstRunExperience', '--window-size=1440,900']
+  const args = ['--disable-features=msEdgeFirstRunExperience', '--enable-devtools-pwa-handler', '--window-size=1440,900']
   const launch = offline => chromium.launchPersistentContext(profile, {
     executablePath: edge, headless: false, viewport: { width:1440, height:900 },
     args: offline ? [...args, '--proxy-server=http://127.0.0.1:1', '--proxy-bypass-list=<-loopback>', '--disable-quic'] : args,
@@ -55,6 +61,15 @@ try {
   await concurrent.close()
   evidence.build = expected
   evidence.steps.push('Public release opened in Edge and an independent tab recovered the stored draft')
+  if (!appShim()) {
+    const session = await context.newCDPSession(page)
+    try {
+      await session.send('PWA.install', { manifestId: site })
+      await session.send('PWA.changeAppUserSettings', { manifestId: site, displayMode: 'standalone' })
+      evidence.steps.push('Edge accepted PWA installation through DevTools')
+    } catch (error) { evidence.devtoolsInstall = String(error) }
+    finally { await session.detach() }
+  }
   let shim
   for (let attempt=0; attempt<35 && !shim; attempt++) {
     shim = appShim()
@@ -63,8 +78,10 @@ try {
   if (shim) evidence.steps.push('macOS app shim appeared after managed installation')
   await context.close()
   context = await launch(true)
+  const probe = await context.newPage()
+  await assert.rejects(probe.goto(new URL('/macos-edge-network-test-' + Date.now(),site).href), /ERR_PROXY_CONNECTION_FAILED|ERR_TUNNEL_CONNECTION_FAILED/)
+  await probe.close()
   page = await context.newPage()
-  await assert.rejects(page.goto(new URL('/macos-edge-network-test-' + Date.now(),site).href), /ERR_PROXY_CONNECTION_FAILED|ERR_TUNNEL_CONNECTION_FAILED/)
   await page.goto(site)
   await page.waitForFunction(value => document.querySelector('.creation-prompt textarea')?.value === value, draft)
   assert((await page.locator('footer').innerText()).includes(expected))
@@ -93,5 +110,5 @@ try {
   await writeFile(out + '/result.json',JSON.stringify(evidence,null,2))
   console.log(JSON.stringify(evidence,null,2))
   await context?.close().catch(()=>{})
-  if (policyWritten) execFileSync('sudo',['/usr/bin/defaults','delete',domain,policy])
+  if (policyWritten && existsSync(preferences)) execFileSync('sudo', ['/usr/bin/unlink', preferences])
 }
