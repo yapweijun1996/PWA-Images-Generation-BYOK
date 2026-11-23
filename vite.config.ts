@@ -85,6 +85,6 @@ export default defineConfig(({ command }) => {
         },
       }),
     ],
-    test: { environment: 'jsdom' },
+    test: { environment: 'jsdom', maxWorkers: 2 },
   }
 })
