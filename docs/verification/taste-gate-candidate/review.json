@@ -1,0 +1,17 @@
+{
+  "session_id": "taste-3aa3150-20261123",
+  "date": "2026-11-23",
+  "source_commit": "3aa3150934d07e6c6fd9f17a52658ee46b2b17e8",
+  "baseline_commit": "3918d98",
+  "build_id": "v0.1.0 · 2026-11-23T14:46:08.954Z",
+  "reviewer": "primary agent, separate from patch author",
+  "review_scope": "actual Chrome screenshots, populated Create and mobile Home",
+  "scores": {"hierarchy": 19, "spacing_alignment": 17, "typography": 13, "colour_contrast": 13, "consistency": 14, "responsive": 14},
+  "total": 90,
+  "impact": 8,
+  "originality": 8,
+  "vetoes": {"impact": false, "distinctness": false, "asset": false, "claim": false},
+  "decision": "visual assessment pass for reviewed screenshot states; full gate incomplete",
+  "privacy": "local synthetic image and prompt, no provider request",
+  "limitations": ["No physical iPhone or screen reader", "Populated WebKit phone screenshots not captured", "No full contrast, axe-core, browser zoom or state audit", "No deployed-site verification"]
+}
