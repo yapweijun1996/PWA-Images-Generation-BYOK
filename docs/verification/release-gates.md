@@ -35,10 +35,10 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | Test ID | Assertion | Result | Evidence or remaining acceptance check |
 |---|---|---|---|
 | INS-01 | HTTPS and manifest discovery | NOT_RUN | Loopback manifest discovery observed; deployed HTTPS origin pending. |
-| INS-02 | Stable manifest ID across releases | NOT_RUN | Compare manifest IDs across two published builds. |
-| INS-03 | Valid start_url and scope | NOT_RUN | Local manifest ID, scope and start URL matched the repository subpath; repeat on Pages. |
+| INS-02 | Stable manifest ID across releases | PASS (two live builds) | Both release manifests retained the same repository ID. |
+| INS-03 | Valid start_url and scope | PASS (live Chrome) | The published manifest subpath matched the artifact and the installed app launched there. |
 | INS-04 | 192/512 icons and maskable rendering | NOT_RUN | Inspect installed icon crop and safe zone on each install target. |
-| INS-05 | Standalone launch | FAIL | Chrome CDP installation launched a target where standalone media query returned false (E1). |
+| INS-05 | Standalone launch | PASS (macOS Chrome) | The subsequent installed standalone-window check supersedes the earlier tab-only result. See the public upgrade observation below. |
 | INS-06 | iOS manual installation guidance | NOT_RUN | Walk through Add to Home Screen on a physical iPhone. |
 | INS-07 | Unsupported install prompt fallback | NOT_RUN | Exercise ordinary web fallback in Firefox and Safari. |
 | INS-08 | Deep-link launch after installation | NOT_RUN | Launch installed app from a supported deep link. |
@@ -54,7 +54,7 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | SW-10 | Offline update failure preserves old build | PASS (local Chrome, two builds) | [Build-bound integrity and recovery observations](shell-integrity.md). |
 | SW-11 | Rollback from invalid build | NOT_RUN | Simulate a corrupt build and restore known-good bytes. |
 | SW-12 | Unknown-route recovery | PASS (local Chrome, two builds) | [Build-bound integrity and recovery observations](shell-integrity.md). |
-| OFF-01 | Offline shell loads | NOT_RUN | Local Chrome tab rendered cached shell after server shutdown; standalone result incomplete (E1). |
+| OFF-01 | Offline shell loads | PASS (live Chrome) | After an explicit installed-client update, offline refresh retained build B in standalone mode. |
 | OFF-02 | Offline network error detected | NOT_RUN | Disconnect during a real provider request and inspect error/retained inputs. |
 | OFF-03 | Offline server transaction not falsely committed | NOT_RUN | Confirm a lost provider response is never shown as a successful job. |
 | OFF-04 | Durable pending operation recovery | NOT_RUN | Restart browser mid-operation; prove pending work survives and is never billed twice. |
@@ -76,20 +76,20 @@ All 60 cases below are relevant to the declared product or require an explicit j
 | A11Y-04 | Contrast requirements | NOT_RUN | Measure contrast of text, controls, focus and error states in both themes. |
 | A11Y-05 | Touch target spacing | NOT_RUN | Measure actual target spacing at each breakpoint. |
 | A11Y-06 | Reduced-motion preference | NOT_RUN | Enable reduced motion and inspect transitions and scrolling. |
-| A11Y-07 | Modal focus trapping and restoration | NOT_RUN | Tab through each dialog, dismiss and confirm focus restoration. |
+| A11Y-07 | Modal focus trapping and restoration | PASS (Chromium drawers) | Four drawer cases verified keyboard containment, Escape and focus restoration. See performance.md. |
 | A11Y-08 | Accessible update status announcements | NOT_RUN | Observe update and blocked-update announcements with a screen reader. |
-| QA-01 | LCP target | NOT_RUN | Collect lab LCP and separately report field P75; field sample insufficient. |
-| QA-02 | INP target | NOT_RUN | Measure interaction latency and separately report field INP P75. |
-| QA-03 | CLS target | NOT_RUN | Measure layout shifts through core flow and separately report field CLS P75. |
-| QA-04 | Responsive layout without overflow | NOT_RUN | Mobile backup exercised; run dedicated overflow assertions across target dimensions. |
+| QA-01 | LCP target | LAB PASS; FIELD INSUFFICIENT_DATA | Six fresh navigations measured LCP 1260–1368 ms in the bounded lab. See performance.md. |
+| QA-02 | INP target | LAB ONLY; FIELD INSUFFICIENT_DATA | Worst observed interaction event duration was 120 ms. The bounded sample does not establish field INP P75. |
+| QA-03 | CLS target | LAB PASS; FIELD INSUFFICIENT_DATA | Observed CLS 0.0003–0.0004 in six fresh navigations. See performance.md. |
+| QA-04 | Responsive layout without overflow | PARTIAL | No horizontal overflow on tested fresh shells at 390/768/1440. See performance.md. |
 | QA-05 | CSP and XSS regression | NOT_RUN | CSP present in production output; execute defensive rendering and CSP checks on release candidate. |
 | QA-06 | No sensitive cache leakage | NOT_RUN | Fixture credential absent from inspected E3 caches and E4 backup; full release cache audit pending. |
 | QA-07 | Dependency security review | NOT_RUN | Review locked production and build dependencies and document dispositions. |
 | QA-08 | Recoverable runtime errors | NOT_RUN | Observe recovery paths for invalid credentials, network errors, quota and damaged restores. |
 | REL-01 | Clean production deployment | PASS (first live release) | Workflow 45192152435, live HTTPS entry, nine matching artifact files. |
-| REL-02 | Old-to-new build upgrade | NOT_RUN | Preview update observed (E2); repeat on installed Pages client. |
+| REL-02 | Old-to-new build upgrade | PASS (live Chrome) | Installed A stayed on A until explicit activation, then displayed B after one navigation. |
 | REL-03 | Interrupted update recovery | NOT_RUN | Interrupt update discovery, download and activation; verify recovery. |
-| REL-04 | Rollback artifact available | NOT_RUN | Workflow requests retained immutable artifact; actual release artifact and rollback unverified. |
+| REL-04 | Rollback artifact available | PASS (live Pages) | A restore dispatch republished the exact nine files of A. A second restore republished the exact ten files of B. |
 | REL-05 | Release evidence completeness | NOT_RUN | Attach per-case test IDs, source/build digests, timestamps, environment and outcomes. |
 | REL-06 | Cross-browser test matrix | NOT_RUN | Complete declared device/browser matrix below. |
 | REL-07 | Monitoring and alert validation | NOT_RUN | Verify operator visibility of Pages failure and privacy-safe recovery instructions. |
@@ -102,3 +102,10 @@ GitHub Pages published commit `f4142674e1ebfa74c4722bbd0769824d3bf7d488` on 2026
 On macOS Chrome, the live HTTPS workspace generated one low-quality image via OpenAI (HTTP 200). Chrome decoded it at 1024 × 1024, reloaded the workspace, went offline, reloaded again, and downloaded the reopened image as PNG. The test used a temporary BYOK credential in an isolated browser context. No credential or image payload is included in this report. This verifies REL-01 and browser-tab offline access for this release. See [T-101](t101.md) for installed-window verification on the local production preview.
 
 To compare a subsequent release, download its `site-files` artifact and run `node scripts/verify-pages.mjs /path/to/site-files` from the repository.
+## Installed update and rollback drill
+
+On public GitHub Pages, Chrome 158.0.8127.37 on macOS installed build A (`2026-11-23T14:15:30.967Z`) in a fresh profile. The installed window reported standalone display mode. After [build B was published](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45192998855), the old UI stayed visible until the user clicked the update button. One main-frame navigation displayed B (`2026-11-23T14:20:07.985Z`). An offline reload retained the build and standalone mode. B's worker SHA-256 was `9ea30324b76f526d6d68bdabe0dcf80b22b84d7a648016912048b5287f1aa54b`. All ten public files matched its retained artifact.
+
+The [rollback dispatch](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45193373686) restored A from the previously retained artifact. All nine files matched the original A artifact at the live origin. The [restore-forward dispatch](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45193539228) returned the site to B. Both dispatches completed successfully.
+
+Additional device and lab results: [desktop browser compatibility](compatibility.md), [performance and keyboard checks](performance.md).
