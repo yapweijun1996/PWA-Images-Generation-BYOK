@@ -70,6 +70,7 @@ try {
   await shell('settings put system user_rotation 0')
   await page.waitForFunction(() => innerWidth < innerHeight)
   await shell('cmd connectivity airplane-mode enable')
+  await context.setOffline(true)
   await page.waitForFunction(() => !navigator.onLine)
   await assert.rejects(page.evaluate(url => globalThis.fetch(url), new URL('/android-offline-probe-' + Date.now(), site).href))
   const offline = await context.newPage()
