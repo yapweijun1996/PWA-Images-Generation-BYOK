@@ -17,6 +17,8 @@ Help points users to the share actions row when expanding More or View More. Web
 
 Hosted Android 15 Chrome verified the keyboard, rotation, native install prompt and offline launcher cold start on `83a4e07`. The launcher shortcut opened a new Chrome process in standalone mode and recovered the saved draft. [Android run 45272348092](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45272348092).
 
+Hosted Windows Server 2025 Chrome and Edge relaunched the live `83a4e07` build and draft offline in managed standalone windows. Stable Firefox 160 verified all 13 deployed files and reopened the same descriptor and saved draft after the exact artifact's loopback origin stopped. [Chrome and Edge run](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45279458897), [Firefox run](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45279705873).
+
 Chrome, Playwright WebKit and Playwright Firefox replayed the exact transition from `7aaefff` to `83a4e07`. An unsaved field blocked activation across tabs. After activation the passive tab restored a ZIP, downloaded the original image offline and reloaded only when requested. [Two-tab acceptance](update-guards.md#two-tab-update-to-the-share-actions-release).
 
 Public Chrome completed one real OpenAI masked edit, compared 836,219 protected pixels with the source, verified reviewed export and downloaded the same PNG after offline reload. [Live edit acceptance](advanced-generation.md#public-masked-edit-on-the-share-actions-release).

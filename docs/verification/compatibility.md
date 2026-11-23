@@ -73,9 +73,13 @@ Windows Chrome 157.0.8103.79 and Edge 157.0.4341.60 repeated the managed-install
 
 [Run 45220327400](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45220327400) repeated this check with the same browser versions and both reports recorded the exact public build `2026-11-23T16:45:21.339Z` and source revision `7cbb891fd801be73c95a869cb7af507d77232e88`. Each standalone window reopened the saved draft and remained controlled by the production scoped worker.
 
+[Run 45279458897](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45279458897) verified the current public `83a4e07` build in Chrome 157.0.8103.79 and Edge 157.0.4341.60 on Windows Server 2025. Both reports record zero installability errors, a policy-created Windows app shortcut, a failed uncached request in a fresh browser process and a worker-controlled standalone window that recovered the saved draft. The offline screenshots have SHA-256 `66eeb420f10a1ccecf4a1fbcab675b297ada8ca2ad6ef0cf5695ecd90dc00a30` for Chrome and `6ca9754830ed6dc73f54461758b1a9294655bba3faaef8831a6aabf89e415214` for Edge. Consumer installation and Windows client-edition compatibility remain open.
+
 ## Windows stable Firefox
 
 [Hosted run 45198772781](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45198772781) verified the runner's preinstalled release-channel Firefox 160.0 on Windows Server 2025 with a fresh profile and a local production build from source `4d1e124`. A normal browser tab persisted the project draft in IndexedDB. An online navigation established worker control. After closing the local HTTP server and confirming the TCP connection was refused, reloading replaced the document and recovered the same build and draft. This tests ordinary browser use with the app origin offline.
+
+[Hosted run 45279705873](https://github.com/yapweijun1996/PWA-Images-Generation-BYOK/actions/runs/45279705873) downloaded the retained `83a4e07` release and matched all 13 files against the public site. Release-channel Firefox 160.0 replayed those files on loopback, confirmed the exact descriptor under worker control and saved a draft. After the origin stopped and a TCP probe confirmed it was unavailable, Firefox replaced the document and recovered the same build descriptor and draft in an ordinary tab.
 
 ## Android Chrome on an emulator
 
