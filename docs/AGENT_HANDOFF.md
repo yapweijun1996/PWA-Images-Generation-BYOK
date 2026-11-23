@@ -24,7 +24,7 @@ If these disagree, the order of trust is: the code and passing tests, then expli
 | Backend | None. No accounts, no server sync, no hosted proxy |
 | Storage | IndexedDB for metadata, OPFS for image files where supported |
 | First provider | OpenAI |
-| First studio (Phase 2) | Manga & Comics |
+| Studio order (Phase 2 onward) | Manga & Comics, Commercial Artwork, Interior Design, UI/UX Design, Movie & Cinematic, then Education |
 | PWA profile | `STATIC_OFFLINE` under `pwa:product-standard` v1.1.0 |
 | Install and browser targets | iPhone Safari Home Screen, Android Chrome, desktop Chrome and Edge. Desktop Safari and Firefox are ordinary web pages with no install guarantee |
 | License | Apache-2.0 |
@@ -113,6 +113,8 @@ Use the IDs from `docs/TASK.md`. Update the status there as you go, with evidenc
 - [ ] If direct calls are blocked, stop and ask the owner about the user-controlled proxy. Do not build a hosted proxy.
 - [ ] Adapter interface finalized and documented.
 - [ ] One real image is generated end to end with a real key. A mock does not satisfy this.
+- [ ] The real key comes from `OPENAI_API_KEY` in a local, git-ignored `.env` that the owner fills in. Read it only in dev and test scripts (never use a `VITE_` prefix, so it is never bundled). Never print it, commit it, or copy it into docs or logs. If it is empty, mark the real run `NOT RUN` and ask the owner.
+- [ ] If browser-direct calls are blocked by CORS, stop and report the result to the owner. Do not choose a proxy design yourself.
 - Evidence: recorded real run (date, model, result); no key in the record.
 
 ### T-105 Model selector
@@ -169,7 +171,6 @@ Use the IDs from `docs/TASK.md`. Update the status there as you go, with evidenc
 
 - Whether a second provider (Gemini) joins Phase 1.
 - Whether the user-controlled proxy is built in Phase 1 (decided by the CORS result in T-104).
-- Order of studios after Manga.
 
 ## 8. Definition of Done for a Task
 
