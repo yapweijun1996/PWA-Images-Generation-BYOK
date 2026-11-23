@@ -209,9 +209,14 @@ try {
     if (error.message !== 'Timed out waiting for Open as Web App' || !await installDialog()) throw error
     await screenshot('stalled-install')
     await writeFile(join(folder, 'stalled-install.xml'), await send('GET', '/source'))
-    const cancel = await find('visible == true AND type == "XCUIElementTypeButton" AND name == "Cancel"')
-    if (!cancel) throw error
-    await tap(cancel)
+    const cancel = await find('visible == true AND enabled == true AND type == "XCUIElementTypeButton" AND name == "Cancel"')
+    if (cancel) {
+      await tap(cancel)
+    } else {
+      assert.equal(await execute('terminateApp', {bundleId:safari}), true)
+      execFileSync('xcrun', ['simctl', 'openurl', SIMULATOR_UDID, url])
+      await workspace()
+    }
     await waitFor('installation confirmation to dismiss', async () => !await installDialog())
     await openInstallDialog('share-sheet-retry')
     step('Reopened the native confirmation after its app metadata stayed empty')
