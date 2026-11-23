@@ -204,3 +204,5 @@ Current goal, what was achieved, files changed, verification (`PASS` / `FAIL` / 
 
 - Browser testing needs an explicit fault at each update stage. Dropping the activation message reproduced a permanently disabled update button even when a valid candidate was waiting. A bounded wait for worker control and a user-driven retry kept the old build available while preserving the saved draft.
 - Inspect computed values in the built app on each target engine. In mobile WebKit, the workspace's inherited font shorthand overrode the 16px baseline. Browser layout checks now verify the actual control size and long-page navigation rather than relying on the global declaration.
+
+- Android Chrome can accept the install request and then offer a separate system confirmation to pin a shortcut. Follow the native prompts and check the resulting window's display mode and offline storage. An accepted request alone cannot establish WebAPK registration or standalone behavior.
